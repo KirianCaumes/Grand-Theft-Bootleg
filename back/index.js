@@ -1,1 +1,0 @@
-console.log("Grand Theft Bootleg")

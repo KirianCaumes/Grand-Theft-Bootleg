@@ -1,7 +1,7 @@
-import React from 'react'
-import Head from 'next/head'
+import React from "react"
+import Head from "next/head"
 // @ts-ignore
-import styles from 'styles/pages/index.module.scss'
+import styles from "styles/pages/index.module.scss"
 import { GlobalProps } from "pages/_app"
 
 /**

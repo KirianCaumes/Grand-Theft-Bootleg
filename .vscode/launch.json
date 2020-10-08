@@ -34,7 +34,7 @@
             "preLaunchTask": "front"
         },
         {
-            "name": "🌐 NodeJS",
+            "name": "🦕 Deno",
             "request": "launch",
             "runtimeArgs": [
                 "start"

@@ -16,7 +16,6 @@ export default function MyApp({ Component, pageProps }) {
     const globalProps = {
         appname: "Grand Theft Bootleg"
     }
-
     return (
         <>
             <header>
