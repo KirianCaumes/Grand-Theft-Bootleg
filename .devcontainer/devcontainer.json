@@ -39,10 +39,10 @@
     "fudge.auto-using",
     "k--kato.docomment",
     "gruntfuggly.todo-tree",
-    "dennismaxjung.vscode-dotnet-auto-attach",
     "ofhumanbondage.react-proptypes-intellisense",
     "sibiraj-s.vscode-scss-formatter",
     "firefox-devtools.vscode-firefox-debug",
-    "msjsdiag.debugger-for-chrome"
+    "msjsdiag.debugger-for-chrome",
+    "denoland.vscode-deno"
   ]
 }

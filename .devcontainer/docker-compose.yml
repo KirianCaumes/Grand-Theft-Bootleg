@@ -19,7 +19,25 @@ services:
     networks:
       - backend_serv
     depends_on:
-      - db
+      - mongo
+
+  mongo:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: gtb
+      MONGO_INITDB_ROOT_PASSWORD: gtb
+    ports:
+      - 27017:27017
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: gtb
+      ME_CONFIG_MONGODB_ADMINPASSWORD: gtb
   # db:
   #   image: "mcr.microsoft.com/mssql/server:2017-CU11-ubuntu"
   #   environment:
