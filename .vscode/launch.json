@@ -35,16 +35,15 @@
         },
         {
             "name": "🦕 Deno",
+            "type": "node",
             "request": "launch",
+            "cwd": "${workspaceFolder}/back",
+            "runtimeExecutable": "denon",
             "runtimeArgs": [
                 "start"
             ],
-            "cwd": "${workspaceFolder}/back",
-            "runtimeExecutable": "npm",
-            "skipFiles": [
-                "<node_internals>/**"
-            ],
-            "type": "pwa-node",
-        }
+            "port": 5000,
+            "console": "integratedTerminal"
+        },
     ]
 }

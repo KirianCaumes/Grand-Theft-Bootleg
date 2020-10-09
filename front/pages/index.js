@@ -1,8 +1,9 @@
-import React from "react"
+import React, { useEffect } from "react"
 import Head from "next/head"
 // @ts-ignore
 import styles from "styles/pages/index.module.scss"
 import { GlobalProps } from "pages/_app"
+import BootlegManager from "request/managers/bootlegManager"
 
 /**
  * @typedef {object} IndexProps
@@ -14,6 +15,15 @@ import { GlobalProps } from "pages/_app"
  * @param {GlobalProps & IndexProps} props 
  */
 export default function Index({ test = "qsdqsd", ...props }) {
+    //Component did mount
+    useEffect(() => {
+        (async () => {
+            const bootlegManager = new BootlegManager()
+            const bootlegs = await bootlegManager.getAll()
+            console.log("bootlegs")
+            console.log(bootlegs)
+        })()
+    }, [])
     return (
         <>
             <Head>

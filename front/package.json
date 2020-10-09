@@ -8,10 +8,13 @@
     "start": "next start"
   },
   "dependencies": {
+    "axios": "^0.20.0",
     "bulma": "^0.9.1",
     "bulma-extensions": "^6.2.7",
     "classnames": "^2.2.6",
-    "next": "9.5.3",
+    "http-proxy-middleware": "^1.0.5",
+    "next": "^9.5.4",
+    "office-ui-fabric-react": "^7.145.0",
     "postcss-flexbugs-fixes": "^4.2.1",
     "postcss-preset-env": "^6.7.0",
     "react": "16.13.1",
@@ -20,5 +23,7 @@
     "sass": "^1.26.11",
     "tailwindcss": "^1.8.10"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@creativebulma/bulma-tagsinput": "^1.0.3"
+  }
 }

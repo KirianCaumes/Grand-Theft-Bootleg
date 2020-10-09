@@ -4,7 +4,7 @@ import Document, { Html, Head, Main, NextScript } from 'next/document'
 /**
  * Base component to render base HTML
  * @extends {Document}
- * {@link https://nextjs.org/docs/advanced-features/custom-document}
+ * @link https://nextjs.org/docs/advanced-features/custom-document
  */
 export default class MyDocument extends Document {
     static async getInitialProps(ctx) {

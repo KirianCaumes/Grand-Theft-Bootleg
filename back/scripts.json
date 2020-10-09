@@ -1,0 +1,33 @@
+{
+    "$schema": "https://deno.land/x/denon/schema.json",
+    "allow": [
+        "run",
+        "net"
+    ],
+    "scripts": {
+        "start": {
+            "cmd": "deno run app.ts",
+            "desc": "run my app.ts file",
+            "tsconfig": "tsconfig.json"
+        }
+    },
+    "watcher": {
+        "interval": 350,
+        "exts": [
+            "js",
+            "jsx",
+            "ts",
+            "tsx",
+            "json"
+        ],
+        "match": [
+            "*.*",
+            "./*.*",
+            "./controllers/*.*"
+        ],
+        "skip": [
+            "*/.git/*"
+        ],
+        "legacy": false
+    }
+}
