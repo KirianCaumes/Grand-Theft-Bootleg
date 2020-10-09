@@ -35,15 +35,19 @@
         },
         {
             "name": "🦕 Deno",
-            "type": "node",
+            "type": "pwa-node",
             "request": "launch",
             "cwd": "${workspaceFolder}/back",
-            "runtimeExecutable": "denon",
+            "runtimeExecutable": "deno",
             "runtimeArgs": [
-                "start"
+                "run",
+                "--inspect-brk",
+                "--allow-net",
+                "app.ts"
             ],
-            "port": 5000,
-            "console": "integratedTerminal"
+            "console": "internalConsole",
+            "outputCapture": "std",
+            "attachSimplePort": 9229
         },
     ]
 }

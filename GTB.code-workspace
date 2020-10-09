@@ -1,15 +1,15 @@
 {
     "folders": [
         {
-            "name": "Front",
+            "name": "💻 Front",
             "path": "front"
         },
         {
-            "name": "Back",
+            "name": "🌐 Back",
             "path": "back"
         },
         {
-            "name": "root",
+            "name": "📁 root",
             "path": "."
         }
     ]
