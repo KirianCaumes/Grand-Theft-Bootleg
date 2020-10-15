@@ -1,5 +1,5 @@
 import { Router } from 'https://deno.land/x/oak/mod.ts'
-import { defaultController } from './_dep.ts'
+import { defaultController } from './_initialization.ts'
 
 const defaultRouter = new Router()
 

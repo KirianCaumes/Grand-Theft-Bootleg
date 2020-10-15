@@ -1,10 +1,10 @@
 import { Router } from 'https://deno.land/x/oak/mod.ts'
-import { bootlegController } from './_dep.ts'
+import { bootlegController } from './_initialization.ts'
 
 const bootlegRouter = new Router({ prefix: '/api/bootleg' })
 
 bootlegRouter
-    .get('/', bootlegController.getBootlegs.bind(bootlegController))
+    .get('/', bootlegController.getAllBootlegs.bind(bootlegController))
     .get('/:id', bootlegController.getBootleg.bind(bootlegController))
     .post('/', bootlegController.addBootleg.bind(bootlegController))
     .put('/:id', bootlegController.updateBootleg.bind(bootlegController))

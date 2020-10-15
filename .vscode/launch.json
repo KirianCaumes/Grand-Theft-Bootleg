@@ -41,8 +41,15 @@
             "runtimeExecutable": "deno",
             "runtimeArgs": [
                 "run",
+                "-c",
+                "tsconfig.json",
                 "--inspect-brk",
                 "--allow-net",
+                "--allow-read",
+                "--allow-env",
+                "--allow-write",
+                "--allow-plugin",
+                "--unstable",
                 "app.ts"
             ],
             "console": "internalConsole",
