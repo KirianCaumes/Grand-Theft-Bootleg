@@ -9,9 +9,13 @@ Pour cela, l'idée est de créer une plateforme collaborative sous forme d'une a
 ## Run dev
 
 Run Visual Studio Code
+
 File > Open Workspace > GTB.code-workspace (We need to do this beacuse of Deno Extension 😕)
+
 Install "ms-vscode-remote.remote-containers" extension
+
 Open Visual Code in Container : click green icon on bottom left screen, and choose "Open in Container"
+
 Wait for container to setup, and that's it
 
 ### Front
