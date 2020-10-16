@@ -20,16 +20,5 @@ export class InvalidEntityError extends Error {
          * @type {E} 
          */
         this.errorField = new (errorType)()
-
-        //Init errors from API into the object
-        for (const validationResult of content.validationResults) {
-            for (const memberName of validationResult.memberNames) {
-                if (this.errorField[memberName]) {
-                    this.errorField[memberName] += `, ${validationResult.errorMessage}`
-                } else {
-                    this.errorField[memberName] = validationResult.errorMessage
-                }
-            }
-        }
     }
 }

@@ -108,7 +108,7 @@ export default class ApiManager {
             switch (err.response.status) {
                 case 400:
                     const dataNotWellFormated = err.response.data?.errors?.find(x => x.code === "data_not_well_formated")
-                    if (dataNotWellFormated?.validationResults?.length) {
+                    if (dataNotWellFormated?.validationResults) {
                         setMessage({ message: dataNotWellFormated?.description })
                         return new InvalidEntityError({ content: dataNotWellFormated, errorType: this.errorType })
                     }

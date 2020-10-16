@@ -1,17 +1,9 @@
 export default class ValidationException {
-    validationRows?: ValidationRow[]
+    message?: string
+    validationRows?: any
 
-    constructor(validationRows?: ValidationRow[]) {
+    constructor(message?: string, validationRows?: object) {
+        this.message = message
         this.validationRows = validationRows
-    }
-}
-
-export class ValidationRow {
-    errorMessage: string
-    memberName: string[]
-
-    constructor(errorMessage: string, memberName: string[]) {
-        this.errorMessage = errorMessage
-        this.memberName = memberName
     }
 }

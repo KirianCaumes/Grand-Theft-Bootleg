@@ -1,6 +1,7 @@
 export default class NotFoundException {
-    errorMessage?: string
-    constructor(errorMessage?: string) {
-        this.errorMessage = errorMessage
+    message?: string
+
+    constructor(message?: string) {
+        this.message = message
     }
 }
