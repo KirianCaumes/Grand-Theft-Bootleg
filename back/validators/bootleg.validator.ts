@@ -2,6 +2,7 @@ import Schema, { array, boolean, number, string, Type, unknown } from 'https://d
 import dateValidation from "../helpers/validations/date.validation.ts"
 import urlValidation from "../helpers/validations/url.validation.ts"
 import { EBootlegStates } from "../types/enumerations/EBootlegStates.ts"
+import { ECountries } from "../types/enumerations/ECountries.ts"
 import { validator } from "./_base.validator.ts"
 
 const bootlegValidationSchema = Schema({
@@ -13,7 +14,7 @@ const bootlegValidationSchema = Schema({
     links: array.of(urlValidation).between(1, 10),
     bands: array.of(string).between(1, 10),
     songs: array.of(string).between(1, 30),
-    countries: array.of(string).min(1).max(10),
+    countries: array.of(Schema.enum(ECountries)).min(1).max(10),
     cities: array.of(string).min(0).max(10),
     isCompleteShow: boolean,
     isAudioOnly: boolean,

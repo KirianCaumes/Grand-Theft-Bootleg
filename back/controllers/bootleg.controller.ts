@@ -2,7 +2,7 @@ import BaseController from "./_base.controller.ts"
 import { Response } from "https://deno.land/x/oak@v6.3.1/response.ts"
 import { Request } from "https://deno.land/x/oak@v6.3.1/request.ts"
 import { ObjectId } from "https://deno.land/x/mongo@v0.12.1/mod.ts"
-import { BootlegsCollectionType } from "../models/bootleg.model.ts"
+import { BootlegsCollectionType, BootlegSchema } from "../models/bootleg.model.ts"
 import { BootlegValidatorType } from "../validators/bootleg.validator.ts"
 import { getQuery } from "https://deno.land/x/oak@v6.3.1/helpers.ts"
 import { Context } from "https://deno.land/x/oak@v6.3.1/context.ts"
@@ -28,23 +28,16 @@ export default class BootlegController extends BaseController {
      */
     async getAllBootlegs(ctx: Context) {
         const { response } = ctx
-        const { string, year } = getQuery(ctx)
-
-        // console.log({
-        //     $gte: new Date(`${parseInt(year) - 1}-01-01T00:00:00.000Z`),
-        //     $lt: new Date(`${parseInt(year) + 1}-01-01T00:00:00.000Z`)
-        // })
-
-        const res = await this.collection.find({
-            // date: {
-            //     $gte: new Date(`2010-01-01T00:00:00.000Z`),
-            //     // $lt: new Date(`${parseInt(year) + 1}-01-01T00:00:00.000Z`)
-            // }
-        })
+        const { string, year, orderBy, band, song, country, isCompleteShow, isAudioOnly, isProRecord } = getQuery(ctx)
 
         response.body = this._render({
             message: 'List of bootlegs',
-            result: res
+            result: await this.collection.findAdvanced({
+                string, year: parseInt(year), orderBy, band, song, country,
+                isCompleteShow: isCompleteShow ? !!parseInt(isCompleteShow) : undefined,
+                isAudioOnly: isAudioOnly ? !!parseInt(isAudioOnly) : undefined,
+                isProRecord: isProRecord ? !!parseInt(isProRecord) : undefined
+            })
         })
     }
 
@@ -98,8 +91,8 @@ export default class BootlegController extends BaseController {
         response.body = this._render({
             message: 'Bootleg edited',
             result: {
-                ...bootleg,
-                _id: ObjectId(params.id)
+                _id: ObjectId(params.id),
+                ...bootleg
             }
         })
     }

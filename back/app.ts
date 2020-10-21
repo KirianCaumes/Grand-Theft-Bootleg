@@ -4,6 +4,8 @@ import bootlegRouter from "./routers/bootleg.router.ts"
 import defaultRouter from "./routers/default.router.ts"
 import errorsLoader from "./loaders/errors.loader.ts"
 import startupLoader from "./loaders/startup.loader.ts"
+import bandRouter from "./routers/band.router.ts"
+import songRouter from "./routers/song.router.ts"
 
 const HOST = config()?.HOST || "0.0.0.0"
 const PORT = config()?.PORT || 5000
@@ -13,9 +15,13 @@ const app = new Application()
 app.use(errorsLoader)
 
 app.use(bootlegRouter.routes())
+app.use(bandRouter.routes())
+app.use(songRouter.routes())
 app.use(defaultRouter.routes())
 
 app.use(bootlegRouter.allowedMethods())
+app.use(bandRouter.allowedMethods())
+app.use(songRouter.allowedMethods())
 app.use(defaultRouter.allowedMethods())
 
 app.addEventListener("listen", startupLoader)

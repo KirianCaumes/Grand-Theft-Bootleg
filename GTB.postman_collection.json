@@ -26,7 +26,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://127.0.0.1:5000/api/bootleg/5f88120500dbbfc100b70531",
+							"raw": "http://127.0.0.1:5000/api/bootleg/5f88120500dbbfc100b70534a",
 							"protocol": "http",
 							"host": [
 								"127",
@@ -38,7 +38,7 @@
 							"path": [
 								"api",
 								"bootleg",
-								"5f88120500dbbfc100b70531"
+								"5f88120500dbbfc100b70534a"
 							]
 						}
 					},
@@ -62,7 +62,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://127.0.0.1:5000/api/bootleg",
+							"raw": "http://127.0.0.1:5000/api/bootleg?orderBy=DATE_DESC&country=autre",
 							"protocol": "http",
 							"host": [
 								"127",
@@ -74,6 +74,51 @@
 							"path": [
 								"api",
 								"bootleg"
+							],
+							"query": [
+								{
+									"key": "year",
+									"value": "0",
+									"disabled": true
+								},
+								{
+									"key": "string",
+									"value": "456",
+									"disabled": true
+								},
+								{
+									"key": "orderBy",
+									"value": "DATE_DESC"
+								},
+								{
+									"key": "band",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "song",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "country",
+									"value": "autre"
+								},
+								{
+									"key": "isCompleteShow",
+									"value": "0",
+									"disabled": true
+								},
+								{
+									"key": "isAudioOnly",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "isProRecord",
+									"value": null,
+									"disabled": true
+								}
 							]
 						}
 					},
@@ -86,7 +131,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"title\": \"asdfsd\",\r\n    \"description\": \"The dqs qsd\"\r\n}",
+							"raw": "{\r\n    \"title\": \"Hello aezezaeazeaz\",\r\n    \"description\": \"coucou\",\r\n    \"date\": \"2010-10-17\",\r\n    \"picture\": \"https://example.com\",\r\n    \"links\": [\"https://example.com\"],\r\n    \"bands\": [\"test123\", \"toto\"],\r\n    \"songs\": [\"456\", \"testaze\"],\r\n    \"countries\": [\"Argentina\"],\r\n    \"cities\": [\"Nantes\"],\r\n    \"isCompleteShow\": true,\r\n    \"isAudioOnly\": false,\r\n    \"isProRecord\": false,\r\n    \"soundQuality\": 5,\r\n    \"videoQuality\": 7,\r\n    \"state\": 0\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -118,7 +163,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"title\": \"test\",\r\n    \"description\": \"The Road to React\"\r\n}",
+							"raw": "{\r\n    \"title\": \"Hello qsd qsdqsdqsd\",\r\n    \"description\": \"The Road to React\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -126,7 +171,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://127.0.0.1:5000/api/bootleg/5f8839eb00d07d690062268a",
+							"raw": "http://127.0.0.1:5000/api/bootleg/5f895e2c00c7132500c4f396",
 							"protocol": "http",
 							"host": [
 								"127",
@@ -138,7 +183,7 @@
 							"path": [
 								"api",
 								"bootleg",
-								"5f8839eb00d07d690062268a"
+								"5f895e2c00c7132500c4f396"
 							]
 						}
 					},
@@ -159,7 +204,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://127.0.0.1:5000/api/bootleg/5f8839eb00d07d690062268a",
+							"raw": "http://127.0.0.1:5000/api/bootleg/5f895e2c00c7132500c4f396",
 							"protocol": "http",
 							"host": [
 								"127",
@@ -171,7 +216,43 @@
 							"path": [
 								"api",
 								"bootleg",
-								"5f8839eb00d07d690062268a"
+								"5f895e2c00c7132500c4f396"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Band",
+			"item": [
+				{
+					"name": "Band",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:5000/api/bootleg/band?string=test",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"bootleg",
+								"band"
+							],
+							"query": [
+								{
+									"key": "string",
+									"value": "test"
+								}
 							]
 						}
 					},
