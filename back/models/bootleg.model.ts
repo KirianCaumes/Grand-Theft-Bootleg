@@ -4,6 +4,8 @@ import NotFoundException from "../types/exceptions/NotFoundException.ts"
 import { client } from "./_dbConnector.ts"
 import { config } from "https://deno.land/x/dotenv/mod.ts"
 import { ESort } from "../types/enumerations/ESort.ts"
+import { EBootlegStates } from "../types/enumerations/EBootlegStates.ts"
+import { UserSchema } from "./user.model.ts"
 
 export interface BootlegSchema {
     _id: { $oid: string }
@@ -22,9 +24,17 @@ export interface BootlegSchema {
     soundQuality: number
     videoQuality: number
     state: number
+
+    createdById: UserSchema['_id']
+    createdOn: Date
+    modifiedById: UserSchema['_id']
+    modifiedOn: Date
 }
 
 export class BootlegsCollection extends Collection<BootlegSchema> {
+    /** Limit to searchin db */
+    limit: number = 50
+
     constructor() {
         super(client, config()?.MONGO_DB, "bootlegs")
     }
@@ -48,6 +58,27 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
     }
 
     /**
+     * Update one element by Id
+     * @param id Id of the bootleg
+     * {@link https://github.com/manyuanrong/deno_mongo/issues/89}
+     */
+    async updateOneById(id: string, update: Partial<BootlegSchema>): Promise<BootlegSchema> {
+        try {
+            const el = await this.updateOne(
+                { _id: ObjectId(id) },
+                { $set: update }
+            )
+            if (!el)
+                throw new NotFoundException("Bootleg not found")
+            return el
+        } catch (error) {
+            if (error?.message?.includes(" is not legal."))
+                throw new NotFoundException("Bootleg not found")
+            throw error
+        }
+    }
+
+    /**
      * Advanced string
      * @param string String to search
      * @param year Year to search
@@ -58,10 +89,11 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
      * @param isCompleteShow Is show complete, 1 or 0
      * @param isAudioOnly Is audio only, 1 or 0
      * @param isProRecord Is prop record, 1 or 0
+     * @param startAt Start at index
      */
     async findAdvanced(
-        { string, year, orderBy, band, song, country, isCompleteShow, isAudioOnly, isProRecord }:
-            { string?: string; year?: number; orderBy?: string; band?: string; song?: string; country?: string; isCompleteShow?: boolean; isAudioOnly?: boolean; isProRecord?: boolean }
+        { string, year, orderBy, band, song, country, isCompleteShow, isAudioOnly, isProRecord, startAt = 0 }:
+            { string?: string; year?: number; orderBy?: string; band?: string; song?: string; country?: string; isCompleteShow?: boolean; isAudioOnly?: boolean; isProRecord?: boolean; startAt?: number }
     ): Promise<BootlegSchema[]> {
         //Filter to query
         let $match = {}
@@ -133,6 +165,7 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
             }
 
         return this.aggregate([
+            { $match: { state: EBootlegStates.PUBLISHED } },
             {
                 $addFields: {
                     date: {
@@ -159,7 +192,9 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
                             return { date: 1 }
                     }
                 })()
-            }
+            },
+            { $limit: startAt + this.limit },
+            { $skip: startAt }
         ])
     }
 
@@ -174,6 +209,7 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
         return (await this.aggregate([
             { $sort: { date: 1 } },
             { $match: { bands: { $in: [{ $regex: band, $options: "i" }] } } },
+            { $match: { state: EBootlegStates.PUBLISHED } },
             { $limit: 50 },
             { $project: { category: 1, items: '$bands' } },
             { $unwind: '$items' },
@@ -193,6 +229,7 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
         return (await this.aggregate([
             { $sort: { date: 1 } },
             { $match: { songs: { $in: [{ $regex: song, $options: "i" }] } } },
+            { $match: { state: EBootlegStates.PUBLISHED } },
             { $limit: 50 },
             { $project: { category: 1, items: '$songs' } },
             { $unwind: '$items' },

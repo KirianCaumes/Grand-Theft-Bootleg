@@ -25,7 +25,7 @@ export default function render({
     const res = {
         message: message || null,
         [resultKey ?? 'result']: !!result && Object.keys(result).length ?
-            (result instanceof Array ? [...result] : { ...result })
+            (result instanceof Array ? [...result] : (typeof result === 'string' ? result : { ...result }))
             : (stacktrace || null)
     }
 

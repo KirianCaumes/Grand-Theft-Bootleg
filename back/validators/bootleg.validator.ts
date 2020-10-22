@@ -21,7 +21,12 @@ const bootlegValidationSchema = Schema({
     isProRecord: boolean,
     soundQuality: number.between(1, 10),
     videoQuality: number.between(1, 10),
-    state: unknown.enum(EBootlegStates)
+    state: unknown.enum(EBootlegStates),
+
+    // createdById: Schema({ $oid: string }).optional(),
+    // createdOn: dateValidation,
+    // modifiedById: Schema({ $oid: string }).optional(),
+    // modifiedOn: dateValidation
 })
 
 type BootlegValidationType = Type<typeof bootlegValidationSchema>
