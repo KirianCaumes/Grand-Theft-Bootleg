@@ -10,6 +10,7 @@ import { EBootlegStates } from "../types/enumerations/EBootlegStates.ts"
 import ValidationException from "../types/exceptions/ValidationException.ts"
 import { EUserRoles } from "../types/enumerations/EUserRoles.ts"
 import UnauthorizedException from "../types/exceptions/UnauthorizedException.ts"
+import { EActions } from "../types/enumerations/EActions.ts"
 
 /**
  * Bootleg Controller
@@ -61,13 +62,8 @@ export default class BootlegController extends BaseController {
         //Get element by id
         const bootlegBdd = await this.collection.findOneById(params.id)
 
-        //Check if access
-        if (
-            bootlegBdd.state === EBootlegStates.DRAFT &&
-            [EUserRoles.VISITOR, EUserRoles.USER].includes(user.role) &&
-            bootlegBdd.createdById?.$oid !== user._id.$oid
-        )
-            throw new UnauthorizedException()
+        //Check if has access
+        this.denyAccessUnlessGranted(EActions.READ, bootlegBdd, user)
 
         response.body = this._render({
             message: 'One bootleg',
@@ -79,27 +75,14 @@ export default class BootlegController extends BaseController {
      * Create a new bootleg
      */
     async addBootleg({ request, response }: { request: Request; response: Response }) {
-        //Validate data
-        const bootlegBody = this.validate(await request.body().value)
-
         //Get user
         const user = await this._getUser(request)
 
-        //Check if good state
-        if (
-            !(
-                [EBootlegStates.DRAFT, EBootlegStates.PENDING].includes(bootlegBody.state) &&
-                [EUserRoles.USER].includes(user.role)
-            ) &&
-            !(
-                [EBootlegStates.DRAFT, EBootlegStates.PENDING, EBootlegStates.PUBLISHED].includes(bootlegBody.state) &&
-                [EUserRoles.MODERATOR, EUserRoles.ADMIN].includes(user.role)
-            )
-        )
-            throw new ValidationException(
-                'Item not modified or created',
-                { state: 'Invalide state value' }
-            )
+        //Validate data
+        const bootlegBody = this.validate(await request.body().value, EActions.CREATE, user)
+
+        //Check if has access
+        this.denyAccessUnlessGranted(EActions.CREATE, bootlegBody, user)
 
         //Insert new element and return id
         const id = (await this.collection.insertOne({
@@ -130,31 +113,14 @@ export default class BootlegController extends BaseController {
         //Get element by id
         const bootlegBdd = await this.collection.findOneById(params.id)
 
-        //Validate data
-        const bootlegBody = this.validate(await request.body().value)
-
         //Get user
         const user = await this._getUser(request)
 
-        //Check if access
-        if (user.role === EUserRoles.USER && bootlegBdd.createdById?.$oid !== user._id.$oid)
-            throw new UnauthorizedException()
+        //Validate data
+        const bootlegBody = this.validate(await request.body().value, EActions.UPDATE, user)
 
-        //Check if good state
-        if (
-            !(
-                [EBootlegStates.DRAFT, EBootlegStates.PENDING].includes(bootlegBody.state) &&
-                [EUserRoles.USER].includes(user.role)
-            ) &&
-            !(
-                [EBootlegStates.DRAFT, EBootlegStates.PENDING, EBootlegStates.PUBLISHED].includes(bootlegBody.state) &&
-                [EUserRoles.MODERATOR, EUserRoles.ADMIN].includes(user.role)
-            )
-        )
-            throw new ValidationException(
-                'Item not modified or created',
-                { state: 'Invalide state value' }
-            )
+        //Check if has access
+        this.denyAccessUnlessGranted(EActions.UPDATE, bootlegBdd, user)
 
         //Update element
         await this.collection.updateOneById(
@@ -183,9 +149,8 @@ export default class BootlegController extends BaseController {
         //Get user
         const user = await this._getUser(request)
 
-        //Check if access
-        if (user.role === EUserRoles.USER && bootlegBdd.createdById?.$oid !== user._id.$oid)
-            throw new UnauthorizedException()
+        //Check if has access
+        this.denyAccessUnlessGranted(EActions.DELETE, bootlegBdd, user)
 
         //Set to state removed
         await this.collection.updateOneById(

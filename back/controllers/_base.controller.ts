@@ -6,13 +6,20 @@ import IApiError from "../types/interfaces/IApiError.ts"
 import { Request } from "https://deno.land/x/oak@v6.3.1/request.ts"
 import { config } from "https://deno.land/x/dotenv@v0.5.0/mod.ts"
 import { EUserRoles } from "../types/enumerations/EUserRoles.ts"
+import { BootlegSchema } from "../models/bootleg.model.ts"
+import { EActions } from "../types/enumerations/EActions.ts"
+import BootlegVoter from "../voters/bootleg.voter.ts"
+import BaseVoter from "../voters/_base.voter.ts"
+import ForbiddenException from "../types/exceptions/ForbiddenException.ts"
 
 /**
  * Base Controller
  */
 export default abstract class BaseController {
     /** Result key to use in render */
-    resultKey: string = "result"
+    protected resultKey: string = "result"
+
+    private voters: BaseVoter[] = [new BootlegVoter()]
 
     constructor() { }
 
@@ -47,6 +54,19 @@ export default abstract class BaseController {
         }) as any).payload?.iss
 
         return usrStr ? JSON.parse(usrStr) : { _id: null, username: null, password: null, role: EUserRoles.VISITOR }
+    }
+
+    /**
+     * Deny access if user is not allowed
+     * @param action 
+     * @param subject 
+     * @param user 
+     */
+    protected denyAccessUnlessGranted(action: EActions, subject: BootlegSchema | UserSchema | any, user: UserSchema) {
+        for (const voter of this.voters) {
+            if (voter.supports(action, subject) && !voter.voteOnAttribute(action, subject, user))
+                throw new ForbiddenException()
+        }
     }
 
     /**

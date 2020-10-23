@@ -35,7 +35,11 @@ export default class UserController extends BaseController {
         if (await this.collection.findOne({ username: userBody.username }))
             throw new Exception('User already exist')
 
-        const id = (await this.collection.insertOne(userBody)).$oid
+        const id = (await this.collection.insertOne({
+            ...userBody,
+            password: await bcrypt.hash(userBody.password),
+            role: EUserRoles.USER
+        })).$oid
 
         response.body = this._render({
             message: 'User register succeed',

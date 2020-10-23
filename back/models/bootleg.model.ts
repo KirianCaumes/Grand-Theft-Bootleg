@@ -194,7 +194,25 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
                 })()
             },
             { $limit: startAt + this.limit },
-            { $skip: startAt }
+            { $skip: startAt },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "createdById",
+                    foreignField: "_id",
+                    as: "createdBy"
+                }
+            },
+            { $addFields: { "createdBy.password": null } },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "modifiedById",
+                    foreignField: "_id",
+                    as: "modifiedBy"
+                }
+            },
+            { $addFields: { "modifiedBy.password": null } },
         ])
     }
 
