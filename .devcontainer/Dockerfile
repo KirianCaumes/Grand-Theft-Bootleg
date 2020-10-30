@@ -28,7 +28,7 @@ RUN wget -qO- https://deb.nodesource.com/setup_12.x | bash -
 RUN apt-get install -y nodejs
 
 # install deno
-RUN curl -fsSL https://deno.land/x/install/install.sh | sh -s v1.4.5
+RUN curl -fsSL https://deno.land/x/install/install.sh | sh -s v1.5.0
 ENV DENO_INSTALL="/root/.deno"
 ENV PATH="${DENO_INSTALL}/bin:${PATH}"
 

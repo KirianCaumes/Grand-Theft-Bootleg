@@ -1,7 +1,7 @@
 import { Collection } from "https://deno.land/x/mongo@v0.12.1/ts/collection.ts"
 import { client } from "./_dbConnector.ts"
-import { config } from "https://deno.land/x/dotenv/mod.ts"
-import { setExpiration, makeJwt } from "https://deno.land/x/djwt/create.ts"
+import { create } from "https://deno.land/x/djwt@v1.9/mod.ts"
+import { env } from "../helpers/config.ts"
 
 export interface UserSchema {
     _id: { $oid: string }
@@ -12,21 +12,21 @@ export interface UserSchema {
 
 export class UsersCollection extends Collection<UserSchema> {
     constructor() {
-        super(client, config()?.MONGO_DB, "users")
+        super(client, env?.MONGO_DB!, "users")
     }
 
     async getToken(user: UserSchema): Promise<string> {
-        return await makeJwt({
-            header: {
-                alg: 'HS256',
-                typ: 'JWT'
+        return await create(
+            {
+                alg: "HS512",
+                typ: "JWT"
             },
-            payload: {
+            {
                 iss: JSON.stringify({ ...user, password: undefined }),
-                exp: setExpiration(60 * 60)
+                exp: Date.now() / 1000 + 60 * 60
             },
-            key: config()?.JWT_KEY
-        })
+            env?.JWT_KEY!
+        )
     }
 }
 

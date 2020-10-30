@@ -2,10 +2,10 @@ import { ObjectId } from "https://deno.land/x/mongo@v0.12.1/ts/types.ts"
 import { Collection } from "https://deno.land/x/mongo@v0.12.1/ts/collection.ts"
 import NotFoundException from "../types/exceptions/NotFoundException.ts"
 import { client } from "./_dbConnector.ts"
-import { config } from "https://deno.land/x/dotenv/mod.ts"
 import { ESort } from "../types/enumerations/ESort.ts"
 import { EBootlegStates } from "../types/enumerations/EBootlegStates.ts"
 import { UserSchema } from "./user.model.ts"
+import { env } from "../helpers/config.ts"
 
 export interface BootlegSchema {
     _id: { $oid: string }
@@ -36,7 +36,7 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
     limit: number = 50
 
     constructor() {
-        super(client, config()?.MONGO_DB, "bootlegs")
+        super(client, env?.MONGO_DB!, "bootlegs")
     }
 
     /**

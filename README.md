@@ -40,3 +40,11 @@ Nothing to do
 #### Run
  
 Go to debuger (Play Icon with a bug) and choose "🦕 Deno"
+
+#### Test
+
+```sh
+cd ./back
+DENO_ENV="test" deno test -c tsconfig.json --allow-net --allow-read --allow-env --allow-write --allow-plugin --unstable tests/
+DENO_ENV="test" deno test -c tsconfig.json --coverage --allow-net --allow-read --allow-env --allow-write --allow-plugin --unstable tests/ #Coverage
+```

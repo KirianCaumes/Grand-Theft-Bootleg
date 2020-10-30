@@ -1,16 +1,16 @@
 import { Response } from "https://deno.land/x/oak@v6.3.1/response.ts"
-import { validateJwt } from "https://deno.land/x/djwt/validate.ts"
+import { verify } from "https://deno.land/x/djwt@v1.9/mod.ts"
 import render from "../helpers/render.ts"
 import { UserSchema } from "../models/user.model.ts"
 import IApiError from "../types/interfaces/IApiError.ts"
 import { Request } from "https://deno.land/x/oak@v6.3.1/request.ts"
-import { config } from "https://deno.land/x/dotenv@v0.5.0/mod.ts"
 import { EUserRoles } from "../types/enumerations/EUserRoles.ts"
 import { BootlegSchema } from "../models/bootleg.model.ts"
 import { EActions } from "../types/enumerations/EActions.ts"
 import BootlegVoter from "../voters/bootleg.voter.ts"
 import BaseVoter from "../voters/_base.voter.ts"
 import ForbiddenException from "../types/exceptions/ForbiddenException.ts"
+import { env } from "../helpers/config.ts"
 
 /**
  * Base Controller
@@ -47,11 +47,11 @@ export default abstract class BaseController {
      * @param request 
      */
     protected async _getUser(request: Request): Promise<UserSchema> {
-        const usrStr = (await validateJwt({
-            jwt: request.headers.get('Authorization')?.replace(/Bearer /, '')!,
-            key: config()?.JWT_KEY,
-            algorithm: 'HS256'
-        }) as any).payload?.iss
+        const usrStr = (await verify(
+            request.headers.get('Authorization')?.replace(/Bearer /, '')!,
+            env?.JWT_KEY!,
+            'HS512'
+        ) as any).payload?.iss
 
         return usrStr ? JSON.parse(usrStr) : { _id: null, username: null, password: null, role: EUserRoles.VISITOR }
     }
