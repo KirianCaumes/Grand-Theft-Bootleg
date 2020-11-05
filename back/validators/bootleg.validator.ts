@@ -14,17 +14,17 @@ const bootlegValidationSchemaBase = {
     description: string.trim().normalize().between(0, 2550),
     date: dateValidation,
     picture: urlValidation,
-    links: array.of(urlValidation).between(1, 10),
+    links: array.of(urlValidation, () => `Invalid URLs`).between(1, 10),
     bands: array.of(string).between(1, 10),
     songs: array.of(string).between(1, 30),
-    countries: array.of(Schema.enum(ECountries)).min(1).max(10),
+    countries: array.of(Schema.enum(ECountries), arg => `Country ${arg} is invalid`).min(1).max(10),
     cities: array.of(string).min(0).max(10),
-    isCompleteShow: boolean,
-    isAudioOnly: boolean,
-    isProRecord: boolean,
+    isCompleteShow: unknown.boolean('Expected value to be "True" or "False"'),
+    isAudioOnly: unknown.boolean('Expected value to be "True" or "False"'),
+    isProRecord: unknown.boolean('Expected value to be "True" or "False"'),
     soundQuality: number.between(1, 10),
     videoQuality: number.between(1, 10),
-    state: unknown.enum(EBootlegStates),
+    state: unknown.enum(EBootlegStates, arg => `State ${EBootlegStates[arg as number]} is invalid`),
 
     // createdById: Schema({ $oid: string }).optional(),
     // createdOn: dateValidation,
@@ -61,7 +61,7 @@ export const bootlegValidator = (bootleg: BootlegValidationType, action?: EActio
     return validator<typeof bootlegValidationSchema, BootlegValidationType>(
         Schema({
             ...bootlegValidationSchemaBase,
-            state: unknown.enum(myEnum)
+            state: unknown.enum(myEnum, arg => `State ${EBootlegStates[arg as number]} is invalid`)
         }),
         bootleg,
         'Bootleg not modified or created'

@@ -1,11 +1,14 @@
-import { ObjectId } from "https://deno.land/x/mongo@v0.12.1/ts/types.ts"
-import { Collection } from "https://deno.land/x/mongo@v0.12.1/ts/collection.ts"
+import { ObjectId } from "https://deno.land/x/mongo@v0.13.0/ts/types.ts"
+import { Collection, WithID } from "https://deno.land/x/mongo@v0.13.0/ts/collection.ts"
 import NotFoundException from "../types/exceptions/NotFoundException.ts"
 import { client } from "./_dbConnector.ts"
 import { ESort } from "../types/enumerations/ESort.ts"
 import { EBootlegStates } from "../types/enumerations/EBootlegStates.ts"
 import { UserSchema } from "./user.model.ts"
 import { env } from "../helpers/config.ts"
+import { EUserRoles } from "../types/enumerations/EUserRoles.ts"
+import unknown from "https://denoporter.sirjosh.workers.dev/v1/deno.land/x/computed_types/src/unknown.ts"
+import object from "https://denoporter.sirjosh.workers.dev/v1/deno.land/x/computed_types/src/object.ts"
 
 export interface BootlegSchema {
     _id: { $oid: string }
@@ -29,6 +32,21 @@ export interface BootlegSchema {
     createdOn: Date
     modifiedById: UserSchema['_id']
     modifiedOn: Date
+
+    clicked: [
+        {
+            userId: UserSchema['_id']
+            date: Date
+        }
+    ]
+
+    report: [
+        {
+            userId: UserSchema['_id']
+            date: Date
+            message: string
+        }
+    ]
 }
 
 export class BootlegsCollection extends Collection<BootlegSchema> {
@@ -40,16 +58,55 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
     }
 
     /**
+     * Clear fields
+     */
+    private _setupClear(user?: UserSchema) {
+        const clear = [
+            { $addFields: { "createdBy.password": null } },
+            { $addFields: { "modifiedBy.password": null } },
+        ]
+
+        //Clear some fields by roles
+        if (!user || ![EUserRoles.ADMIN, EUserRoles.MODERATOR].includes(user?.role)) {
+            clear.push({ $addFields: { "report": [] } } as any)
+            clear.push({ $addFields: { "clicked": [] } } as any)
+        }
+
+        return clear
+    }
+
+    /**
      * Get one element by Id
      * @param id Id of the bootleg
      * {@link https://github.com/manyuanrong/deno_mongo/issues/89}
      */
-    async findOneById(id: string): Promise<BootlegSchema> {
+    async findOneById(id: string, user?: UserSchema): Promise<BootlegSchema> {
         try {
-            const el = await this.findOne({ _id: ObjectId(id) })
+            const el = (await this.aggregate([
+                { $match: { _id: ObjectId(id) } },
+                {
+                    $lookup: {
+                        from: "users",
+                        localField: "createdById",
+                        foreignField: "_id",
+                        as: "createdBy"
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "users",
+                        localField: "modifiedById",
+                        foreignField: "_id",
+                        as: "modifiedBy"
+                    }
+                },
+                ...this._setupClear(user)
+            ]))?.[0]
+
             if (!el)
                 throw new NotFoundException("Bootleg not found")
-            return el
+
+            return el as BootlegSchema
         } catch (error) {
             if (error?.message?.includes(" is not legal."))
                 throw new NotFoundException("Bootleg not found")
@@ -62,11 +119,11 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
      * @param id Id of the bootleg
      * {@link https://github.com/manyuanrong/deno_mongo/issues/89}
      */
-    async updateOneById(id: string, update: Partial<BootlegSchema>): Promise<BootlegSchema> {
+    async updateOneById(id: string, update: any): Promise<BootlegSchema> {
         try {
             const el = await this.updateOne(
                 { _id: ObjectId(id) },
-                { $set: update }
+                update
             )
             if (!el)
                 throw new NotFoundException("Bootleg not found")
@@ -90,11 +147,43 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
      * @param isAudioOnly Is audio only, 1 or 0
      * @param isProRecord Is prop record, 1 or 0
      * @param startAt Start at index
+     * @param limit Limit to search
      */
-    async findAdvanced(
-        { string, year, orderBy, band, song, country, isCompleteShow, isAudioOnly, isProRecord, startAt = 0 }:
-            { string?: string; year?: number; orderBy?: string; band?: string; song?: string; country?: string; isCompleteShow?: boolean; isAudioOnly?: boolean; isProRecord?: boolean; startAt?: number }
-    ): Promise<BootlegSchema[]> {
+    async findAdvanced({
+        searchParams: {
+            string,
+            year,
+            orderBy,
+            band,
+            song,
+            country,
+            isCompleteShow,
+            isAudioOnly,
+            isProRecord,
+            startAt = 0,
+            limit,
+            state = EBootlegStates.PUBLISHED,
+            isRandom = false
+        },
+        user
+    }: {
+        searchParams: {
+            string?: string;
+            year?: number;
+            orderBy?: string;
+            band?: string;
+            song?: string;
+            country?: string;
+            isCompleteShow?: boolean;
+            isAudioOnly?: boolean;
+            isProRecord?: boolean;
+            startAt?: number;
+            limit?: number;
+            state?: EBootlegStates;
+            isRandom?: boolean;
+        }
+        user?: UserSchema
+    }): Promise<BootlegSchema[]> {
         //Filter to query
         let $match = {}
 
@@ -165,7 +254,30 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
             }
 
         return this.aggregate([
-            { $match: { state: EBootlegStates.PUBLISHED } },
+            //Match disired state
+            ...(() => {
+                switch (user?.role) {
+                    case EUserRoles.USER:
+                        switch (state) {
+                            case EBootlegStates.DRAFT:
+                            case EBootlegStates.PENDING:
+                                return [
+                                    { $match: { state } },
+                                    { $match: { createdById: user._id } }
+                                ]
+                            case EBootlegStates.PUBLISHED:
+                            case EBootlegStates.DELETED:
+                            default:
+                                return [{ $match: { state: EBootlegStates.PUBLISHED } }]
+                        }
+                    case EUserRoles.MODERATOR:
+                    case EUserRoles.ADMIN:
+                        return [{ $match: { state } }]
+                    case EUserRoles.VISITOR:
+                    default:
+                        return [{ $match: { state: EBootlegStates.PUBLISHED } }]
+                }
+            })(),
             {
                 $addFields: {
                     date: {
@@ -193,7 +305,9 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
                     }
                 })()
             },
-            { $limit: startAt + this.limit },
+            //Get random item
+            (() => isRandom ? { $sample: { size: (limit || this.limit) } } : {})(),
+            { $limit: startAt + (limit || this.limit) },
             { $skip: startAt },
             {
                 $lookup: {
@@ -203,7 +317,6 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
                     as: "createdBy"
                 }
             },
-            { $addFields: { "createdBy.password": null } },
             {
                 $lookup: {
                     from: "users",
@@ -212,8 +325,8 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
                     as: "modifiedBy"
                 }
             },
-            { $addFields: { "modifiedBy.password": null } },
-        ])
+            ...this._setupClear(user)
+        ].filter(x => Object.keys(x).length))
     }
 
     /**

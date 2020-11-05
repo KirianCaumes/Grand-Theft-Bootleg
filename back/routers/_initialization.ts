@@ -7,13 +7,14 @@ import { bootlegValidator } from "../validators/bootleg.validator.ts"
 import UserController from "../controllers/user.controller.ts"
 import { UsersCollection } from "../models/user.model.ts"
 import { userValidator } from "../validators/user.validator.ts"
+import { reportValidator } from "../validators/report.validator.ts"
 
 //Collection
 const bootlegsCollection = new BootlegsCollection()
 const usersCollection = new UsersCollection()
 
 //Controllers
-const bootlegController = new BootlegController(bootlegsCollection, bootlegValidator)
+const bootlegController = new BootlegController(bootlegsCollection, bootlegValidator, reportValidator)
 const bandController = new BandController(bootlegsCollection)
 const songController = new SongController(bootlegsCollection)
 const userController = new UserController(usersCollection, userValidator)

@@ -1,4 +1,4 @@
-import { Collection } from "https://deno.land/x/mongo@v0.12.1/ts/collection.ts"
+import { Collection } from "https://deno.land/x/mongo@v0.13.0/ts/collection.ts"
 import { client } from "./_dbConnector.ts"
 import { create } from "https://deno.land/x/djwt@v1.9/mod.ts"
 import { env } from "../helpers/config.ts"

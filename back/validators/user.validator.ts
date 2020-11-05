@@ -1,5 +1,4 @@
-import Schema, { string, Type, unknown } from 'https://denoporter.sirjosh.workers.dev/v1/deno.land/x/computed_types/src/index.ts'
-import { EUserRoles } from "../types/enumerations/EUserRoles.ts"
+import Schema, { string, Type } from 'https://denoporter.sirjosh.workers.dev/v1/deno.land/x/computed_types/src/index.ts'
 import { validator } from "./_base.validator.ts"
 
 const userValidationSchema = Schema({

@@ -47,13 +47,16 @@ export default abstract class BaseController {
      * @param request 
      */
     protected async _getUser(request: Request): Promise<UserSchema> {
-        const usrStr = (await verify(
-            request.headers.get('Authorization')?.replace(/Bearer /, '')!,
-            env?.JWT_KEY!,
-            'HS512'
-        ) as any).payload?.iss
-
-        return usrStr ? JSON.parse(usrStr) : { _id: null, username: null, password: null, role: EUserRoles.VISITOR }
+        try {
+            const usrStr = (await verify(
+                request.headers.get('Authorization')?.replace(/Bearer /, '')!,
+                env?.JWT_KEY!,
+                'HS512'
+            ))?.iss
+            return usrStr ? JSON.parse(usrStr) : { _id: null, username: null, password: null, role: EUserRoles.VISITOR }
+        } catch (error) {
+            return { _id: null, username: null, password: null, role: EUserRoles.VISITOR } as any
+        }
     }
 
     /**

@@ -4,13 +4,10 @@ import { faker } from "https://raw.githubusercontent.com/jackfiszr/deno-faker/ma
 
 /** About / */
 Deno.test(
-    "Default route",
+    "[GET] Default - Home",
     async () => {
-        // sets locale to de
-        // faker.setLocale("de");
-        console.log(faker.name.lastName())
-
-        await (await superoak(app)).get('/')
+        await (await superoak(app))
+            .get('/')
             .expect(404)
             .expect("Content-Type", /json/)
             .expect(res => {
@@ -22,9 +19,10 @@ Deno.test(
 
 /** About /api */
 Deno.test(
-    "Default route api",
+    "[GET] Default - Home Api",
     async () => {
-        await (await superoak(app)).get('/api')
+        await (await superoak(app))
+            .get('/api')
             .expect(404)
             .expect("Content-Type", /json/)
             .expect(res => {
@@ -36,9 +34,10 @@ Deno.test(
 
 /** About /{string} */
 Deno.test(
-    "Default route random",
+    "[GET] Default - Home Random",
     async () => {
-        await (await superoak(app)).get(`/aze${Math.random().toString(36).substring(7)}`)
+        await (await superoak(app))
+            .get(`/aze${Math.random().toString(36).substring(7)}`)
             .expect(404)
             .expect("Content-Type", /json/)
             .expect(res => {

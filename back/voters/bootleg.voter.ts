@@ -10,7 +10,7 @@ export default class BootlegVoter {
 
     public supports(action: EActions, subject: any) {
         // if the attribute isn't one we support, return false
-        if (![EActions.CREATE].includes(action))
+        if (![EActions.CREATE, EActions.READ, EActions.UPDATE, EActions.DELETE, EActions.CLICKED, EActions.CREATE_REPORT, EActions.DELETE_REPORT].includes(action))
             return false
 
         // only vote on `Bootleg` objects
@@ -34,6 +34,12 @@ export default class BootlegVoter {
                 return this.canUpdate(subject, user)
             case EActions.DELETE:
                 return this.canDelete(subject, user)
+            case EActions.CLICKED:
+                return this.canClick(subject, user)
+            case EActions.CREATE_REPORT:
+                return this.canCreateReport(subject, user)
+            case EActions.DELETE_REPORT:
+                return this.canDeleteReport(subject, user)
             default:
                 throw new Exception('This code should not be reached!')
         }
@@ -50,12 +56,15 @@ export default class BootlegVoter {
         if ([EUserRoles.ADMIN, EUserRoles.MODERATOR].includes(user.role))
             return true
 
+        if ([EBootlegStates.PUBLISHED].includes(subject.state))
+            return true
+
         if (
-            subject.state === EBootlegStates.DRAFT &&
+            [EBootlegStates.DRAFT, EBootlegStates.PENDING].includes(subject.state) &&
             [EUserRoles.VISITOR, EUserRoles.USER].includes(user.role) &&
-            subject.createdById?.$oid !== user._id.$oid
+            subject.createdById?.$oid === user._id.$oid
         )
-            return false
+            return true
 
         return false
     }
@@ -75,6 +84,45 @@ export default class BootlegVoter {
             return true
 
         if ([EUserRoles.USER].includes(user.role) && subject.createdById?.$oid === user._id.$oid)
+            return true
+
+        return false
+    }
+
+    private canClick(subject: BootlegSchema, user: UserSchema) {
+        if (!!subject.clicked.find(x =>
+            x.userId?.$oid === user._id.$oid &&
+            x.date > new Date(new Date().getTime() - (24 * 60 * 60 * 1000))
+        ))
+            return false
+
+        if ([EUserRoles.ADMIN, EUserRoles.MODERATOR].includes(user.role))
+            return true
+
+        if (
+            [EUserRoles.VISITOR, EUserRoles.USER].includes(user.role) &&
+            [EBootlegStates.PUBLISHED].includes(subject.state)
+        )
+            return true
+
+        return false
+    }
+
+    private canCreateReport(subject: BootlegSchema, user: UserSchema) {
+        if ([EUserRoles.ADMIN, EUserRoles.MODERATOR].includes(user.role))
+            return true
+
+        if (
+            [EUserRoles.VISITOR, EUserRoles.USER].includes(user.role) &&
+            [EBootlegStates.PUBLISHED].includes(subject.state)
+        )
+            return true
+
+        return false
+    }
+
+    private canDeleteReport(subject: BootlegSchema, user: UserSchema) {
+        if ([EUserRoles.ADMIN, EUserRoles.MODERATOR].includes(user.role))
             return true
 
         return false

@@ -23,7 +23,7 @@ class BootlegFixture extends BaseFixture {
 
     async getToken(role = EUserRoles.USER) {
         return await this.usersCollection.getToken({
-            _id: { $oid: 'id' },
+            _id: { $oid: '5fa3c4020035365c00a3c87e' }, //Arbitrary string
             username: faker.internet.userName(),
             password: faker.internet.password(),
             role

@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "24777a7c-a293-430b-bb3a-10fe57b8dd82",
+		"_postman_id": "69958e6f-48ae-4470-a49d-1f2173889742",
 		"name": "GTB",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -9,11 +9,241 @@
 			"name": "Bootleg",
 			"item": [
 				{
+					"name": "Clicked",
+					"item": [
+						{
+							"name": "Click",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:5000/api/bootleg/5fa3c458001deca000b32f19/clicked",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"bootleg",
+										"5fa3c458001deca000b32f19",
+										"clicked"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Song",
+					"item": [
+						{
+							"name": "Song",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:5000/api/song?string=456",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"song"
+									],
+									"query": [
+										{
+											"key": "string",
+											"value": "456"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Band",
+					"item": [
+						{
+							"name": "Band",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:5000/api/band?string=tes",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"band"
+									],
+									"query": [
+										{
+											"key": "string",
+											"value": "tes"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Report",
+					"item": [
+						{
+							"name": "Create",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"message\": \"tototototot\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://127.0.0.1:5000/api/bootleg/5fa3c458001deca000b32f19/report",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"bootleg",
+										"5fa3c458001deca000b32f19",
+										"report"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:5000/api/bootleg/5fa3c458001deca000b32f19/report",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"bootleg",
+										"5fa3c458001deca000b32f19",
+										"report"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
 					"name": "Get By Id",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"body": {
@@ -26,7 +256,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://127.0.0.1:5000/api/bootleg/5f88120500dbbfc100b70534a",
+							"raw": "http://127.0.0.1:5000/api/bootleg/5fa3c458001deca000b32f19",
 							"protocol": "http",
 							"host": [
 								"127",
@@ -38,7 +268,7 @@
 							"path": [
 								"api",
 								"bootleg",
-								"5f88120500dbbfc100b70534a"
+								"5fa3c458001deca000b32f19"
 							]
 						}
 					},
@@ -50,6 +280,16 @@
 						"disableBodyPruning": true
 					},
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"body": {
@@ -62,7 +302,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://127.0.0.1:5000/api/bootleg?orderBy=DATE_DESC&country=autre",
+							"raw": "http://127.0.0.1:5000/api/bootleg?orderBy=DATE_DESC",
 							"protocol": "http",
 							"host": [
 								"127",
@@ -78,7 +318,7 @@
 							"query": [
 								{
 									"key": "year",
-									"value": "0",
+									"value": "2020",
 									"disabled": true
 								},
 								{
@@ -102,7 +342,8 @@
 								},
 								{
 									"key": "country",
-									"value": "autre"
+									"value": "autre",
+									"disabled": true
 								},
 								{
 									"key": "isCompleteShow",
@@ -118,6 +359,21 @@
 									"key": "isProRecord",
 									"value": null,
 									"disabled": true
+								},
+								{
+									"key": "limit",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "state",
+									"value": "0",
+									"disabled": true
+								},
+								{
+									"key": "isRandom",
+									"value": "0",
+									"disabled": true
 								}
 							]
 						}
@@ -127,11 +383,21 @@
 				{
 					"name": "Create",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"title\": \"Hello aezezaeazeaz\",\r\n    \"description\": \"coucou\",\r\n    \"date\": \"2010-10-17\",\r\n    \"picture\": \"https://example.com\",\r\n    \"links\": [\"https://example.com\"],\r\n    \"bands\": [\"test123\", \"toto\"],\r\n    \"songs\": [\"456\", \"testaze\"],\r\n    \"countries\": [\"Argentina\"],\r\n    \"cities\": [\"Nantes\"],\r\n    \"isCompleteShow\": true,\r\n    \"isAudioOnly\": false,\r\n    \"isProRecord\": false,\r\n    \"soundQuality\": 5,\r\n    \"videoQuality\": 7,\r\n    \"state\": 0\r\n}",
+							"raw": "{\r\n    \"title\": \"Hello aezezaeazeaz\",\r\n    \"description\": \"coucou\",\r\n    \"date\": \"2010-10-17\",\r\n    \"picture\": \"https://example.com\",\r\n    \"links\": [\"https://example.com\"],\r\n    \"bands\": [\"test123\", \"toto\"],\r\n    \"songs\": [\"4567\", \"testaze\"],\r\n    \"countries\": [\"Argentina\"],\r\n    \"cities\": [\"Nantes\"],\r\n    \"isCompleteShow\": true,\r\n    \"isAudioOnly\": false,\r\n    \"isProRecord\": false,\r\n    \"soundQuality\": 5,\r\n    \"videoQuality\": 7,\r\n    \"state\":1\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -159,11 +425,21 @@
 				{
 					"name": "Edit",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "PUT",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"title\": \"Hello qsd qsdqsdqsd\",\r\n    \"description\": \"The Road to React\"\r\n}",
+							"raw": "{\r\n    \"title\": \"Hello test\",\r\n    \"description\": \"coucou\",\r\n    \"date\": \"2010-10-17\",\r\n    \"picture\": \"https://example.com\",\r\n    \"links\": [\"https://example.com\"],\r\n    \"bands\": [\"test123\", \"toto\"],\r\n    \"songs\": [\"4567\", \"testaze\"],\r\n    \"countries\": [\"Argentina\"],\r\n    \"cities\": [\"Nantes\"],\r\n    \"isCompleteShow\": true,\r\n    \"isAudioOnly\": false,\r\n    \"isProRecord\": false,\r\n    \"soundQuality\": 5,\r\n    \"videoQuality\": 7,\r\n    \"state\": 1\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -171,7 +447,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://127.0.0.1:5000/api/bootleg/5f895e2c00c7132500c4f396",
+							"raw": "http://127.0.0.1:5000/api/bootleg/5f917e58008d876700e049dc",
 							"protocol": "http",
 							"host": [
 								"127",
@@ -183,7 +459,7 @@
 							"path": [
 								"api",
 								"bootleg",
-								"5f895e2c00c7132500c4f396"
+								"5f917e58008d876700e049dc"
 							]
 						}
 					},
@@ -192,6 +468,16 @@
 				{
 					"name": "Delete",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "DELETE",
 						"header": [],
 						"body": {
@@ -226,15 +512,36 @@
 			"protocolProfileBehavior": {}
 		},
 		{
-			"name": "Band",
+			"name": "User",
 			"item": [
 				{
-					"name": "Band",
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "0dfa567b-eaa0-4668-9d3b-efad63fc590c",
+								"exec": [
+									"postman.setEnvironmentVariable(\"token\", JSON.parse(responseBody).user.token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
-						"method": "GET",
+						"method": "POST",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"coucoaua\",\r\n    \"password\": \"oui\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": "http://127.0.0.1:5000/api/bootleg/band?string=test",
+							"raw": "http://127.0.0.1:5000/api/user/login",
 							"protocol": "http",
 							"host": [
 								"127",
@@ -245,14 +552,52 @@
 							"port": "5000",
 							"path": [
 								"api",
-								"bootleg",
-								"band"
-							],
-							"query": [
-								{
-									"key": "string",
-									"value": "test"
+								"user",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "79849079-1228-496c-b3f3-3ecb570b5863",
+								"exec": [
+									"postman.setEnvironmentVariable(\"token\", JSON.parse(responseBody).user.token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"coucoaua\",\r\n    \"password\": \"oui\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
 								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5000/api/user",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"user"
 							]
 						}
 					},
