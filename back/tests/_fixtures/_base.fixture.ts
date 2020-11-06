@@ -8,7 +8,18 @@ export default abstract class BaseFixture {
 
     constructor() { }
 
+    /**
+     * Get new item
+     */
+    getItem() { }
+
+    /**
+     * Init items in db
+     */
     async load() { }
 
+    /**
+     * Delete items in db
+     */
     async unload() { }
 }

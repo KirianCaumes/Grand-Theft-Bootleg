@@ -32,7 +32,7 @@ export default class BootlegController extends BaseController {
      */
     async getAllBootlegs(ctx: Context) {
         const { response } = ctx
-        const { string, year, orderBy, band, song, country, isCompleteShow, isAudioOnly, isProRecord, startAt, limit, state, isRandom } = getQuery(ctx)
+        const { string, year, orderBy, band, song, country, isCompleteShow, isAudioOnly, isProRecord, startAt, limit, state, isRandom, authorId } = getQuery(ctx)
 
         //Get user
         const user = await this._getUser(ctx.request)
@@ -54,6 +54,7 @@ export default class BootlegController extends BaseController {
                     limit: !isNaN(parseInt(limit)) ? parseInt(limit) : undefined,
                     state: !isNaN(parseInt(state)) ? parseInt(state) : undefined,
                     isRandom: isRandom ? !!parseInt(isRandom) : undefined,
+                    authorId
                 },
                 user
             })
@@ -93,23 +94,18 @@ export default class BootlegController extends BaseController {
         this.denyAccessUnlessGranted(EActions.CREATE, bootlegBody, user)
 
         //Insert new element and return id
-        const id = (await this.collection.insertOne({
+        const bootlegBddUpd = await this.collection.createOn({
             ...bootlegBody,
             createdById: user._id,
             createdOn: new Date(),
             modifiedById: user._id,
             modifiedOn: new Date(),
-        })).$oid
+        })
 
         response.body = this._render({
             message: 'Bootleg added',
             result: {
-                _id: { $oid: id },
-                ...bootlegBody,
-                createdById: user._id,
-                createdOn: new Date(),
-                modifiedById: user._id,
-                modifiedOn: new Date(),
+                ...bootlegBddUpd
             }
         })
     }
@@ -131,7 +127,7 @@ export default class BootlegController extends BaseController {
         this.denyAccessUnlessGranted(EActions.UPDATE, bootlegBdd, user)
 
         //Update element
-        await this.collection.updateOneById(
+        const bootlegBddUpd = await this.collection.updateOneById(
             params.id,
             { $set: { ...bootlegBody, modifiedById: user._id, modifiedOn: new Date() } }
         )
@@ -139,10 +135,7 @@ export default class BootlegController extends BaseController {
         response.body = this._render({
             message: 'Bootleg edited',
             result: {
-                _id: bootlegBdd._id,
-                ...bootlegBody,
-                modifiedById: user._id,
-                modifiedOn: new Date()
+                ...bootlegBddUpd
             }
         })
     }
@@ -161,13 +154,16 @@ export default class BootlegController extends BaseController {
         this.denyAccessUnlessGranted(EActions.DELETE, bootlegBdd, user)
 
         //Set to state removed
-        await this.collection.updateOneById(
+        const bootlegBddUpd = await this.collection.updateOneById(
             params.id,
             { $set: { state: EBootlegStates.DELETED, modifiedById: user._id, modifiedOn: new Date() } }
         )
 
         response.body = this._render({
-            message: 'Bootleg removed'
+            message: 'Bootleg removed',
+            result: {
+                ...bootlegBddUpd
+            }
         })
     }
 
@@ -188,7 +184,7 @@ export default class BootlegController extends BaseController {
         const reportBody = this.validatorReport(await request.body().value)
 
         //Update element
-        await this.collection.updateOneById(
+        const bootlegBddUpd = await this.collection.updateOneById(
             params.id,
             {
                 $push: {
@@ -204,7 +200,7 @@ export default class BootlegController extends BaseController {
         response.body = this._render({
             message: 'Report created',
             result: {
-                _id: bootlegBdd._id
+                ...bootlegBddUpd
             }
         })
     }
@@ -223,7 +219,7 @@ export default class BootlegController extends BaseController {
         this.denyAccessUnlessGranted(EActions.DELETE_REPORT, bootlegBdd, user)
 
         //Update element
-        await this.collection.updateOneById(
+        const bootlegBddUpd = await this.collection.updateOneById(
             params.id,
             { $set: { report: [] } }
         )
@@ -231,7 +227,7 @@ export default class BootlegController extends BaseController {
         response.body = this._render({
             message: 'Report cleared',
             result: {
-                _id: bootlegBdd._id
+                ...bootlegBddUpd
             }
         })
     }
@@ -250,7 +246,7 @@ export default class BootlegController extends BaseController {
         this.denyAccessUnlessGranted(EActions.CLICKED, bootlegBdd, user)
 
         //Update element
-        await this.collection.updateOneById(
+        const bootlegBddUpd = await this.collection.updateOneById(
             params.id,
             {
                 $push: {
@@ -265,7 +261,7 @@ export default class BootlegController extends BaseController {
         response.body = this._render({
             message: 'Bootleg clicked',
             result: {
-                _id: bootlegBdd._id
+                ...bootlegBddUpd
             }
         })
     }

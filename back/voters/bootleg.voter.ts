@@ -4,9 +4,12 @@ import { EActions } from "../types/enumerations/EActions.ts";
 import { EBootlegStates } from "../types/enumerations/EBootlegStates.ts";
 import { EUserRoles } from "../types/enumerations/EUserRoles.ts";
 import Exception from "../types/exceptions/Exception.ts";
+import BaseVoter from "./_base.voter.ts";
 
-export default class BootlegVoter {
-    constructor() { }
+export default class BootlegVoter extends BaseVoter {
+    constructor() {
+        super()
+    }
 
     public supports(action: EActions, subject: any) {
         // if the attribute isn't one we support, return false

@@ -7,8 +7,6 @@ import { EBootlegStates } from "../types/enumerations/EBootlegStates.ts"
 import { UserSchema } from "./user.model.ts"
 import { env } from "../helpers/config.ts"
 import { EUserRoles } from "../types/enumerations/EUserRoles.ts"
-import unknown from "https://denoporter.sirjosh.workers.dev/v1/deno.land/x/computed_types/src/unknown.ts"
-import object from "https://denoporter.sirjosh.workers.dev/v1/deno.land/x/computed_types/src/object.ts"
 
 export interface BootlegSchema {
     _id: { $oid: string }
@@ -76,6 +74,55 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
     }
 
     /**
+     * About relations
+     */
+    private _setupRelations() {
+        return [
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "createdById",
+                    foreignField: "_id",
+                    as: "createdBy"
+                }
+            },
+            {
+                $addFields: {
+                    createdBy: {
+                        $ifNull: [{ $arrayElemAt: ["$createdBy", 1] }, {}]
+                    }
+                }
+            },
+            {
+                $unwind: {
+                    path: '$createdBy',
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "modifiedById",
+                    foreignField: "_id",
+                    as: "modifiedBy"
+                }
+            },
+            {
+                $addFields: {
+                    modifiedBy: {
+                        $ifNull: [{ $arrayElemAt: ["$modifiedBy", 1] }, {}]
+                    }
+                }
+            },
+            {
+                $unwind: {
+                    path: '$modifiedBy', preserveNullAndEmptyArrays: true
+                }
+            },
+        ]
+    }
+
+    /**
      * Get one element by Id
      * @param id Id of the bootleg
      * {@link https://github.com/manyuanrong/deno_mongo/issues/89}
@@ -84,22 +131,7 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
         try {
             const el = (await this.aggregate([
                 { $match: { _id: ObjectId(id) } },
-                {
-                    $lookup: {
-                        from: "users",
-                        localField: "createdById",
-                        foreignField: "_id",
-                        as: "createdBy"
-                    }
-                },
-                {
-                    $lookup: {
-                        from: "users",
-                        localField: "modifiedById",
-                        foreignField: "_id",
-                        as: "modifiedBy"
-                    }
-                },
+                ...this._setupRelations(),
                 ...this._setupClear(user)
             ]))?.[0]
 
@@ -125,14 +157,26 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
                 { _id: ObjectId(id) },
                 update
             )
+
             if (!el)
                 throw new NotFoundException("Bootleg not found")
-            return el
+
+            return await this.findOneById(id)
         } catch (error) {
             if (error?.message?.includes(" is not legal."))
                 throw new NotFoundException("Bootleg not found")
             throw error
         }
+    }
+
+    /**
+     * Update one element by Id
+     * {@link https://github.com/manyuanrong/deno_mongo/issues/89}
+     */
+    async createOn(insert: any): Promise<BootlegSchema> {
+        return await this.findOneById(
+            (await this.insertOne(insert))?.$oid
+        )
     }
 
     /**
@@ -163,7 +207,8 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
             startAt = 0,
             limit,
             state = EBootlegStates.PUBLISHED,
-            isRandom = false
+            isRandom = false,
+            authorId
         },
         user
     }: {
@@ -181,6 +226,7 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
             limit?: number;
             state?: EBootlegStates;
             isRandom?: boolean;
+            authorId?: string;
         }
         user?: UserSchema
     }): Promise<BootlegSchema[]> {
@@ -253,6 +299,15 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
                 }
             }
 
+        //To match author
+        if (authorId)
+            try {
+                $match = {
+                    ...$match,
+                    createdById: { $eq: ObjectId(authorId) }
+                }
+            } catch (error) { }
+
         return this.aggregate([
             //Match disired state
             ...(() => {
@@ -309,22 +364,7 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
             (() => isRandom ? { $sample: { size: (limit || this.limit) } } : {})(),
             { $limit: startAt + (limit || this.limit) },
             { $skip: startAt },
-            {
-                $lookup: {
-                    from: "users",
-                    localField: "createdById",
-                    foreignField: "_id",
-                    as: "createdBy"
-                }
-            },
-            {
-                $lookup: {
-                    from: "users",
-                    localField: "modifiedById",
-                    foreignField: "_id",
-                    as: "modifiedBy"
-                }
-            },
+            ...this._setupRelations(),
             ...this._setupClear(user)
         ].filter(x => Object.keys(x).length))
     }
