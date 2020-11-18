@@ -1,8 +1,44 @@
+@import "../helpers";
+
 .index {
-    // min-height: 100vh;
-    // padding: 0 0.5rem;
-    // display: flex;
-    // flex-direction: column;
-    // justify-content: center;
-    // align-items: center;
+    .carousel {
+        @include flex-col;
+        height: 50vh;
+        min-height: 100%;
+        background: linear-gradient(0deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.9)), url(/bg.jpg);
+        background-size: cover;
+    }
+    .search {
+        // background: url(/search.png);
+        background-position: center center;
+        text-align: center;
+        .field {
+            max-width: 750px;
+            margin: 0 auto;
+            .input {
+                background: rgba(255, 255, 255, 0.05);
+                color: white;
+                &::-webkit-input-placeholder {
+                    color: #bebebe;
+                }
+                &:-moz-placeholder {
+                    color: #bebebe;
+                    opacity: 1;
+                }
+                &::-moz-placeholder {
+                    color: #bebebe;
+                    opacity: 1;
+                }
+                &:-ms-input-placeholder {
+                    color: #bebebe;
+                }
+                &::-ms-input-placeholder {
+                    color: #bebebe;
+                }
+                &::placeholder {
+                    color: #bebebe;
+                }
+            }
+        }
+    }
 }

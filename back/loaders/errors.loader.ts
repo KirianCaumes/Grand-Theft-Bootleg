@@ -1,4 +1,4 @@
-import { Context } from "https://deno.land/x/oak@v6.3.1/context.ts"
+import { Context } from "https://deno.land/x/oak@v6.3.2/context.ts"
 import render from "../helpers/render.ts"
 import { EApiErrors } from "../types/enumerations/EApiErrors.ts"
 import Exception from "../types/exceptions/Exception.ts"

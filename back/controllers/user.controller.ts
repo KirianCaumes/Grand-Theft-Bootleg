@@ -1,7 +1,7 @@
 import BaseController from "./_base.controller.ts"
 import { UsersCollectionType } from "../models/user.model.ts"
-import { Response } from "https://deno.land/x/oak@v6.3.1/response.ts"
-import { Request } from "https://deno.land/x/oak@v6.3.1/request.ts"
+import { Response } from "https://deno.land/x/oak@v6.3.2/response.ts"
+import { Request } from "https://deno.land/x/oak@v6.3.2/request.ts"
 import * as bcrypt from "https://deno.land/x/bcrypt/mod.ts"
 import NotFoundException from "../types/exceptions/NotFoundException.ts"
 import Exception from "../types/exceptions/Exception.ts"
@@ -32,8 +32,8 @@ export default class UserController extends BaseController {
         const userBody = this.validate(await request.body().value)
 
         //Check if user exist
-        if (await this.collection.findOne({ username: userBody.username }))
-            throw new Exception('User already exist')
+        if (await this.collection.findOne({ mail: userBody.mail }))
+            throw new Exception('Email already exist')
 
         const id = (await this.collection.insertOne({
             ...userBody,
@@ -57,11 +57,11 @@ export default class UserController extends BaseController {
      * Login
      */
     async login({ request, response }: { request: Request; response: Response }) {
-        //Validate data
-        const userBody = this.validate(await request.body().value)
+        //User body
+        const userBody = await request.body().value
 
         //Check if user exist
-        const user = await this.collection.findOne({ username: userBody.username })
+        const user = await this.collection.findOne({ mail: userBody.mail })
 
         if (!user)
             throw new NotFoundException('User not found')

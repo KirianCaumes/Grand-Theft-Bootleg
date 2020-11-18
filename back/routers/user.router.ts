@@ -1,4 +1,4 @@
-import { Router } from 'https://deno.land/x/oak/mod.ts'
+import { Router } from 'https://deno.land/x/oak@v6.3.2/mod.ts'
 import { userController } from './_initialization.ts'
 
 const userRouter = new Router({ prefix: '/api/user' })

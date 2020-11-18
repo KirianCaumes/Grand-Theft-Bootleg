@@ -1,28 +1,12 @@
 /***************************
 ********* Colors 🎨 ********
 ***************************/
-$primary: #2b6ca3;
-$dark-primary: #0f3375;
-$darker-primary: #091d42;
 
-$white: white;
-
-$grey: #f3f2f1; //Example: left menu
-$light-grey: #fbfaf9; //Example: base background
-$dark-grey: #605e5c;
-
-$black: #323130; //Default: Font color
-
-//Used to add colors as bulma helpers
-$colors: map-merge(
-  $colors,
-  (
-    "dark-primary": (
-      $primary,
-      $dark-primary,
-    ),
-  )
-);
+$white: #ffffff;
+$pink: #c51f5d;
+$dark-pink: #891541;
+$greyblue: #243447;
+$dark-greyblue: #141d26;
 
 /***************************
 ******** Settings ⚙ *******

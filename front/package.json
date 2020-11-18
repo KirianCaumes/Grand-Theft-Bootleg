@@ -8,12 +8,15 @@
     "start": "next start"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.32",
+    "@fortawesome/free-solid-svg-icons": "^5.15.1",
+    "@fortawesome/react-fontawesome": "^0.1.12",
     "axios": "^0.20.0",
     "bulma": "^0.9.1",
     "bulma-extensions": "^6.2.7",
     "classnames": "^2.2.6",
     "http-proxy-middleware": "^1.0.5",
-    "next": "^9.5.4",
+    "next": "^10.0.1",
     "office-ui-fabric-react": "^7.145.0",
     "postcss-flexbugs-fixes": "^4.2.1",
     "postcss-preset-env": "^6.7.0",

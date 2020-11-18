@@ -16,8 +16,8 @@ export class Bootleg {
         description = null
     } = {}) {
         this.id = id
-        this.startYear = title
-        this.isHistorical = description
+        this.title = title
+        this.description = description
     }
 }
 

@@ -1,7 +1,7 @@
 import BaseController from "./_base.controller.ts"
 import { BootlegsCollectionType } from "../models/bootleg.model.ts"
-import { getQuery } from "https://deno.land/x/oak@v6.3.1/helpers.ts"
-import { Context } from "https://deno.land/x/oak@v6.3.1/context.ts"
+import { getQuery } from "https://deno.land/x/oak@v6.3.2/helpers.ts"
+import { Context } from "https://deno.land/x/oak@v6.3.2/context.ts"
 
 /**
  * Band Controller

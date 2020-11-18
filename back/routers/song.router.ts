@@ -1,4 +1,4 @@
-import { Router } from 'https://deno.land/x/oak/mod.ts'
+import { Router } from 'https://deno.land/x/oak@v6.3.2/mod.ts'
 import { songController } from './_initialization.ts'
 import validateToken from "../helpers/validateToken.ts"
 

@@ -1,4 +1,4 @@
-import { Context } from "https://deno.land/x/oak@v6.3.1/context.ts"
+import { Context } from "https://deno.land/x/oak@v6.3.2/context.ts"
 import { verify } from "https://deno.land/x/djwt@v1.9/mod.ts"
 import UnauthorizedException from "../types/exceptions/UnauthorizedException.ts"
 import { env } from "./config.ts"

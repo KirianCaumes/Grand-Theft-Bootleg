@@ -6,6 +6,7 @@ import { env } from "../helpers/config.ts"
 export interface UserSchema {
     _id: { $oid: string }
     username: string
+    mail: string
     password: string
     role: number
 }

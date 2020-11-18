@@ -1,4 +1,4 @@
-import { Application } from "https://deno.land/x/oak/mod.ts"
+import { Application } from "https://deno.land/x/oak@v6.3.2/mod.ts"
 import bootlegRouter from "./routers/bootleg.router.ts"
 import defaultRouter from "./routers/default.router.ts"
 import errorsLoader from "./loaders/errors.loader.ts"

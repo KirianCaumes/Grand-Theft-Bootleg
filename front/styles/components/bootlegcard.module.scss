@@ -1,0 +1,28 @@
+@import "../helpers";
+@import "../variables";
+
+.bootlegcard {
+    .figure {
+        @include flex-col;
+        height: 250px;
+        background: $dark-greyblue;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        .image {
+            max-height: 100%;
+        }
+    }
+    .mediacontent {
+        overflow: hidden;
+        .title,
+        .subtitle {
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+        .title {
+            padding-bottom: 0.1em;
+        }
+    }
+}
