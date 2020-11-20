@@ -11,6 +11,7 @@
         flex-direction: column;
         .image {
             max-height: 100%;
+            object-fit: contain;
         }
     }
     .mediacontent {
@@ -20,9 +21,15 @@
             white-space: nowrap;
             text-overflow: ellipsis;
             overflow: hidden;
+            a:hover {
+                text-decoration: underline;
+            }
         }
         .title {
             padding-bottom: 0.1em;
+        }
+        .time {
+            margin-top: -1.25rem;
         }
     }
 }

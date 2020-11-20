@@ -7,30 +7,32 @@ import BootlegManager from "request/managers/bootlegManager"
 // @ts-ignore
 import { Section, Columns, Container, Button } from 'react-bulma-components'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faSearch } from '@fortawesome/free-solid-svg-icons'
+import { faSearch, faUserCheck } from '@fortawesome/free-solid-svg-icons'
 import classNames from 'classnames'
 import BootlegCard from "components/bootlegCard"
 import { Logo } from "components/svg/icon"
+import { useRouter } from 'next/router'
+import { Bootleg } from 'request/objects/bootleg'
+import Link from "next/link"
 
 /**
  * @typedef {object} IndexProps
  * @property {string} test Test
+ * @property {Bootleg[]} bootlegsPopular Bootlegs from API
+ * @property {Bootleg[]} bootlesgNew Bootlegs from API
+ * @property {Bootleg[]} bootlegsRandom Bootlegs from API
  */
 
 /**
  * Index page
  * @param {GlobalProps & IndexProps} props 
  */
-export default function Index({ test = "qsdqsd", ...props }) {
-    //Component did mount
-    // useEffect(() => {
-    //     (async () => {
-    //         const bootlegManager = new BootlegManager()
-    //         const bootlegs = await bootlegManager.getAll()
-    //         console.log("bootlegs")
-    //         console.log(bootlegs)
-    //     })()
-    // }, [])
+function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", ...props }) {
+    // console.log(bootlegsPopular)
+    // console.log(JSON.stringify(bootlesgNew))
+    // console.log(JSON.stringify(bootlegsRandom))
+
+    const router = useRouter()
 
     /** @type {[string, function(string):any]} Search text */
     const [searchText, setSearchText] = React.useState(null)
@@ -46,6 +48,7 @@ export default function Index({ test = "qsdqsd", ...props }) {
                     <Columns className="is-vcentered">
                         <Columns.Column
                             size="two-fifths"
+                            className="is-hidden-mobile"
                         >
                             <p className="has-text-right" >
                                 <Logo width={85} />
@@ -53,38 +56,52 @@ export default function Index({ test = "qsdqsd", ...props }) {
                         </Columns.Column>
                         <Columns.Column
                             size="three-fifths"
+                            className="has-text-left"
                         >
-                            <h1 className="title is-1 has-text-left has-text-white">
+                            <h1 className="title is-1 has-text-white">
                                 Grand Theft Bootleg
                             </h1>
-                            <p className="subtitle is-5 has-text-left has-text-white" >
+                            <p className="subtitle is-5 has-text-white" >
                                 Music and its hidden sides submerged.<br />
                                 What if we emerge them? 💿
                             </p>
                         </Columns.Column>
-
                     </Columns>
                 </Section>
                 <Section className={classNames(styles.search, "has-background-greyblue")} >
-                    <div className={classNames(styles.field, "field has-addons")}>
-                        <div className="control is-expanded">
-                            <input
-                                type="text"
-                                placeholder="What are you looking for?"
-                                defaultValue={searchText || ''}
-                                className={classNames(styles.input, "input is-pink")}
-                                onChange={ev => setSearchText(ev.target.value)}
-                            />
+                    <form
+                        onSubmit={ev => {
+                            ev.preventDefault()
+                            router.push({
+                                pathname: '/search',
+                                query: {
+                                    string: searchText
+                                }
+                            })
+                        }}
+                    >
+                        <div className={classNames(styles.field, "field has-addons")}>
+                            <div className="control is-expanded">
+                                <input
+                                    type="text"
+                                    placeholder="What are you looking for?"
+                                    defaultValue={searchText || ''}
+                                    className={classNames(styles.input, "input is-pink")}
+                                    onChange={ev => setSearchText(ev.target.value)}
+                                    minLength={3}
+                                    required
+                                />
+                            </div>
+                            <div className="control">
+                                <button
+                                    className="button is-pink"
+                                    onClick={() => console.log("search", searchText)}
+                                >
+                                    <FontAwesomeIcon icon={faSearch} />
+                                </button>
+                            </div>
                         </div>
-                        <div className="control">
-                            <button
-                                className="button is-pink"
-                                onClick={() => console.log("search", searchText)}
-                            >
-                                <FontAwesomeIcon icon={faSearch} />
-                            </button>
-                        </div>
-                    </div>
+                    </form>
                 </Section>
                 <Section>
                     <Container>
@@ -93,46 +110,16 @@ export default function Index({ test = "qsdqsd", ...props }) {
                         </h2>
                         <br />
                         <Columns>
-                            <Columns.Column size="one-fifth">
-                                <BootlegCard
-                                    imageUrl="https://img.discogs.com/45tWYAPJWSnHv5FjPoxZ84jaWUM=/fit-in/600x600/filters:strip_icc():format(jpeg):mode_rgb():quality(90)/discogs-images/R-10213608-1493499591-9392.jpeg.jpg"
-                                    title="Live At Club Citta "
-                                    band="In Flames"
-                                    date="1998"
-                                />
-                            </Columns.Column>
-                            <Columns.Column size="one-fifth">
-                                <BootlegCard
-                                    imageUrl="https://img.discogs.com/k3VlY3ds73dlHmDn0HJisgxIy74=/fit-in/516x511/filters:strip_icc():format(jpeg):mode_rgb():quality(90)/discogs-images/R-5638567-1398636035-9309.jpeg.jpg"
-                                    title="Playground Loudest Park - Loud Park '12 "
-                                    band="In Flames"
-                                    date="2012"
-                                />
-                            </Columns.Column>
-                            <Columns.Column size="one-fifth">
-                                <BootlegCard
-                                    imageUrl="https://img.discogs.com/pjGNkgEGluMSF5Ye6dEkIWq4Ci4=/fit-in/600x449/filters:strip_icc():format(jpeg):mode_rgb():quality(90)/discogs-images/R-5737820-1401293077-5189.jpeg.jpg"
-                                    title="Fuel For The Fire"
-                                    band="In Flames"
-                                    date="2006"
-                                />
-                            </Columns.Column>
-                            <Columns.Column size="one-fifth">
-                                <BootlegCard
-                                    imageUrl="https://img.discogs.com/yHYEsEhcNxBBqgsZvfIPfbMraqw=/fit-in/600x519/filters:strip_icc():format(jpeg):mode_rgb():quality(90)/discogs-images/R-5754114-1401728563-5983.jpeg.jpg"
-                                    title=" Live In Flames 3"
-                                    band="In Flames"
-                                    date="2000"
-                                />
-                            </Columns.Column>
-                            <Columns.Column size="one-fifth">
-                                <BootlegCard
-                                    imageUrl="https://img.discogs.com/JabuhFQr42XzSg4l_EBVnL4f3Y8=/fit-in/600x590/filters:strip_icc():format(jpeg):mode_rgb():quality(90)/discogs-images/R-12622889-1538794573-4702.jpeg.jpg"
-                                    title="Live In Flames"
-                                    band="In Flames"
-                                    date="1998"
-                                />
-                            </Columns.Column>
+                            {bootlegsPopular?.map((bootleg, i) => (
+                                <Columns.Column
+                                    size="one-fifth"
+                                    key={`popular-${i}`}
+                                >
+                                    <BootlegCard
+                                        bootleg={bootleg}
+                                    />
+                                </Columns.Column>
+                            ))}
                         </Columns>
                     </Container>
                     <br />
@@ -149,13 +136,13 @@ export default function Index({ test = "qsdqsd", ...props }) {
                                 </p>
                             </Columns.Column>
                             <Columns.Column size="one-third">
-                                <Button
-                                    fullwidth={true}
-                                    className="is-pink"
-                                    onClick={() => console.log("register")}
+                                <Link
+                                    href="/register"
                                 >
-                                    Register
-                                </Button>
+                                    <a className="button is-pink is-fullwidth">
+                                        Register&nbsp;<FontAwesomeIcon icon={faUserCheck} />
+                                    </a>
+                                </Link>
                             </Columns.Column>
                         </Columns>
                     </Container>
@@ -169,46 +156,16 @@ export default function Index({ test = "qsdqsd", ...props }) {
                         </h2>
                         <br />
                         <Columns>
-                            <Columns.Column size="one-fifth">
-                                <BootlegCard
-                                    imageUrl="https://img.discogs.com/45tWYAPJWSnHv5FjPoxZ84jaWUM=/fit-in/600x600/filters:strip_icc():format(jpeg):mode_rgb():quality(90)/discogs-images/R-10213608-1493499591-9392.jpeg.jpg"
-                                    title="Live At Club Citta "
-                                    band="In Flames"
-                                    date="1998"
-                                />
-                            </Columns.Column>
-                            <Columns.Column size="one-fifth">
-                                <BootlegCard
-                                    imageUrl="https://img.discogs.com/k3VlY3ds73dlHmDn0HJisgxIy74=/fit-in/516x511/filters:strip_icc():format(jpeg):mode_rgb():quality(90)/discogs-images/R-5638567-1398636035-9309.jpeg.jpg"
-                                    title="Playground Loudest Park - Loud Park '12 "
-                                    band="In Flames"
-                                    date="2012"
-                                />
-                            </Columns.Column>
-                            <Columns.Column size="one-fifth">
-                                <BootlegCard
-                                    imageUrl="https://img.discogs.com/pjGNkgEGluMSF5Ye6dEkIWq4Ci4=/fit-in/600x449/filters:strip_icc():format(jpeg):mode_rgb():quality(90)/discogs-images/R-5737820-1401293077-5189.jpeg.jpg"
-                                    title="Fuel For The Fire"
-                                    band="In Flames"
-                                    date="2006"
-                                />
-                            </Columns.Column>
-                            <Columns.Column size="one-fifth">
-                                <BootlegCard
-                                    imageUrl="https://img.discogs.com/yHYEsEhcNxBBqgsZvfIPfbMraqw=/fit-in/600x519/filters:strip_icc():format(jpeg):mode_rgb():quality(90)/discogs-images/R-5754114-1401728563-5983.jpeg.jpg"
-                                    title=" Live In Flames 3"
-                                    band="In Flames"
-                                    date="2000"
-                                />
-                            </Columns.Column>
-                            <Columns.Column size="one-fifth">
-                                <BootlegCard
-                                    imageUrl="https://img.discogs.com/JabuhFQr42XzSg4l_EBVnL4f3Y8=/fit-in/600x590/filters:strip_icc():format(jpeg):mode_rgb():quality(90)/discogs-images/R-12622889-1538794573-4702.jpeg.jpg"
-                                    title="Live In Flames"
-                                    band="In Flames"
-                                    date="1998"
-                                />
-                            </Columns.Column>
+                            {bootlesgNew?.map((bootleg, i) => (
+                                <Columns.Column
+                                    size="one-fifth"
+                                    key={`new-${i}`}
+                                >
+                                    <BootlegCard
+                                        bootleg={bootleg}
+                                    />
+                                </Columns.Column>
+                            ))}
                         </Columns>
                     </Container>
                     <br />
@@ -219,56 +176,18 @@ export default function Index({ test = "qsdqsd", ...props }) {
                         <h2 className="title is-2 has-text-centered has-text-white">
                             Top random Bootlegs
                         </h2>
-                        <div className="flex-row">
-                            <button
-                                className="button is-pink"
-                                onClick={() => console.log("reset random")}
-                            >
-                                I feel lucky! 🍀
-                            </button>
-                        </div>
                         <br />
                         <Columns>
-                            <Columns.Column size="one-fifth">
-                                <BootlegCard
-                                    imageUrl="https://img.discogs.com/45tWYAPJWSnHv5FjPoxZ84jaWUM=/fit-in/600x600/filters:strip_icc():format(jpeg):mode_rgb():quality(90)/discogs-images/R-10213608-1493499591-9392.jpeg.jpg"
-                                    title="Live At Club Citta "
-                                    band="In Flames"
-                                    date="1998"
-                                />
-                            </Columns.Column>
-                            <Columns.Column size="one-fifth">
-                                <BootlegCard
-                                    imageUrl="https://img.discogs.com/k3VlY3ds73dlHmDn0HJisgxIy74=/fit-in/516x511/filters:strip_icc():format(jpeg):mode_rgb():quality(90)/discogs-images/R-5638567-1398636035-9309.jpeg.jpg"
-                                    title="Playground Loudest Park - Loud Park '12 "
-                                    band="In Flames"
-                                    date="2012"
-                                />
-                            </Columns.Column>
-                            <Columns.Column size="one-fifth">
-                                <BootlegCard
-                                    imageUrl="https://img.discogs.com/pjGNkgEGluMSF5Ye6dEkIWq4Ci4=/fit-in/600x449/filters:strip_icc():format(jpeg):mode_rgb():quality(90)/discogs-images/R-5737820-1401293077-5189.jpeg.jpg"
-                                    title="Fuel For The Fire"
-                                    band="In Flames"
-                                    date="2006"
-                                />
-                            </Columns.Column>
-                            <Columns.Column size="one-fifth">
-                                <BootlegCard
-                                    imageUrl="https://img.discogs.com/yHYEsEhcNxBBqgsZvfIPfbMraqw=/fit-in/600x519/filters:strip_icc():format(jpeg):mode_rgb():quality(90)/discogs-images/R-5754114-1401728563-5983.jpeg.jpg"
-                                    title=" Live In Flames 3"
-                                    band="In Flames"
-                                    date="2000"
-                                />
-                            </Columns.Column>
-                            <Columns.Column size="one-fifth">
-                                <BootlegCard
-                                    imageUrl="https://img.discogs.com/JabuhFQr42XzSg4l_EBVnL4f3Y8=/fit-in/600x590/filters:strip_icc():format(jpeg):mode_rgb():quality(90)/discogs-images/R-12622889-1538794573-4702.jpeg.jpg"
-                                    title="Live In Flames"
-                                    band="In Flames"
-                                    date="1998"
-                                />
-                            </Columns.Column>
+                            {bootlegsRandom?.map((bootleg, i) => (
+                                <Columns.Column
+                                    size="one-fifth"
+                                    key={`random-${i}`}
+                                >
+                                    <BootlegCard
+                                        bootleg={bootleg}
+                                    />
+                                </Columns.Column>
+                            ))}
                         </Columns>
                     </Container>
                     <br />
@@ -277,3 +196,30 @@ export default function Index({ test = "qsdqsd", ...props }) {
         </>
     )
 }
+
+
+Index.getInitialProps = async (ctx) => {
+    try {
+        const bootlegManager = new BootlegManager()
+        const [bootlegsPopular, bootlesgNew, bootlegsRandom] = await Promise.all([
+            bootlegManager.getAll({
+                limit: 5,
+                orderBy: 'CLICKED_DESC'
+            }),
+            bootlegManager.getAll({
+                limit: 5,
+                orderBy: 'DATE_CREATION_DESC'
+            }),
+            bootlegManager.getAll({
+                limit: 5,
+                isRandom: 1
+            })
+        ])
+        return { bootlegsPopular, bootlesgNew, bootlegsRandom }
+    } catch (error) {
+        console.log(error)
+        return { bootlegsPopular: [], bootlesgNew: [], bootlegsRandom: [] }
+    }
+}
+
+export default Index

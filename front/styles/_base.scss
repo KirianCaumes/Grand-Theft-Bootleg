@@ -22,6 +22,9 @@ html {
       user-select: none;
       outline: none;
     }
+    a {
+      color: inherit;
+    }
     textarea {
       resize: vertical;
     }

@@ -349,12 +349,29 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
             },
             { $match },
             {
+                $addFields: {
+                    clicked_count: {
+                        $size: {
+                            "$ifNull": ["$clicked", []]
+                        }
+                    }
+                }
+            },
+            {
                 $sort: (() => {
                     switch (orderBy) {
                         case ESort.DATE_ASC:
-                            return { date: -1 }
-                        case ESort.DATE_DESC:
                             return { date: 1 }
+                        case ESort.DATE_DESC:
+                            return { date: -1 }
+                        case ESort.DATE_CREATION_ASC:
+                            return { createdOn: 1 }
+                        case ESort.DATE_CREATION_DESC:
+                            return { createdOn: -1 }
+                        case ESort.CLICKED_ASC:
+                            return { clicked_count: 1 }
+                        case ESort.CLICKED_DESC:
+                            return { clicked_count: -1 }
                         default:
                             return { date: 1 }
                     }

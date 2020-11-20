@@ -24,7 +24,7 @@ export default class ApiManager {
          * @protected
          * @type {string} 
          */
-        this.baseUrl = `${origin}/api/`
+        this.baseUrl = process.env.REACT_APP_API_URL || `${origin}/api/`
         /** 
          * Type of object to return from API call
          * @protected
@@ -168,7 +168,7 @@ export default class ApiManager {
                 data,
                 params,
                 headers: {
-                    Authorization: `Bearer ${localStorage.getItem(process.env.REACT_APP_LOCAL_STORAGE_KEY)}`
+                    // Authorization: `Bearer ${store ? store?.getItem(process.env.REACT_APP_LOCAL_STORAGE_KEY) : ''}`
                 },
                 responseType: responseType
             }),

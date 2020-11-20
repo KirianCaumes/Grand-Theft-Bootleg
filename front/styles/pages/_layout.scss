@@ -2,4 +2,15 @@ body {
     footer.footer {
         padding: 1rem 1.5rem 1rem;
     }
+    header {
+        nav {
+            div.navbar-menu {
+                @include until($desktop) {
+                    position: absolute;
+                    left: 0;
+                    right: 0;
+                }
+            }
+        }
+    }
 }

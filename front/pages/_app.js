@@ -73,7 +73,13 @@ export default function MyApp({ Component, pageProps }) {
             <footer className="footer has-background-dark-greyblue">
                 <div className="content has-text-centered has-text-white">
                     <p>
-                        <strong className="has-text-white">Grand Theft Bootleg</strong> - Copyright 2020
+                        <strong className="has-text-white">
+                            <Link href="/">
+                                <a>
+                                    Grand Theft Bootleg
+                                    </a>
+                            </Link>
+                        </strong> - Copyright 2020
                     </p>
                 </div>
             </footer>
