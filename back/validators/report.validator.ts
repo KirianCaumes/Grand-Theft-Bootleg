@@ -9,7 +9,7 @@ const reportValidationSchema = Schema({
 
 type ReportValidationType = Type<typeof reportValidationSchema>
 
-export const reportValidator = (report: ReportValidationType): ReportValidationType =>
-    validator<typeof reportValidationSchema, ReportValidationType>(reportValidationSchema, report, 'Report not modified or created')
+export const reportValidator = async (report: ReportValidationType): Promise<ReportValidationType> =>
+    await validator<typeof reportValidationSchema, ReportValidationType>(reportValidationSchema, report, 'Report not modified or created')
 
 export type ReportValidatorType = typeof reportValidator

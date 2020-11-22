@@ -35,7 +35,7 @@ const bootlegValidationSchema = Schema(bootlegValidationSchemaBase)
 
 type BootlegValidationType = Type<typeof bootlegValidationSchema>
 
-export const bootlegValidator = (bootleg: BootlegValidationType, action?: EActions, user?: UserSchema): BootlegValidationType => {
+export const bootlegValidator = async (bootleg: BootlegValidationType, action?: EActions, user?: UserSchema): Promise<BootlegValidationType> => {
     //If user and action are defined we can custom 
     const myEnum = (() => {
         switch (action) {
@@ -58,7 +58,7 @@ export const bootlegValidator = (bootleg: BootlegValidationType, action?: EActio
         }
     })()
 
-    return validator<typeof bootlegValidationSchema, BootlegValidationType>(
+    return await validator<typeof bootlegValidationSchema, BootlegValidationType>(
         Schema({
             ...bootlegValidationSchemaBase,
             state: unknown.enum(myEnum, arg => `State ${EBootlegStates[arg as number]} is invalid`)

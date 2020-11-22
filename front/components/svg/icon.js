@@ -6,7 +6,7 @@ import React from 'react'
  * @param {number=} props.width 
  * @param {string=} props.fill 
  */
-export const Logo = ({ width = 35, fill = 'white' }) => (
+export const Logo = ({ width = 40, fill = 'white' }) => (
     <svg
         width={width}
         xmlns="http://www.w3.org/2000/svg"
@@ -27,8 +27,8 @@ export const Logo = ({ width = 35, fill = 'white' }) => (
                     </g>
                     <path d="M65.031,10.649c-0.031-0.003-0.059-0.007-0.08-0.013l4.275,17.786l-9.563,12.776c6.287,2.274,10.059,8.757,8.521,15.315     c-1.396,5.95-6.689,9.976-12.637,10.221l0.232,5.58L42.988,83.148l3.195,13.531c23.808,4.662,47.225-10.003,52.674-33.301     C104.396,39.679,89.254,16.072,65.031,10.649z M67.184,86.432l-5.507-14.769c3.274-1.16,6.185-3.152,8.427-5.776l12.627,9.715     C78.63,80.529,73.249,84.273,67.184,86.432z" />
                 </g>
-                <polygon points="56.598,8.806 45.89,2.456 53.186,24.071   " fill={fill === 'white' ? "#c51f5d" : fill} />
-                <polygon points="59.598,22.802 54.828,33.073 61.507,28.872   " fill={fill === 'white' ? "#c51f5d" : fill} />
+                <polygon points="56.598,8.806 45.89,2.456 53.186,24.071   " fill={"#c51f5d"} />
+                <polygon points="59.598,22.802 54.828,33.073 61.507,28.872   " fill={"#c51f5d"} />
             </g>
         </g>
     </svg>

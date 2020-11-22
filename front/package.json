@@ -23,6 +23,7 @@
     "react": "16.13.1",
     "react-bulma-components": "^3.4.0",
     "react-dom": "16.13.1",
+    "react-reveal": "^1.2.2",
     "sass": "^1.26.11",
     "tailwindcss": "^1.8.10"
   },

@@ -20,5 +20,8 @@ export class InvalidEntityError extends Error {
          * @type {E} 
          */
         this.errorField = new (errorType)()
+
+        for (const key in content?.validationResults)
+            this.errorField[key] = content?.validationResults[key]
     }
 }

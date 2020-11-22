@@ -1,19 +1,23 @@
-import React, { useEffect } from "react"
+import React from "react"
 import Head from "next/head"
 // @ts-ignore
 import styles from "styles/pages/index.module.scss"
 import { GlobalProps } from "pages/_app"
 import BootlegManager from "request/managers/bootlegManager"
 // @ts-ignore
-import { Section, Columns, Container, Button } from 'react-bulma-components'
+import { Section, Columns, Container } from 'react-bulma-components'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faSearch, faUserCheck } from '@fortawesome/free-solid-svg-icons'
+import { faHandshake, faQuestion, faSearch, faUserCheck } from '@fortawesome/free-solid-svg-icons'
 import classNames from 'classnames'
 import BootlegCard from "components/bootlegCard"
 import { Logo } from "components/svg/icon"
 import { useRouter } from 'next/router'
 import { Bootleg } from 'request/objects/bootleg'
 import Link from "next/link"
+import config from 'react-reveal/globals'
+import Fade from 'react-reveal/Fade'
+
+config({ ssrFadeout: true })
 
 /**
  * @typedef {object} IndexProps
@@ -28,10 +32,6 @@ import Link from "next/link"
  * @param {GlobalProps & IndexProps} props 
  */
 function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", ...props }) {
-    // console.log(bootlegsPopular)
-    // console.log(JSON.stringify(bootlesgNew))
-    // console.log(JSON.stringify(bootlegsRandom))
-
     const router = useRouter()
 
     /** @type {[string, function(string):any]} Search text */
@@ -95,7 +95,6 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", 
                             <div className="control">
                                 <button
                                     className="button is-pink"
-                                    onClick={() => console.log("search", searchText)}
                                 >
                                     <FontAwesomeIcon icon={faSearch} />
                                 </button>
@@ -121,6 +120,17 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", 
                                 </Columns.Column>
                             ))}
                         </Columns>
+                        <p
+                            className="has-text-right"
+                        >
+                            <Link
+                                href="/search?orderBy=CLICKED_DESC"
+                            >
+                                <a>
+                                    See more &gt;
+                                </a>
+                            </Link>
+                        </p>
                     </Container>
                     <br />
                 </Section>
@@ -136,13 +146,15 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", 
                                 </p>
                             </Columns.Column>
                             <Columns.Column size="one-third">
-                                <Link
-                                    href="/register"
-                                >
-                                    <a className="button is-pink is-fullwidth">
-                                        Register&nbsp;<FontAwesomeIcon icon={faUserCheck} />
-                                    </a>
-                                </Link>
+                                <Fade right>
+                                    <Link
+                                        href="/register"
+                                    >
+                                        <a className="button is-pink is-fullwidth">
+                                            Register&nbsp;<FontAwesomeIcon icon={faUserCheck} />
+                                        </a>
+                                    </Link>
+                                </Fade>
                             </Columns.Column>
                         </Columns>
                     </Container>
@@ -167,6 +179,17 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", 
                                 </Columns.Column>
                             ))}
                         </Columns>
+                        <p
+                            className="has-text-right"
+                        >
+                            <Link
+                                href="/search?orderBy=DATE_CREATION_DESC"
+                            >
+                                <a>
+                                    See more &gt;
+                                </a>
+                            </Link>
+                        </p>
                     </Container>
                     <br />
                 </Section>
@@ -174,6 +197,104 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", 
                     <br />
                     <Container>
                         <h2 className="title is-2 has-text-centered has-text-white">
+                            How Grand Theft Bootleg works?
+                        </h2>
+                        <p className="subtitle is-3 has-text-centered has-text-white">
+                            Participate in music history!
+                        </p>
+                        <br />
+                        <Columns
+                            className="is-8 is-variable"
+                        >
+                            <Columns.Column
+                                size="one-third"
+                            >
+                                <Fade left>
+                                    <p
+                                        className="has-text-white has-text-centered"
+                                    >
+                                        <FontAwesomeIcon
+                                            style={{ height: '2.5rem', width: 'auto' }}
+                                            icon={faHandshake}
+                                        />
+                                    </p>
+                                    <h3 className="title is-4 has-text-white has-text-centered">
+                                        Have a bootleg?
+                                </h3>
+                                    <p className="subtitle is-6 has-text-white has-text-centered">
+                                        Let's share them with the community!
+                                </p>
+                                    <Link href="/">
+                                        <a
+                                            className="button is-pink is-outlined is-fullwidth"
+                                        >
+                                            Share
+                                    </a>
+                                    </Link>
+                                </Fade>
+                            </Columns.Column>
+                            <Columns.Column
+                                size="one-third"
+                            >
+                                <Fade bottom>
+                                    <p
+                                        className="has-text-white has-text-centered"
+                                    >
+                                        <FontAwesomeIcon
+                                            style={{ height: '2.5rem', width: 'auto' }}
+                                            icon={faSearch}
+                                        />
+                                    </p>
+                                    <h3 className="title is-4 has-text-white has-text-centered">
+                                        Want to listen to something?
+                                </h3>
+                                    <p className="subtitle is-6 has-text-white has-text-centered">
+                                        Do your research on the platform!
+                                </p>
+                                    <Link href="/">
+                                        <a
+                                            className="button is-pink is-outlined is-fullwidth"
+                                        >
+                                            Search
+                                </a>
+                                    </Link>
+                                </Fade>
+                            </Columns.Column>
+                            <Columns.Column
+                                size="one-third"
+                            >
+                                <Fade right>
+                                    <p
+                                        className="has-text-white has-text-centered"
+                                    >
+                                        <FontAwesomeIcon
+                                            style={{ height: '2.5rem', width: 'auto' }}
+                                            icon={faQuestion}
+                                        />
+                                    </p>
+                                    <h3 className="title is-4 has-text-white has-text-centered">
+                                        A question?
+                                </h3>
+                                    <p className="subtitle is-6 has-text-white has-text-centered">
+                                        You can message us directly!
+                                </p>
+                                    <Link href="/">
+                                        <a
+                                            className="button is-pink is-outlined is-fullwidth"
+                                        >
+                                            Contact us
+                                    </a>
+                                    </Link>
+                                </Fade>
+                            </Columns.Column>
+                        </Columns>
+                    </Container>
+                    <br />
+                </Section>
+                <Section>
+                    <br />
+                    <Container>
+                        <h2 className="title is-2 has-text-centered">
                             Top random Bootlegs
                         </h2>
                         <br />
@@ -189,6 +310,17 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", 
                                 </Columns.Column>
                             ))}
                         </Columns>
+                        <p
+                            className="has-text-right"
+                        >
+                            <Link
+                                href="/search?isRandom=1"
+                            >
+                                <a>
+                                    See more &gt;
+                                    </a>
+                            </Link>
+                        </p>
                     </Container>
                     <br />
                 </Section>

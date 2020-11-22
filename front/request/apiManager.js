@@ -94,13 +94,8 @@ export default class ApiManager {
          * @param {MessageBarType=} props.type 
          * @param {string=} props.message 
          */
-        const setMessage = ({ type = MessageBarType.error, message = getErrDesc() }) => null //store.dispatch(setMessageBar({ isDisplayed: true, type, message }))
+        const setMessage = ({ type = MessageBarType.error, message = 'Something bad happened' }) => null //store.dispatch(setMessageBar({ isDisplayed: true, type, message }))
 
-        /**
-         * Error Messages
-         * @returns {string}
-         */
-        const getErrDesc = () => err.response?.data?.errors?.map(x => x?.description)?.join(', ') ?? err.response?.data
 
         if (axios.isCancel(err)) {
             return new CancelRequestError(err.message)
@@ -113,23 +108,23 @@ export default class ApiManager {
                         return new InvalidEntityError({ content: dataNotWellFormated, errorType: this.errorType })
                     }
                     setMessage({})
-                    return err.response?.data?.errors
+                    return new Error(err.response?.data?.message)
                 case 401:
-                    setMessage({ type: MessageBarType.blocked, message: getErrDesc() ?? "Vous n'êtes pas authorisé à faire cette action" })
+                    setMessage({ type: MessageBarType.blocked, message: err.response?.data?.message ?? "You are not allowed to do this action" })
                     // store.dispatch(signOut(undefined))
                     return new UnauthorizedError("Unauthorized")
                 case 403:
-                    setMessage({ type: MessageBarType.blocked, message: getErrDesc() ?? "Vous n'êtes pas authorisé à faire cette action" })
-                    return err.response?.data?.errors
+                    setMessage({ type: MessageBarType.blocked, message: err.response?.data?.message ?? "You are not allowed to do this action" })
+                    return new Error(err.response?.data?.message)
                 case 404:
-                    setMessage({ message: getErrDesc() ?? "L'élément n'a pas été trouvé" })
-                    return err.response?.data?.errors
+                    setMessage({ message: err.response?.data?.message ?? "Item not found" })
+                    return new Error(err.response?.data?.message)
                 case 500:
-                    setMessage({ message: getErrDesc() ?? "Une erreur est survenue" })
-                    return err.response?.data
+                    setMessage({ message: err.response?.data?.message ?? "Something bad happened" })
+                    return new Error(err.response?.data)
                 default:
-                    setMessage({ message: getErrDesc() ?? "Une erreur est survenue" })
-                    return err.response?.data?.errors
+                    setMessage({ message: err.response?.data?.message ?? "Something bad happened" })
+                    return new Error(err.response?.data?.errors)
             }
         } else if (err.request) {
             setMessage({ message: err.request?.toString() })

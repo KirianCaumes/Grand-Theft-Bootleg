@@ -13,6 +13,11 @@ import { reportValidator } from "../validators/report.validator.ts"
 const bootlegsCollection = new BootlegsCollection()
 const usersCollection = new UsersCollection()
 
+export {
+    bootlegsCollection,
+    usersCollection
+}
+
 //Controllers
 const bootlegController = new BootlegController(bootlegsCollection, bootlegValidator, reportValidator)
 const bandController = new BandController(bootlegsCollection)

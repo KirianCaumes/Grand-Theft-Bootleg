@@ -65,11 +65,26 @@ export default function MyApp({ Component, pageProps }) {
                                     Login
                                 </a>
                             </Link>
+                            <div className="navbar-item">
+                                <div className="buttons">
+
+                                    <Link href="/register">
+                                        <a
+                                            className="button is-pink"
+                                            onClick={() => setIsActive(false)}
+                                        >
+                                            <strong>Register</strong>
+                                        </a>
+                                    </Link>
+                                </div>
+                            </div>
                         </Navbar.Container>
                     </Navbar.Menu>
                 </Navbar>
             </header>
+
             <Component {...{ ...pageProps, ...globalProps }} />
+
             <footer className="footer has-background-dark-greyblue">
                 <div className="content has-text-centered has-text-white">
                     <p>

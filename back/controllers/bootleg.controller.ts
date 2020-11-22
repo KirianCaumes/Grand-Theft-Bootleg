@@ -88,7 +88,7 @@ export default class BootlegController extends BaseController {
         const user = await this._getUser(request)
 
         //Validate data
-        const bootlegBody = this.validateBootleg(await request.body().value, EActions.CREATE, user)
+        const bootlegBody = await this.validateBootleg(await request.body().value, EActions.CREATE, user)
 
         //Check if has access
         this.denyAccessUnlessGranted(EActions.CREATE, bootlegBody, user)
@@ -121,7 +121,7 @@ export default class BootlegController extends BaseController {
         const bootlegBdd = await this.collection.findOneById(params.id, user)
 
         //Validate data
-        const bootlegBody = this.validateBootleg(await request.body().value, EActions.UPDATE, user)
+        const bootlegBody = await this.validateBootleg(await request.body().value, EActions.UPDATE, user)
 
         //Check if has access
         this.denyAccessUnlessGranted(EActions.UPDATE, bootlegBdd, user)

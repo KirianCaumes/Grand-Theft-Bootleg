@@ -1,8 +1,13 @@
 import { createProxyMiddleware } from 'http-proxy-middleware';
 
+export const config = {
+    api: {
+        bodyParser: false,
+    },
+}
 const apiProxy = createProxyMiddleware({
     target: 'http://localhost:5000',
-    changeOrigin: true
+    changeOrigin: false
 })
 
 //TODO this might break production

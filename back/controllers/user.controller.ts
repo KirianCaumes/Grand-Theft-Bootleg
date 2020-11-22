@@ -7,6 +7,7 @@ import NotFoundException from "../types/exceptions/NotFoundException.ts"
 import Exception from "../types/exceptions/Exception.ts"
 import { UserValidatorType } from "../validators/user.validator.ts"
 import { EUserRoles } from "../types/enumerations/EUserRoles.ts"
+import ValidationException from "../types/exceptions/ValidationException.ts"
 
 /**
  * User Controller
@@ -29,11 +30,7 @@ export default class UserController extends BaseController {
      */
     async register({ request, response }: { request: Request; response: Response }) {
         //Validate data
-        const userBody = this.validate(await request.body().value)
-
-        //Check if user exist
-        if (await this.collection.findOne({ mail: userBody.mail }))
-            throw new Exception('Email already exist')
+        const userBody = await this.validate(await request.body().value)
 
         const id = (await this.collection.insertOne({
             ...userBody,
@@ -64,10 +61,16 @@ export default class UserController extends BaseController {
         const user = await this.collection.findOne({ mail: userBody.mail })
 
         if (!user)
-            throw new NotFoundException('User not found')
+            throw new ValidationException(
+                'User not found',
+                { 'mail': 'Email not found' }
+            )
 
         if (!await bcrypt.compare(userBody.password, user.password))
-            throw new Exception('Invalid password')
+            throw new ValidationException(
+                'Invalid password',
+                { 'password': 'Invalid password' }
+            )
 
         response.body = this._render({
             message: 'User login succeed',
