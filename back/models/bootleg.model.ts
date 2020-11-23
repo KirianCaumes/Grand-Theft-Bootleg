@@ -350,7 +350,7 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
             { $match },
             {
                 $addFields: {
-                    clicked_count: {
+                    clickedCount: {
                         $size: {
                             "$ifNull": ["$clicked", []]
                         }
@@ -369,9 +369,9 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
                         case ESort.DATE_CREATION_DESC:
                             return { createdOn: -1 }
                         case ESort.CLICKED_ASC:
-                            return { clicked_count: 1 }
+                            return { clickedCount: 1 }
                         case ESort.CLICKED_DESC:
-                            return { clicked_count: -1 }
+                            return { clickedCount: -1 }
                         default:
                             return { date: 1 }
                     }

@@ -71,21 +71,15 @@
   text-transform: capitalize;
 }
 
-*.is-with-inputs > * {
-  margin: 0 1em 1em;
-  max-width: 300px;
-  width: 100%;
-}
-
 .is-divider-vertical {
   align-self: normal;
-}
-
-.notification {
-  padding: 0.75rem 2.5rem 0.75rem 1.25rem !important;
 }
 
 .is-required:after {
   content: " *";
   color: $red;
+}
+
+.is-relative {
+  position: relative !important;
 }

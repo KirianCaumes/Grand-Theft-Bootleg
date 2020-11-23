@@ -2,31 +2,59 @@
 @import "../variables";
 
 .bootlegcard {
-    .figure {
+    box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s linear 0s;
+    &:hover {
+        box-shadow: 0px 1px 35px 0px rgba(0, 0, 0, 0.3);
+        // img {
+        //     transform: scale(1.05);
+        //     opacity: 0.9;
+        // }
+    }
+    figure {
         @include flex-col;
         height: 250px;
-        background: $dark-greyblue;
+        background: $greyblue;
         display: flex;
         justify-content: center;
         flex-direction: column;
-        .image {
+        overflow: hidden;
+        img {
+            transition: all 0.3s linear 0s;
             max-height: 100%;
             object-fit: contain;
         }
     }
+    .date {
+        position: absolute;
+        bottom: 0;
+        background: $pink;
+        font-weight: 600;
+        padding: 0.25em.5em;
+        color: white;
+        a:hover {
+            color: white !important;
+            text-decoration: none !important;
+        }
+    }
     .mediacontent {
         overflow: hidden;
-        .title,
-        .subtitle {
+        h3,
+        h4 {
             white-space: nowrap;
             text-overflow: ellipsis;
             overflow: hidden;
         }
-        .title {
+        h3 {
             padding-bottom: 0.1em;
         }
-        .time {
-            margin-top: -1.25rem;
+        h4 {
+            color: $pink;
+            font-weight: 500;
+        }
+        p {
+            color: gray;
+            font-size: 0.9em;
         }
     }
 }

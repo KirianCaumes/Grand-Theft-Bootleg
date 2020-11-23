@@ -1,9 +1,11 @@
+@import "./variables";
+
 html {
   min-height: 100%;
   height: 100%;
   max-width: 100vw;
   color: $black !important;
-  background-color: white;
+  background-color: $grey !important;
   overflow-x: hidden;
   padding: 0 !important;
   margin: 0;
@@ -30,6 +32,10 @@ html {
     }
     textarea {
       resize: vertical;
+    }
+    ::selection {
+      background-color: $dark-pink;
+      color: white;
     }
   }
 }

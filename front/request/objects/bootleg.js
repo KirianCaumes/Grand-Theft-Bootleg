@@ -25,6 +25,7 @@ export class Bootleg {
      * @param {object=} data.modifiedById
      * @param {string=} data.modifiedOn
      * @param {string=} data.clicked
+     * @param {number=} data.clickedCount
      * @param {string=} data.report
      */
     constructor({
@@ -49,6 +50,7 @@ export class Bootleg {
         modifiedById = null,
         modifiedOn = null,
         clicked = null,
+        clickedCount = 0,
         report = null
     } = {}) {
 
@@ -73,6 +75,7 @@ export class Bootleg {
         this.modifiedById = modifiedById?.$oid
         this.modifiedOn = modifiedOn ? new Date(modifiedOn) : modifiedOn
         // this.clicked = clicked
+        this.clickedCount = clickedCount
         // this.report = report
     }
 }
@@ -102,5 +105,6 @@ export class ErrorBootleg {
     modifiedById
     modifiedOn
     clicked
+    clickedCount
     report
 }

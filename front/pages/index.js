@@ -104,7 +104,7 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", 
                 </Section>
                 <Section>
                     <Container>
-                        <h2 className="title is-2 has-text-centered">
+                        <h2 className={classNames("title is-3", styles.title)}>
                             Most popular Bootlegs
                         </h2>
                         <br />
@@ -134,26 +134,107 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", 
                     </Container>
                     <br />
                 </Section>
-                <Section className="has-background-greyblue">
+
+                <Section className="is-relative">
+                    <div className={styles.skewed} />
                     <br />
                     <Container>
+                        <h2 className={classNames("title is-3 has-text-white", styles.title)}>
+                            How Grand Theft Bootleg works?
+                        </h2>
+                        <p className="is-size-5 has-text-white">
+                            Participate in music history!
+                        </p>
                         <br />
-                        <Columns className="is-vcentered">
-                            <Columns.Column size="two-thirds">
-                                <p className="subtitle is-4 has-text-centered has-text-white">
-                                    You too, join the community and share your passion for your favorite bands.<br />
-                                    Help us bring out the bootlegs lost in the depths of the abyss! 🌊
-                                </p>
+                        <br />
+                        <Columns
+                            className="is-8 is-variable"
+                        >
+                            <Columns.Column
+                                size="one-third"
+                            >
+                                <Fade left>
+                                    <div>
+                                        <p
+                                            className="has-text-white has-text-centered"
+                                        >
+                                            <FontAwesomeIcon
+                                                style={{ height: '2.5rem', width: 'auto' }}
+                                                icon={faHandshake}
+                                            />
+                                        </p>
+                                        <h3 className="title is-5 has-text-white has-text-centered">
+                                            Have a <span className="has-text-pink">bootleg</span>?
+                                        </h3>
+                                        <p className="subtitle is-6 has-text-white has-text-centered">
+                                            Let's share them with the community!
+                                        </p>
+                                        <Link href="/">
+                                            <a
+                                                className="button is-pink is-outlined is-fullwidth"
+                                            >
+                                                Share
+                                            </a>
+                                        </Link>
+                                    </div>
+                                </Fade>
                             </Columns.Column>
-                            <Columns.Column size="one-third">
+                            <Columns.Column
+                                size="one-third"
+                            >
+                                <Fade bottom>
+                                    <div>
+                                        <p
+                                            className="has-text-white has-text-centered"
+                                        >
+                                            <FontAwesomeIcon
+                                                style={{ height: '2.5rem', width: 'auto' }}
+                                                icon={faSearch}
+                                            />
+                                        </p>
+                                        <h3 className="title is-5 has-text-white has-text-centered">
+                                            Want to <span className="has-text-pink">listen</span> to something?
+                                        </h3>
+                                        <p className="subtitle is-6 has-text-white has-text-centered">
+                                            Search, find and listen!
+                                        </p>
+                                        <Link href="/">
+                                            <a
+                                                className="button is-pink is-outlined is-fullwidth"
+                                            >
+                                                Search
+                                            </a>
+                                        </Link>
+                                    </div>
+                                </Fade>
+                            </Columns.Column>
+                            <Columns.Column
+                                size="one-third"
+                            >
                                 <Fade right>
-                                    <Link
-                                        href="/register"
-                                    >
-                                        <a className="button is-pink is-fullwidth">
-                                            Register&nbsp;<FontAwesomeIcon icon={faUserCheck} />
-                                        </a>
-                                    </Link>
+                                    <div>
+                                        <p
+                                            className="has-text-white has-text-centered"
+                                        >
+                                            <FontAwesomeIcon
+                                                style={{ height: '2.5rem', width: 'auto' }}
+                                                icon={faQuestion}
+                                            />
+                                        </p>
+                                        <h3 className="title is-5 has-text-white has-text-centered">
+                                            A <span className="has-text-pink">question</span>?
+                                        </h3>
+                                        <p className="subtitle is-6 has-text-white has-text-centered">
+                                            You can message us directly!
+                                        </p>
+                                        <Link href="/">
+                                            <a
+                                                className="button is-pink is-outlined is-fullwidth"
+                                            >
+                                                Contact us
+                                            </a>
+                                        </Link>
+                                    </div>
                                 </Fade>
                             </Columns.Column>
                         </Columns>
@@ -163,7 +244,7 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", 
                 <Section>
                     <br />
                     <Container>
-                        <h2 className="title is-2 has-text-centered">
+                        <h2 className={classNames("title is-3", styles.title)}>
                             Newly added Bootlegs
                         </h2>
                         <br />
@@ -193,97 +274,27 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", 
                     </Container>
                     <br />
                 </Section>
-                <Section className="has-background-greyblue">
+                <Section className="is-relative">
+                    <div className={styles.skewed} />
                     <br />
                     <Container>
-                        <h2 className="title is-2 has-text-centered has-text-white">
-                            How Grand Theft Bootleg works?
+                        <h2 className={classNames("title is-3 has-text-white", styles.title)}>
+                            Join the community
                         </h2>
-                        <p className="subtitle is-3 has-text-centered has-text-white">
-                            Participate in music history!
-                        </p>
-                        <br />
-                        <Columns
-                            className="is-8 is-variable"
-                        >
-                            <Columns.Column
-                                size="one-third"
-                            >
-                                <Fade left>
-                                    <p
-                                        className="has-text-white has-text-centered"
-                                    >
-                                        <FontAwesomeIcon
-                                            style={{ height: '2.5rem', width: 'auto' }}
-                                            icon={faHandshake}
-                                        />
-                                    </p>
-                                    <h3 className="title is-4 has-text-white has-text-centered">
-                                        Have a bootleg?
-                                </h3>
-                                    <p className="subtitle is-6 has-text-white has-text-centered">
-                                        Let's share them with the community!
+                        <Columns className="is-vcentered">
+                            <Columns.Column size="two-thirds">
+                                <p className="is-size-5 has-text-white">
+                                    You too, join the community and share your passion for your favorite bands. Help us bring out the bootlegs lost in the depths of the abyss! 🌊
                                 </p>
-                                    <Link href="/">
-                                        <a
-                                            className="button is-pink is-outlined is-fullwidth"
-                                        >
-                                            Share
-                                    </a>
-                                    </Link>
-                                </Fade>
                             </Columns.Column>
-                            <Columns.Column
-                                size="one-third"
-                            >
-                                <Fade bottom>
-                                    <p
-                                        className="has-text-white has-text-centered"
-                                    >
-                                        <FontAwesomeIcon
-                                            style={{ height: '2.5rem', width: 'auto' }}
-                                            icon={faSearch}
-                                        />
-                                    </p>
-                                    <h3 className="title is-4 has-text-white has-text-centered">
-                                        Want to listen to something?
-                                </h3>
-                                    <p className="subtitle is-6 has-text-white has-text-centered">
-                                        Do your research on the platform!
-                                </p>
-                                    <Link href="/">
-                                        <a
-                                            className="button is-pink is-outlined is-fullwidth"
-                                        >
-                                            Search
-                                </a>
-                                    </Link>
-                                </Fade>
-                            </Columns.Column>
-                            <Columns.Column
-                                size="one-third"
-                            >
+                            <Columns.Column size="one-third">
                                 <Fade right>
-                                    <p
-                                        className="has-text-white has-text-centered"
+                                    <Link
+                                        href="/register"
                                     >
-                                        <FontAwesomeIcon
-                                            style={{ height: '2.5rem', width: 'auto' }}
-                                            icon={faQuestion}
-                                        />
-                                    </p>
-                                    <h3 className="title is-4 has-text-white has-text-centered">
-                                        A question?
-                                </h3>
-                                    <p className="subtitle is-6 has-text-white has-text-centered">
-                                        You can message us directly!
-                                </p>
-                                    <Link href="/">
-                                        <a
-                                            className="button is-pink is-outlined is-fullwidth"
-                                        >
-                                            Contact us
-                                    </a>
+                                        <a className="button is-pink is-fullwidth">
+                                            Register&nbsp;<FontAwesomeIcon icon={faUserCheck} />
+                                        </a>
                                     </Link>
                                 </Fade>
                             </Columns.Column>
@@ -294,7 +305,7 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", 
                 <Section>
                     <br />
                     <Container>
-                        <h2 className="title is-2 has-text-centered">
+                        <h2 className={classNames("title is-3", styles.title)}>
                             Top random Bootlegs
                         </h2>
                         <br />
