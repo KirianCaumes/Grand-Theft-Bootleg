@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback, useMemo } from 'react'
 // @ts-ignore
 import { Card, Heading } from 'react-bulma-components'
 // @ts-ignore
@@ -16,36 +16,42 @@ import { faClock, faEye } from '@fortawesome/free-regular-svg-icons'
  * @param {Bootleg} props.bootleg
  */
 export default function BootlegCard({ bootleg }) {
-    const timeDifference = (current, previous) => {
-        const msPerMinute = 60 * 1000
-        const msPerHour = msPerMinute * 60
-        const msPerDay = msPerHour * 24
-        const msPerMonth = msPerDay * 30
-        const msPerYear = msPerDay * 365
+    /** @type {string} Time posted ago */
+    const timeAgo = useMemo(
+        () => {
+            if (!bootleg.createdOn)
+                return ''
 
-        const elapsed = current - previous
+            const msPerMinute = 60 * 1000
+            const msPerHour = msPerMinute * 60
+            const msPerDay = msPerHour * 24
+            const msPerMonth = msPerDay * 30
+            const msPerYear = msPerDay * 365
 
-        if (elapsed < msPerMinute) {
-            const res = Math.round(elapsed / 1000)
-            return `${res} second${res > 1 ? 's' : ''} ago`
-        } else if (elapsed < msPerHour) {
-            const res = Math.round(elapsed / msPerMinute)
-            return `${res} minute${res > 1 ? 's' : ''} ago`
-        } else if (elapsed < msPerDay) {
-            const res = Math.round(elapsed / msPerHour)
-            return `${res} hour${res > 1 ? 's' : ''} ago`
-        } else if (elapsed < msPerMonth) {
-            const res = Math.round(elapsed / msPerDay)
-            return `${res} day${res > 1 ? 's' : ''} ago`
-        } else if (elapsed < msPerYear) {
-            const res = Math.round(elapsed / msPerMonth)
-            return `${res} month${res > 1 ? 's' : ''} ago`
-        } else {
-            const res = Math.round(elapsed / msPerYear)
-            return `${res} year${res > 1 ? 's' : ''} ago`
-        }
-    }
+            const elapsed = new Date().getTime() - new Date(bootleg.createdOn)?.getTime()
 
+            if (elapsed < msPerMinute) {
+                const res = Math.round(elapsed / 1000)
+                return `${res} second${res > 1 ? 's' : ''} ago`
+            } else if (elapsed < msPerHour) {
+                const res = Math.round(elapsed / msPerMinute)
+                return `${res} minute${res > 1 ? 's' : ''} ago`
+            } else if (elapsed < msPerDay) {
+                const res = Math.round(elapsed / msPerHour)
+                return `${res} hour${res > 1 ? 's' : ''} ago`
+            } else if (elapsed < msPerMonth) {
+                const res = Math.round(elapsed / msPerDay)
+                return `${res} day${res > 1 ? 's' : ''} ago`
+            } else if (elapsed < msPerYear) {
+                const res = Math.round(elapsed / msPerMonth)
+                return `${res} month${res > 1 ? 's' : ''} ago`
+            } else {
+                const res = Math.round(elapsed / msPerYear)
+                return `${res} year${res > 1 ? 's' : ''} ago`
+            }
+        },
+        [bootleg]
+    )
 
     return (
         <article className={classNames(styles.bootlegcard, "card")}>
@@ -110,7 +116,7 @@ export default function BootlegCard({ bootleg }) {
                         </Heading>
                         <p className="flex-row flex-space-between">
                             <span>
-                                <FontAwesomeIcon icon={faClock} /> {timeDifference(new Date().getTime(), new Date(bootleg.createdOn).getTime())}
+                                <FontAwesomeIcon icon={faClock} /> {timeAgo}
                             </span>
                             <span>
                                 <FontAwesomeIcon icon={faEye} /> {bootleg.clickedCount} times

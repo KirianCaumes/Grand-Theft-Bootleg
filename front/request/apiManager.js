@@ -163,7 +163,7 @@ export default class ApiManager {
                 data,
                 params,
                 headers: {
-                    // Authorization: `Bearer ${store ? store?.getItem(process.env.REACT_APP_LOCAL_STORAGE_KEY) : ''}`
+                    // Authorization: `Bearer ${process.browser ? cookies.get(process.env.REACT_APP_LOCAL_STORAGE_KEY) : '' }`
                 },
                 responseType: responseType
             }),

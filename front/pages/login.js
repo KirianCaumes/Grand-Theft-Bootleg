@@ -16,17 +16,20 @@ import { CancelRequestError } from "request/errors/cancelRequestError"
 import { UnauthorizedError } from "request/errors/unauthorizedError"
 import { InvalidEntityError } from "request/errors/invalidEntityError"
 import { NotImplementedError } from "request/errors/notImplementedError"
+import { Cookies } from 'react-cookie'
+import withManagers, { ManagersProps } from "helpers/hoc/withManagers"
+
+const cookies = new Cookies()
 
 /**
  * @typedef {object} LoginProps
- * @property {string} test Test
  */
 
 /**
  * Login page
- * @param {GlobalProps & LoginProps} props 
+ * @param {GlobalProps & LoginProps & ManagersProps} props
  */
-export default function Login({ ...props }) {
+function Login({ userManager, ...props }) {
     /** @type {[string, function(string):any]} Status */
     const [status, setStatus] = React.useState(Status.IDLE)
     /** @type {[User, function(User):any]} User */
@@ -38,8 +41,7 @@ export default function Login({ ...props }) {
         async () => {
             setStatus(Status.PENDING)
             try {
-                const userManager = new UserManager()
-                await userManager.login(user)
+                cookies.set(process.env.REACT_APP_LOCAL_STORAGE_KEY, (await userManager.login(user)).token)
             } catch (error) {
                 switch (error?.constructor) {
                     case CancelRequestError:
@@ -159,3 +161,5 @@ export default function Login({ ...props }) {
         </>
     )
 }
+
+export default withManagers(Login)

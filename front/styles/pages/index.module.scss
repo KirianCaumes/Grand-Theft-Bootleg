@@ -42,18 +42,6 @@
             }
         }
     }
-    .title {
-        position: relative;
-        &::before {
-            content: "";
-            background: $pink;
-            position: absolute;
-            bottom: -0.5em;
-            width: 1em;
-            height: 0.25em;
-            display: block;
-        }
-    }
     .skewed {
         position: absolute;
         top: 1.5em;

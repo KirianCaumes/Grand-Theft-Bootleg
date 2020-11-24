@@ -21,8 +21,10 @@ export class Bootleg {
      * @param {number=} data.videoQuality
      * @param {number=} data.state
      * @param {object=} data.createdById
+     * @param {object=} data.createdBy
      * @param {string=} data.createdOn
      * @param {object=} data.modifiedById
+     * @param {object=} data.modifiedBy
      * @param {string=} data.modifiedOn
      * @param {string=} data.clicked
      * @param {number=} data.clickedCount
@@ -46,8 +48,10 @@ export class Bootleg {
         videoQuality = null,
         state = null,
         createdById = null,
+        createdBy = {},
         createdOn = null,
         modifiedById = null,
+        modifiedBy = {},
         modifiedOn = null,
         clicked = null,
         clickedCount = 0,
@@ -71,8 +75,10 @@ export class Bootleg {
         this.videoQuality = videoQuality
         this.state = state
         this.createdById = createdById?.$oid
+        this.createdBy = createdBy
         this.createdOn = createdOn ? new Date(createdOn) : createdOn
         this.modifiedById = modifiedById?.$oid
+        this.modifiedBy = modifiedBy
         this.modifiedOn = modifiedOn ? new Date(modifiedOn) : modifiedOn
         // this.clicked = clicked
         this.clickedCount = clickedCount

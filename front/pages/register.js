@@ -17,6 +17,7 @@ import { UnauthorizedError } from "request/errors/unauthorizedError"
 import { InvalidEntityError } from "request/errors/invalidEntityError"
 import { NotImplementedError } from "request/errors/notImplementedError"
 import { useRouter } from 'next/router'
+import withManagers, { ManagersProps } from "helpers/hoc/withManagers"
 
 /**
  * @typedef {object} RegisterProps
@@ -24,16 +25,16 @@ import { useRouter } from 'next/router'
 
 /**
  * Register page
- * @param {GlobalProps & RegisterProps} props 
+ * @param {GlobalProps & RegisterProps & ManagersProps} props
  */
-export default function Register({ ...props }) {
+function Register({ userManager, ...props }) {
     /** @type {[string, function(string):any]} Status */
     const [status, setStatus] = React.useState(Status.IDLE)
     /** @type {[User, function(User):any]} User */
     const [user, setUser] = React.useState(new User())
     /** @type {[ErrorUser, function(ErrorUser):any]} Error message */
     const [errorField, setErrorField] = React.useState(new ErrorUser())
-    /** @type {[ErrorUser, function(ErrorUser):any]} Is password visible */
+    /** @type {[boolean, function(boolean):any]} Is password visible */
     const [isPwdVisible, setIsPwdVisible] = React.useState(!!false)
 
     const router = useRouter()
@@ -42,7 +43,6 @@ export default function Register({ ...props }) {
         async () => {
             setStatus(Status.PENDING)
             try {
-                const userManager = new UserManager()
                 await userManager.create(user)
                 //TODO token                
                 router.push({
@@ -201,3 +201,5 @@ export default function Register({ ...props }) {
         </>
     )
 }
+
+export default withManagers(Register)

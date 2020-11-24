@@ -21,7 +21,7 @@ export default class UserManager extends ApiManager {
 
         return request.req
             .then(res => {
-                return new (this.type)({ token: res.data.authToken })
+                return new (this.type)(res.data[this.objectName])
             })
             .catch(err => {
                 throw this._handleError(err)
