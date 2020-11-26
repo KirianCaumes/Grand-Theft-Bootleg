@@ -1,10 +1,10 @@
 /** Check if valid date */
-export default function urlValidation(input: unknown): string {
+export default function urlValidation(input: string): string {
     try {
-        const url = new URL(input as string)
+        const url = new URL(input)
         if (url.protocol !== "http:" && url.protocol !== "https:")
             throw new TypeError(`Invalid URL"`)
-        return input as string
+        return input
     } catch (error) {
         throw new TypeError(`Invalid URL`)
     }

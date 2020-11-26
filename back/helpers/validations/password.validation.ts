@@ -1,10 +1,10 @@
 import { PasswordPolicy } from "https://x.nest.land/pwchecker@v0.1.1/mod.ts"
 
 /** Check if valid passord */
-export default function passwordValidation(input: unknown): string {
+export default function passwordValidation(input: string): string {
     const pwpolicy = new PasswordPolicy()
 
-    const res = pwpolicy.password_policy_compliance(input as string)
+    const res = pwpolicy.password_policy_compliance(input)
 
     if (Object.keys(res).filter(x => !(res as any)[x]).length) {
         const errors = [
@@ -19,5 +19,5 @@ export default function passwordValidation(input: unknown): string {
         )
     }
 
-    return input as string
+    return input
 }

@@ -1,24 +1,9 @@
-import { UsersCollection } from "../../models/user.model.ts"
-
-const usersCollection = new UsersCollection()
+import { usersCollection } from "../../routers/_initialization.ts"
 
 /** Check if valid pseudo */
-export default async function uniquePseudoValidation(input: unknown, key: string): Promise<string> {
-    const str = (input as string)?.trim().normalize() ?? ''
+export default async function uniquePseudoValidation(input: string): Promise<string> {
+    if ((await usersCollection.find({ username: input })).length > 0)
+        throw new TypeError(`Username already taken`)
 
-    if (str.length < 3 || str.length > 30)
-        // throw new TypeError(`Expect length to be between 3 and 30 characters (actual: ${str.length})`)
-        throw {
-            path: [key],
-            error: new Error(`Expect length to be between 3 and 30 characters (actual: ${str.length})`)
-        }
-
-    if ((await usersCollection.find({ username: str })).length > 0)
-        // throw new TypeError(`Username already taken`)
-        throw {
-            path: [key],
-            error: new Error(`Username already taken`)
-        }
-
-    return input as string
+    return input
 }

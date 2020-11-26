@@ -1,24 +1,15 @@
-import { UsersCollection } from "../../models/user.model.ts"
+import { usersCollection } from "../../routers/_initialization.ts"
 
 /** Check if valid mail */
-export default async function uniqueMailValidation(input: unknown, key: string): Promise<string> {
-    const str = (input as string)?.trim().normalize() ?? ''
+export default async function uniqueMailValidation(input: string): Promise<string> {
     if (
         !/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-            .test(str?.toLowerCase() ?? '')
+            .test(input?.toLowerCase() ?? '')
     )
-        // throw new TypeError(`Invalid email`)
-        throw {
-            path: [key],
-            error: new Error(`Invalid email`)
-        }
+        throw new TypeError(`Invalid email`)
 
-    if ((await new UsersCollection().find({ mail: str })).length > 0)
-        // throw new TypeError(`Email already taken`)
-        throw {
-            path: [key],
-            error: new Error(`Email already taken`)
-        }
+    if ((await usersCollection.find({ mail: input })).length > 0)
+        throw new TypeError(`Email already taken`)
 
-    return str
+    return input
 }

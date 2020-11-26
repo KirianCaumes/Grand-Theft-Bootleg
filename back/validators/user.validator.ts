@@ -9,8 +9,8 @@ import { validator } from "./_base.validator.ts"
  */
 const userValidationSchema = Schema({
     // _id: string,
-    mail: (async (x: any) => await uniqueMailValidation(x, 'mail')),
-    username: (async (x: any) => await uniquePseudoValidation(x, 'username')),
+    mail: string.trim().normalize().between(5, 50).transform(uniqueMailValidation),
+    username: string.trim().normalize().between(5, 15).transform(uniquePseudoValidation),
     password: string.trim().normalize().transform(passwordValidation),
 
     // role: unknown.enum(EUserRoles)
