@@ -83,6 +83,8 @@ export class Bootleg {
         // this.clicked = clicked
         this.clickedCount = clickedCount
         // this.report = report
+
+        this.stateName = ["Draft", "Prending", "Published", "Deleted"][this.state]
     }
 }
 

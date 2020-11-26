@@ -8,7 +8,6 @@ import { GlobalProps } from "pages/_app"
 import { Logo } from "components/svg/icon"
 import classNames from 'classnames'
 import { Status } from "static/status"
-import UserManager from "request/managers/userManager"
 import { User, ErrorUser } from "request/objects/user"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faEnvelope, faEye, faKey, faSignInAlt, faUser } from "@fortawesome/free-solid-svg-icons"
@@ -90,7 +89,7 @@ function Register({ userManager, ...props }) {
                             </Columns.Column>
                             <div className="is-divider-vertical" />
                             <Columns.Column>
-                                <h1 className="title is-4">
+                                <h1 className="title is-4 is-title-underline">
                                     Sign up to Grand Theft Bootleg
                                 </h1>
                                 <form

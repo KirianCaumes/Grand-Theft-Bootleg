@@ -104,7 +104,7 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", 
                 </Section>
                 <Section>
                     <Container>
-                        <h2 className={classNames("title is-3", styles.title)}>
+                        <h2 className="title is-3 is-title-underline">
                             Most popular Bootlegs
                         </h2>
                         <br />
@@ -139,7 +139,7 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", 
                     <div className={styles.skewed} />
                     <br />
                     <Container>
-                        <h2 className={classNames("title is-3 has-text-white", styles.title)}>
+                        <h2 className="title is-3 has-text-white is-title-underline">
                             How Grand Theft Bootleg works?
                         </h2>
                         <p className="is-size-5 has-text-white">
@@ -244,7 +244,7 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", 
                 <Section>
                     <br />
                     <Container>
-                        <h2 className={classNames("title is-3", styles.title)}>
+                        <h2 className="title is-3 is-title-underline">
                             Newly added Bootlegs
                         </h2>
                         <br />
@@ -278,7 +278,7 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", 
                     <div className={styles.skewed} />
                     <br />
                     <Container>
-                        <h2 className={classNames("title is-3 has-text-white", styles.title)}>
+                        <h2 className="title is-3 has-text-white is-title-underline">
                             Join the community
                         </h2>
                         <Columns className="is-vcentered">
@@ -305,7 +305,7 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", 
                 <Section>
                     <br />
                     <Container>
-                        <h2 className={classNames("title is-3", styles.title)}>
+                        <h2 className="title is-3 is-title-underline">
                             Top random Bootlegs
                         </h2>
                         <br />
@@ -329,7 +329,7 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", 
                             >
                                 <a>
                                     See more &gt;
-                                    </a>
+                                </a>
                             </Link>
                         </p>
                     </Container>

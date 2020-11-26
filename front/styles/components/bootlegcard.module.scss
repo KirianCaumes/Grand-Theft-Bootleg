@@ -15,9 +15,6 @@
         @include flex-col;
         height: 250px;
         background: $greyblue;
-        display: flex;
-        justify-content: center;
-        flex-direction: column;
         overflow: hidden;
         img {
             transition: all 0.3s linear 0s;

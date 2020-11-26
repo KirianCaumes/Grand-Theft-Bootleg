@@ -86,13 +86,13 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
                     as: "createdBy"
                 }
             },
-            {
-                $addFields: {
-                    createdBy: {
-                        $ifNull: [{ $arrayElemAt: ["$createdBy", 1] }, {}]
-                    }
-                }
-            },
+            // {
+            //     $addFields: {
+            //         createdBy: {
+            //             $ifNull: [{ $arrayElemAt: ["$createdBy", 1] }, {}]
+            //         }
+            //     }
+            // },
             {
                 $unwind: {
                     path: '$createdBy',
@@ -107,16 +107,25 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
                     as: "modifiedBy"
                 }
             },
-            {
-                $addFields: {
-                    modifiedBy: {
-                        $ifNull: [{ $arrayElemAt: ["$modifiedBy", 1] }, {}]
-                    }
-                }
-            },
+            // {
+            //     $addFields: {
+            //         modifiedBy: {
+            //             $ifNull: [{ $arrayElemAt: ["$modifiedBy", 1] }, {}]
+            //         }
+            //     }
+            // },
             {
                 $unwind: {
                     path: '$modifiedBy', preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $addFields: {
+                    clickedCount: {
+                        $size: {
+                            "$ifNull": ["$clicked", []]
+                        }
+                    }
                 }
             },
         ]

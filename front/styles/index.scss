@@ -55,6 +55,8 @@ $colors: map-merge(
 @import "bulma-extensions/bulma-tagsinput/src/sass/index.sass";
 @import "bulma-extensions/bulma-timeline/src/sass/index.sass";
 @import "bulma-extensions/bulma-tooltip/src/sass/index.sass";
+// @import "~@creativebulma/bulma-divider";
+@import "node_modules/bulma-block-list/src/block-list";
 
 /***************************
 ********** Pages 📖 ********

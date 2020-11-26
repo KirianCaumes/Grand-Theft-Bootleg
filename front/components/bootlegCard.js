@@ -7,7 +7,6 @@ import classNames from 'classnames'
 import Link from 'next/link'
 import { Bootleg } from 'request/objects/bootleg'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCheckSquare } from '@fortawesome/free-solid-svg-icons'
 import { faClock, faEye } from '@fortawesome/free-regular-svg-icons'
 
 /**
@@ -66,7 +65,6 @@ export default function BootlegCard({ bootleg }) {
                                 alt={bootleg.title ?? "bootleg"}
                                 onError={ev => {
                                     const target = /** @type {HTMLImageElement} */(ev.target)
-                                    console.log(target)
                                     target.src = "logo.png"
                                 }}
                             />

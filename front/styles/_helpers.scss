@@ -1,4 +1,5 @@
 @import "bulma/sass/utilities/initial-variables.sass";
+@import "./variables";
 
 @mixin flex-row {
   display: flex;
@@ -67,6 +68,10 @@
   text-decoration: line-through !important;
 }
 
+*.is-capitalize {
+  text-transform: capitalize;
+}
+
 *.is-first-capitalize::first-letter {
   text-transform: capitalize;
 }
@@ -82,4 +87,21 @@
 
 .is-relative {
   position: relative !important;
+}
+
+.is-v-bottom {
+  vertical-align: bottom !important;
+}
+
+.is-title-underline {
+  position: relative;
+  &::before {
+    content: "";
+    background: $pink;
+    position: absolute;
+    bottom: -0.5em;
+    width: 1em;
+    height: 0.25em;
+    display: block;
+  }
 }

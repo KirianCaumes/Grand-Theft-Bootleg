@@ -2,7 +2,7 @@ import React from 'react'
 import 'styles/index.scss'
 import { AppProps } from 'next/dist/next-server/lib/router/router'
 // @ts-ignore
-import { Navbar, Footer, Container, Content } from 'react-bulma-components'
+import { Navbar } from 'react-bulma-components'
 import Link from 'next/link'
 import { Logo } from 'components/svg/icon'
 

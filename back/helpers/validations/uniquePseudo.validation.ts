@@ -7,12 +7,14 @@ export default async function uniquePseudoValidation(input: unknown, key: string
     const str = (input as string)?.trim().normalize() ?? ''
 
     if (str.length < 3 || str.length > 30)
+        // throw new TypeError(`Expect length to be between 3 and 30 characters (actual: ${str.length})`)
         throw {
             path: [key],
             error: new Error(`Expect length to be between 3 and 30 characters (actual: ${str.length})`)
         }
 
     if ((await usersCollection.find({ username: str })).length > 0)
+        // throw new TypeError(`Username already taken`)
         throw {
             path: [key],
             error: new Error(`Username already taken`)

@@ -8,7 +8,6 @@ import { GlobalProps } from "pages/_app"
 import { Logo } from "components/svg/icon"
 import classNames from 'classnames'
 import { Status } from "static/status"
-import UserManager from "request/managers/userManager"
 import { ErrorUser, User } from "request/objects/user"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faEnvelope, faKey, faSignInAlt } from "@fortawesome/free-solid-svg-icons"
@@ -16,10 +15,10 @@ import { CancelRequestError } from "request/errors/cancelRequestError"
 import { UnauthorizedError } from "request/errors/unauthorizedError"
 import { InvalidEntityError } from "request/errors/invalidEntityError"
 import { NotImplementedError } from "request/errors/notImplementedError"
-import { Cookies } from 'react-cookie'
+// import { Cookies } from 'react-cookie'
 import withManagers, { ManagersProps } from "helpers/hoc/withManagers"
 
-const cookies = new Cookies()
+// const cookies = new Cookies()
 
 /**
  * @typedef {object} LoginProps
@@ -41,7 +40,8 @@ function Login({ userManager, ...props }) {
         async () => {
             setStatus(Status.PENDING)
             try {
-                cookies.set(process.env.REACT_APP_LOCAL_STORAGE_KEY, (await userManager.login(user)).token)
+                await userManager.login(user)
+                // cookies.set(process.env.REACT_APP_LOCAL_STORAGE_KEY, (await userManager.login(user)).token)
             } catch (error) {
                 switch (error?.constructor) {
                     case CancelRequestError:
@@ -84,7 +84,7 @@ function Login({ userManager, ...props }) {
                             </Columns.Column>
                             <div className="is-divider-vertical" />
                             <Columns.Column>
-                                <h1 className="title is-4">
+                                <h1 className="title is-4 is-title-underline">
                                     Log In to Grand Theft Bootleg
                                 </h1>
                                 <form
