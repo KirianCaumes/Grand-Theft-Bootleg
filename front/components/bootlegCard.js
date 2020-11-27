@@ -89,6 +89,7 @@ export default function BootlegCard({ bootleg }) {
                         <Heading
                             renderAs="h3"
                             size={5}
+                            className="is-capitalize"
                         >
                             <Link
                                 href={`/bootleg/${encodeURIComponent(bootleg.title)}-${encodeURIComponent(bootleg._id)}`}
@@ -100,6 +101,7 @@ export default function BootlegCard({ bootleg }) {
                             renderAs="h4"
                             subtitle
                             size={6}
+                            className="is-capitalize"
                         >
                             {bootleg.bands?.map((band, i) => (
                                 <React.Fragment key={i}>
@@ -113,10 +115,10 @@ export default function BootlegCard({ bootleg }) {
                             ))}
                         </Heading>
                         <p className="flex-row flex-space-between">
-                            <span>
+                            <span className="flex-one">
                                 <FontAwesomeIcon icon={faClock} /> {timeAgo}
                             </span>
-                            <span>
+                            <span className="flex-one has-text-right">
                                 <FontAwesomeIcon icon={faEye} /> {bootleg.clickedCount} times
                             </span>
                         </p>

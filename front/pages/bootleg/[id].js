@@ -13,10 +13,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faStar, faMapMarker, faHeadphonesAlt } from "@fortawesome/free-solid-svg-icons"
 import { faStar as faStarLight } from '@fortawesome/free-regular-svg-icons'
 import withManagers, { ManagersProps } from "helpers/hoc/withManagers"
-import { CancelRequestError } from "request/errors/cancelRequestError"
-import { UnauthorizedError } from "request/errors/unauthorizedError"
-import { InvalidEntityError } from "request/errors/invalidEntityError"
-import { NotImplementedError } from "request/errors/notImplementedError"
 
 /**
  * @typedef {object} BootlegProps
@@ -39,8 +35,7 @@ function BootlegDetail({ bootleg, bootlegManager, ...props }) {
             {new Array(5 - value)
                 .fill({})
                 .map((x, i) =>
-                    <FontAwesomeIcon className="has-text-pink" icon={faStarLight} key={i}
-                    />
+                    <FontAwesomeIcon className="has-text-pink" icon={faStarLight} key={i} />
                 )
             }
         </>,

@@ -239,6 +239,8 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
         }
         user?: UserSchema
     }): Promise<BootlegSchema[]> {
+        const max = limit && limit < this.limit ? limit : this.limit
+
         //Filter to query
         let $match = {}
 
@@ -387,8 +389,8 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
                 })()
             },
             //Get random item
-            (() => isRandom ? { $sample: { size: (limit || this.limit) } } : {})(),
-            { $limit: startAt + (limit || this.limit) },
+            (() => isRandom ? { $sample: { size: max } } : {})(),
+            { $limit: startAt + max },
             { $skip: startAt },
             ...this._setupRelations(),
             ...this._setupClear(user)

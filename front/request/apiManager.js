@@ -201,7 +201,7 @@ export default class ApiManager {
 
         return request.req
             .then(res => {
-                return res.data[this.objectName].map(x => new (this.type)(x))
+                return res.data[this.objectName]?.map(x => new (this.type)(x)) ?? []
             })
             .catch(err => {
                 throw this._handleError(err)

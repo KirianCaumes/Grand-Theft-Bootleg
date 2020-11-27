@@ -16,6 +16,7 @@ import { Bootleg } from 'request/objects/bootleg'
 import Link from "next/link"
 import config from 'react-reveal/globals'
 import Fade from 'react-reveal/Fade'
+import { ESort } from "static/searchFilters/sort"
 
 config({ ssrFadeout: true })
 
@@ -164,7 +165,7 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", 
                                             />
                                         </p>
                                         <h3 className="title is-5 has-text-white has-text-centered">
-                                            Have a <span className="has-text-pink">bootleg</span>?
+                                            Have a <b>bootleg</b>?
                                         </h3>
                                         <p className="subtitle is-6 has-text-white has-text-centered">
                                             Let's share them with the community!
@@ -193,7 +194,7 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", 
                                             />
                                         </p>
                                         <h3 className="title is-5 has-text-white has-text-centered">
-                                            Want to <span className="has-text-pink">listen</span> to something?
+                                            Want to <b>listen</b> to something?
                                         </h3>
                                         <p className="subtitle is-6 has-text-white has-text-centered">
                                             Search, find and listen!
@@ -222,7 +223,7 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", 
                                             />
                                         </p>
                                         <h3 className="title is-5 has-text-white has-text-centered">
-                                            A <span className="has-text-pink">question</span>?
+                                            A <b>question</b>?
                                         </h3>
                                         <p className="subtitle is-6 has-text-white has-text-centered">
                                             You can message us directly!
@@ -347,11 +348,11 @@ Index.getInitialProps = async (ctx) => {
         const [bootlegsPopular, bootlesgNew, bootlegsRandom] = await Promise.all([
             bootlegManager.getAll({
                 limit: 5,
-                orderBy: 'CLICKED_DESC'
+                orderBy: ESort.CLICKED_DESC
             }),
             bootlegManager.getAll({
                 limit: 5,
-                orderBy: 'DATE_CREATION_DESC'
+                orderBy: ESort.DATE_CREATION_DESC
             }),
             bootlegManager.getAll({
                 limit: 5,
