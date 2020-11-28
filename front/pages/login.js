@@ -17,6 +17,8 @@ import { InvalidEntityError } from "request/errors/invalidEntityError"
 import { NotImplementedError } from "request/errors/notImplementedError"
 // import { Cookies } from 'react-cookie'
 import withManagers, { ManagersProps } from "helpers/hoc/withManagers"
+import Input from "components/form/input"
+import Button from "components/form/button"
 
 // const cookies = new Cookies()
 
@@ -93,65 +95,32 @@ function Login({ userManager, ...props }) {
                                         _upsert()
                                     }}
                                 >
-                                    <div className="field">
-                                        <label
-                                            htmlFor="mail"
-                                            className="label is-required"
-                                        >
-                                            Email
-                                        </label>
-                                        <div className="control has-icons-left ">
-                                            <input
-                                                id="mail"
-                                                className={classNames("input", { 'is-danger': !!errorField.mail })}
-                                                type="email"
-                                                placeholder="Your email"
-                                                onChange={ev => setUser({ ...user, mail: ev.target.value })}
-                                                required
-                                            />
-                                            <span className="icon is-small is-left">
-                                                <FontAwesomeIcon icon={faEnvelope} />
-                                            </span>
-                                        </div>
-                                        {errorField.mail &&
-                                            <p className="help is-danger">{errorField.mail}</p>
-                                        }
-                                    </div>
+                                    <Input
+                                        label="Email"
+                                        placeholder="Your email"
+                                        type="email"
+                                        isRequired={true}
+                                        value={user.mail}
+                                        iconLeft={faEnvelope}
+                                        errorMessage={errorField.mail}
+                                        onChange={ev => setUser({ ...user, mail: ev.target.value })}
+                                    />
+                                    <Input
+                                        label="Password"
+                                        placeholder="You password"
+                                        type="password"
+                                        isRequired={true}
+                                        value={user.password}
+                                        iconLeft={faKey}
+                                        errorMessage={errorField.password}
+                                        onChange={ev => setUser({ ...user, password: ev.target.value })}
+                                    />
 
-                                    <div className="field">
-                                        <label
-                                            htmlFor="password"
-                                            className="label is-required"
-                                        >
-                                            Password
-                                        </label>
-                                        <div className="control has-icons-left ">
-                                            <input
-                                                id="password"
-                                                className={classNames("input", { 'is-danger': !!errorField.password })}
-                                                type="password"
-                                                placeholder="You password"
-                                                autoComplete="new-password"
-                                                onChange={ev => setUser({ ...user, password: ev.target.value })}
-                                                required
-                                            />
-                                            <span className="icon is-small is-left">
-                                                <FontAwesomeIcon icon={faKey} />
-                                            </span>
-                                            {errorField.password &&
-                                                <p className="help is-danger">{errorField.password}</p>
-                                            }
-                                        </div>
-                                    </div>
-                                    <button
-                                        type="submit"
-                                        className={classNames("button is-pink", { 'is-loading': status === Status.PENDING })}
-                                    >
-                                        <span>Login</span>
-                                        <span className="icon is-small">
-                                            <FontAwesomeIcon icon={faSignInAlt} />
-                                        </span>
-                                    </button>
+                                    <Button
+                                        label="Login"
+                                        isLoading={status === Status.PENDING}
+                                        iconLeft={faSignInAlt}
+                                    />
                                 </form>
                             </Columns.Column>
                         </Columns>

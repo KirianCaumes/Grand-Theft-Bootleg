@@ -25,6 +25,9 @@ import { Status } from "static/status"
 import BootlegManager from "request/managers/bootlegManager"
 import Loader from "components/loader"
 import { faCalendarAlt } from "@fortawesome/free-regular-svg-icons"
+import Select from "components/form/select"
+import Input from "components/form/input"
+import Toggle from "components/form/toggle"
 
 
 /**
@@ -49,6 +52,12 @@ function Search({ bootlegManager, bootlegsProps, ...props }) {
     const [isFilterDisplay, setIsFilterDisplay] = React.useState(!!false)
 
     const router = useRouter()
+
+    const boolOpts = [
+        { key: null, text: 'Any' },
+        { key: 1, text: 'Yes' },
+        { key: 0, text: 'No' }
+    ]
 
     useEffect(
         () => {
@@ -144,194 +153,131 @@ function Search({ bootlegManager, bootlegsProps, ...props }) {
                         >
                             <Columns className="is-variable is-8-widescreen is-desktop">
                                 <Columns.Column className={classNames("is-one-fifth-desktop", { 'is-hidden-touch': !isFilterDisplay })}>
-                                    <div className="field">
-                                        <label className="label" htmlFor="orderBy">Order by</label>
-                                        <div className={classNames("control has-icons-left", styles.select)}>
-                                            <div className="select is-pink">
-                                                <select
-                                                    id="orderBy"
-                                                    onChange={ev => setSearchFilters({
-                                                        ...searchFilters,
-                                                        orderBy: ev.target.value?.length ? ev.target.value : null
-                                                    })}
-                                                    value={searchFilters.orderBy || ""}
-                                                    disabled={status === Status.PENDING}
-                                                >
-                                                    {Object.keys(ESort).map((sort, i) =>
-                                                        <option value={sort} key={i}>{ESortLabel[sort]}</option>
-                                                    )}
-                                                </select>
-                                            </div>
-                                            <div className="icon is-small is-left">
-                                                <FontAwesomeIcon icon={faSort} />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="field">
-                                        <label className="label" htmlFor="country">Country</label>
-                                        <div className={classNames("control has-icons-left", styles.select)}>
-                                            <div className="select is-pink">
-                                                <select
-                                                    id="country"
-                                                    onChange={ev => setSearchFilters({
-                                                        ...searchFilters,
-                                                        country: ev.target.value?.length ? ev.target.value : null
-                                                    })}
-                                                    value={searchFilters.country || ""}
-                                                    disabled={status === Status.PENDING}
-                                                >
-                                                    <option value="">Any</option>
-                                                    {Object.keys(ECountries).map((country, i) =>
-                                                        <option value={country} key={i}>{ECountries[country]}</option>
-                                                    )}
-                                                </select>
-                                            </div>
-                                            <div className="icon is-small is-left">
-                                                <FontAwesomeIcon icon={faGlobeEurope} />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="field">
-                                        <label className="label" htmlFor="state">State</label>
-                                        <div className={classNames("control has-icons-left", styles.select)}>
-                                            <div className="select is-pink">
-                                                <select
-                                                    id="state"
-                                                    onChange={ev => setSearchFilters({
-                                                        ...searchFilters,
-                                                        state: ev.target.value?.length ? ev.target.value : null
-                                                    })}
-                                                    value={searchFilters.state || ""}
-                                                    disabled={status === Status.PENDING}
-                                                >
-                                                    <option value="">Any</option>
-                                                    {Object.keys(EStates).map((state, i) =>
-                                                        <option value={state} key={i}>{EStates[state].charAt(0).toUpperCase()}{EStates[state].toLowerCase().slice(1)}</option>
-                                                    )}
-                                                </select>
-                                            </div>
-                                            <div className="icon is-small is-left">
-                                                <FontAwesomeIcon icon={faMapMarker} />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="field">
-                                        <label className="label" htmlFor="isCompleteShow">Complete show</label>
-                                        <div className={classNames("control has-icons-left", styles.select)}>
-                                            <div className="select is-pink">
-                                                <select
-                                                    id="isCompleteShow"
-                                                    onChange={ev => {
-                                                        const val = parseInt(ev.target.value)
-                                                        setSearchFilters({
-                                                            ...searchFilters,
-                                                            isCompleteShow: !isNaN(val) && val > -1 ? val : null
-                                                        })
-                                                    }}
-                                                    value={searchFilters.isCompleteShow?.toString() || ""}
-                                                    disabled={status === Status.PENDING}
-                                                >
-                                                    <option value={-1}>Any</option>
-                                                    <option value={1}>Yes</option>
-                                                    <option value={0}>No</option>
-                                                </select>
-                                            </div>
-                                            <div className="icon is-small is-left">
-                                                <FontAwesomeIcon icon={faHeadphonesAlt} />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="field">
-                                        <label className="label" htmlFor="isAudioOnly">Audio only</label>
-                                        <div className={classNames("control has-icons-left", styles.select)}>
-                                            <div className="select is-pink">
-                                                <select
-                                                    id="isAudioOnly"
-                                                    onChange={ev => {
-                                                        const val = parseInt(ev.target.value)
-                                                        setSearchFilters({
-                                                            ...searchFilters,
-                                                            isAudioOnly: !isNaN(val) && val > -1 ? val : null
-                                                        })
-                                                    }}
-                                                    value={searchFilters.isAudioOnly?.toString() || ""}
-                                                    disabled={status === Status.PENDING}
-                                                >
-                                                    <option value={-1}>Any</option>
-                                                    <option value={1}>Yes</option>
-                                                    <option value={0}>No</option>
-                                                </select>
-                                            </div>
-                                            <div className="icon is-small is-left">
-                                                <FontAwesomeIcon icon={faVolumeUp} />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="field">
-                                        <label className="label" htmlFor="isProRecord">Pro record</label>
-                                        <div className={classNames("control has-icons-left", styles.select)}>
-                                            <div className="select is-pink">
-                                                <select
-                                                    id="isProRecord"
-                                                    onChange={ev => {
-                                                        const val = parseInt(ev.target.value)
-                                                        setSearchFilters({
-                                                            ...searchFilters,
-                                                            isProRecord: !isNaN(val) && val > -1 ? val : null
-                                                        })
-                                                    }}
-                                                    value={searchFilters.isProRecord?.toString() || ""}
-                                                    disabled={status === Status.PENDING}
-                                                >
-                                                    <option value={-1}>Any</option>
-                                                    <option value={1}>Yes</option>
-                                                    <option value={0}>No</option>
-                                                </select>
-                                            </div>
-                                            <div className="icon is-small is-left">
-                                                <FontAwesomeIcon icon={faCompactDisc} />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="field">
-                                        <label className="label">Year</label>
-                                        <div className={classNames("control has-icons-left", styles.input)}>
-                                            <input
-                                                className="input is-pink"
-                                                type="number"
-                                                placeholder="Year"
-                                                min="1900"
-                                                max="2050"
-                                                step="1"
-                                                value={searchFilters.year || ''}
-                                                onChange={ev => {
-                                                    const val = parseInt(ev.target.value)
-                                                    setSearchFilters({
-                                                        ...searchFilters,
-                                                        year: !isNaN(val) ? val : null
-                                                    })
-                                                }}
-                                                disabled={status === Status.PENDING}
-                                            /><span className="icon is-small is-left">
-                                                <FontAwesomeIcon icon={faCalendarAlt} />
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <label className="label" htmlFor="isRandom">Random</label>
-                                    <div className="field">
-                                        <input
-                                            id="isRandom"
-                                            type="checkbox"
-                                            className="switch is-rounded is-pink"
-                                            checked={!!searchFilters.isRandom}
-                                            onChange={ev => setSearchFilters({
+                                    <Select
+                                        label="Order by"
+                                        isDisabled={status === Status.PENDING}
+                                        iconLeft={faSort}
+                                        onChange={(ev, option) => setSearchFilters({
+                                            ...searchFilters,
+                                            orderBy: /** @type {string} */(option.key)
+                                        })}
+                                        value={searchFilters.orderBy}
+                                        options={Object.keys(ESort).map(sort => ({
+                                            key: sort, text: ESortLabel[sort]
+                                        }))}
+                                        styles={{
+                                            control: styles.select
+                                        }}
+                                    />
+                                    <Select
+                                        label="Country"
+                                        isDisabled={status === Status.PENDING}
+                                        iconLeft={faGlobeEurope}
+                                        onChange={(ev, option) => setSearchFilters({
+                                            ...searchFilters,
+                                            country: /** @type {string} */(option.key)
+                                        })}
+                                        value={searchFilters.country}
+                                        options={[
+                                            { key: null, text: 'Any' },
+                                            ...Object.keys(ECountries).map(country => ({
+                                                key: country, text: ECountries[country]
+                                            }))
+                                        ]}
+                                        styles={{
+                                            control: styles.select
+                                        }}
+                                    />
+                                    <Select
+                                        label="State"
+                                        isDisabled={status === Status.PENDING}
+                                        iconLeft={faMapMarker}
+                                        onChange={(ev, option) => setSearchFilters({
+                                            ...searchFilters,
+                                            state: /** @type {string} */(option.key)
+                                        })}
+                                        value={searchFilters.state}
+                                        options={[
+                                            { key: null, text: 'Any' },
+                                            ...Object.keys(EStates).map(state => ({
+                                                key: state, text: `${EStates[state].charAt(0).toUpperCase()}${EStates[state].toLowerCase().slice(1)}`
+                                            }))
+                                        ]}
+                                        styles={{
+                                            control: styles.select
+                                        }}
+                                    />
+                                    <Select
+                                        label="Complete show"
+                                        isDisabled={status === Status.PENDING}
+                                        iconLeft={faHeadphonesAlt}
+                                        onChange={(ev, option) => setSearchFilters({
+                                            ...searchFilters,
+                                            isCompleteShow: /** @type {Number} */(option.key)
+                                        })}
+                                        value={searchFilters.isCompleteShow?.toString()}
+                                        options={boolOpts}
+                                        styles={{
+                                            control: styles.select
+                                        }}
+                                    />
+                                    <Select
+                                        label="Audio only"
+                                        isDisabled={status === Status.PENDING}
+                                        iconLeft={faVolumeUp}
+                                        onChange={(ev, option) => setSearchFilters({
+                                            ...searchFilters,
+                                            isAudioOnly: /** @type {Number} */(option.key)
+                                        })}
+                                        value={searchFilters.isAudioOnly?.toString()}
+                                        options={boolOpts}
+                                        styles={{
+                                            control: styles.select
+                                        }}
+                                    />
+                                    <Select
+                                        label="Pro record"
+                                        isDisabled={status === Status.PENDING}
+                                        iconLeft={faCompactDisc}
+                                        onChange={(ev, option) => setSearchFilters({
+                                            ...searchFilters,
+                                            isProRecord: /** @type {Number} */(option.key)
+                                        })}
+                                        value={searchFilters.isProRecord?.toString()}
+                                        options={boolOpts}
+                                        styles={{
+                                            control: styles.select
+                                        }}
+                                    />
+                                    <Input
+                                        label="Year"
+                                        placeholder="Year"
+                                        type="number"
+                                        min={1900}
+                                        max={2050}
+                                        step={1}
+                                        iconLeft={faCalendarAlt}
+                                        onChange={ev => {
+                                            const val = parseInt(ev.target.value)
+                                            setSearchFilters({
                                                 ...searchFilters,
-                                                isRandom: ev.target.checked ? 1 : null
-                                            })}
-                                            disabled={status === Status.PENDING}
-                                        />
-                                        <label htmlFor="isRandom">{!!searchFilters.isRandom ? 'Yes' : 'No'}</label>
-                                    </div>
+                                                year: !isNaN(val) ? val : null
+                                            })
+                                        }}
+                                        value={searchFilters.year?.toString()}
+                                        styles={{
+                                            control: styles.input
+                                        }}
+                                    />
+                                    <Toggle
+                                        label="Random"
+                                        checked={!!searchFilters.isRandom}
+                                        isDisabled={status === Status.PENDING}
+                                        onChange={ev => setSearchFilters({
+                                            ...searchFilters,
+                                            isRandom: ev.target.checked ? 1 : null
+                                        })}
+                                    />
                                 </Columns.Column>
                                 <Columns.Column className="is-four-fifths-desktop">
                                     <label className="label is-hidden-touch">&nbsp;</label>

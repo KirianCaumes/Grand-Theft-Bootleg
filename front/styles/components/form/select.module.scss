@@ -1,0 +1,8 @@
+.control {
+  > div:first-child {
+    width: 100%;
+    > select {
+      width: 100%;
+    }
+  }
+}

@@ -17,6 +17,8 @@ import { InvalidEntityError } from "request/errors/invalidEntityError"
 import { NotImplementedError } from "request/errors/notImplementedError"
 import { useRouter } from 'next/router'
 import withManagers, { ManagersProps } from "helpers/hoc/withManagers"
+import Input from "components/form/input"
+import Button from "components/form/button"
 
 /**
  * @typedef {object} RegisterProps
@@ -98,99 +100,45 @@ function Register({ userManager, ...props }) {
                                         _upsert()
                                     }}
                                 >
-                                    <div className="field">
-                                        <label
-                                            htmlFor="mail"
-                                            className="label is-required"
-                                        >
-                                            Email
-                                        </label>
-                                        <div className="control has-icons-left ">
-                                            <input
-                                                id="mail"
-                                                className={classNames("input", { 'is-danger': !!errorField.mail })}
-                                                type="email"
-                                                placeholder="Your email"
-                                                onChange={ev => setUser({ ...user, mail: ev.target.value })}
-                                                required
-                                            />
-                                            <span className="icon is-small is-left">
-                                                <FontAwesomeIcon icon={faEnvelope} />
-                                            </span>
-                                        </div>
-                                        {errorField.mail &&
-                                            <p className="help is-danger">{errorField.mail}</p>
-                                        }
-                                    </div>
+                                    <Input
+                                        label="Email"
+                                        placeholder="Your email"
+                                        type="email"
+                                        isRequired={true}
+                                        value={user.mail}
+                                        iconLeft={faEnvelope}
+                                        errorMessage={errorField.mail}
+                                        onChange={ev => setUser({ ...user, mail: ev.target.value })}
+                                    />
+                                    <Input
+                                        label="Username"
+                                        placeholder="Your username"
+                                        type="text"
+                                        isRequired={true}
+                                        value={user.username}
+                                        iconLeft={faUser}
+                                        errorMessage={errorField.username}
+                                        onChange={ev => setUser({ ...user, username: ev.target.value })}
+                                    />
+                                    <Input
+                                        label="Password"
+                                        placeholder="You password"
+                                        type={isPwdVisible ? 'text' : 'password'}
+                                        isRequired={true}
+                                        value={user.password}
+                                        iconLeft={faKey}
+                                        errorMessage={errorField.password}
+                                        onChange={ev => setUser({ ...user, password: ev.target.value })}
+                                        isWithBtn={true}
+                                        onClickBtn={() => setIsPwdVisible(!isPwdVisible)}
+                                        iconBtn={faEye}
+                                    />
 
-                                    <div className="field">
-                                        <label
-                                            htmlFor="username"
-                                            className="label is-required"
-                                        >
-                                            Username
-                                        </label>
-                                        <div className="control has-icons-left ">
-                                            <input
-                                                id="username"
-                                                className={classNames("input", { 'is-danger': !!errorField.username })}
-                                                type="text"
-                                                placeholder="Your username"
-                                                onChange={ev => setUser({ ...user, username: ev.target.value })}
-                                                required
-                                            />
-                                            <span className="icon is-small is-left">
-                                                <FontAwesomeIcon icon={faUser} />
-                                            </span>
-                                        </div>
-                                        {errorField.username &&
-                                            <p className="help is-danger">{errorField.username}</p>
-                                        }
-                                    </div>
-
-                                    <label
-                                        htmlFor="password"
-                                        className="label is-required"
-                                    >
-                                        Password
-                                    </label>
-                                    <div className="field has-addons">
-                                        <div className="control has-icons-left is-expanded">
-                                            <input
-                                                id="password"
-                                                className={classNames("input", { 'is-danger': !!errorField.password })}
-                                                type={isPwdVisible ? 'text' : 'password'}
-                                                placeholder="You password"
-                                                autoComplete="new-password"
-                                                onChange={ev => setUser({ ...user, password: ev.target.value })}
-                                                required
-                                            />
-                                            <span className="icon is-small is-left">
-                                                <FontAwesomeIcon icon={faKey} />
-                                            </span>
-                                            {errorField.password &&
-                                                <p className="help is-danger">{errorField.password}</p>
-                                            }
-                                        </div>
-                                        <div className="control">
-                                            <button
-                                                className="button is-greyblue"
-                                                onClick={() => setIsPwdVisible(!isPwdVisible)}
-                                                type="button"
-                                            >
-                                                <FontAwesomeIcon icon={faEye} />
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <button
-                                        type="submit"
-                                        className={classNames("button is-pink", { 'is-loading': status === Status.PENDING })}
-                                    >
-                                        <span>Register</span>
-                                        <span className="icon is-small">
-                                            <FontAwesomeIcon icon={faSignInAlt} />
-                                        </span>
-                                    </button>
+                                    <Button
+                                        label="Register"
+                                        isLoading={status === Status.PENDING}
+                                        iconLeft={faSignInAlt}
+                                    />
                                 </form>
                             </Columns.Column>
                         </Columns>
