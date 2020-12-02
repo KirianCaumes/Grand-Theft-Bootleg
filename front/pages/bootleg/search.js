@@ -2,7 +2,7 @@ import React, { useEffect, useCallback } from "react"
 import Head from "next/head"
 import { GetServerSidePropsContext } from 'next'
 // @ts-ignore
-import styles from "styles/pages/search.module.scss"
+import styles from "styles/pages/bootleg/search.module.scss"
 // @ts-ignore
 import { Section, Columns, Container } from 'react-bulma-components'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"

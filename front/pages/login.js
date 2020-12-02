@@ -122,7 +122,7 @@ function Login({ userManager, ...props }) {
                                     <Button
                                         label="Login"
                                         isLoading={status === Status.PENDING}
-                                        iconLeft={faSignInAlt}
+                                        iconRight={faSignInAlt}
                                     />
                                 </form>
                             </Columns.Column>

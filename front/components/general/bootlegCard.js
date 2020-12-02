@@ -60,7 +60,7 @@ export default function BootlegCard({ bootleg }) {
                 >
                     <a>
                         <figure className="image">
-                            <img
+                            <img //TODO remplace later with IMAGE component from Next
                                 src={bootleg.picture}
                                 alt={bootleg.title ?? "bootleg"}
                                 onError={ev => {

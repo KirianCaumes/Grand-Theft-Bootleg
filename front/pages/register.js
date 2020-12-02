@@ -136,7 +136,7 @@ function Register({ userManager, ...props }) {
                                     <Button
                                         label="Register"
                                         isLoading={status === Status.PENDING}
-                                        iconLeft={faSignInAlt}
+                                        iconRight={faSignInAlt}
                                     />
                                 </form>
                             </Columns.Column>

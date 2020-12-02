@@ -108,7 +108,7 @@ function BootlegDetail({ bootleg, bootlegManager, ...props }) {
                                 <Columns className="is-variable is-3">
                                     <Columns.Column size="one-third">
                                         <figure className="image">
-                                            <img
+                                            <img //TODO remplace later with IMAGE component from Next
                                                 src={bootleg.picture}
                                                 alt={bootleg.title ?? "bootleg"}
                                                 onError={ev => {
@@ -151,7 +151,7 @@ function BootlegDetail({ bootleg, bootlegManager, ...props }) {
                                 </p>
 
                                 <p className="is-capitalize">
-                                    <strong>{bootleg.bands.length > 1 ? 'Bands' : 'Band'}:</strong>
+                                    <strong>{bootleg.bands?.length > 1 ? 'Bands' : 'Band'}:</strong>
                                     {bootleg.bands?.map((band, i) => (
                                         <React.Fragment key={i}>
                                             <Link
@@ -159,13 +159,13 @@ function BootlegDetail({ bootleg, bootlegManager, ...props }) {
                                             >
                                                 {band}
                                             </Link>
-                                            {i < bootleg.bands.length - 1 && ', '}
+                                            {i < bootleg.bands?.length - 1 && ', '}
                                         </React.Fragment>
                                     ))}
                                 </p>
 
                                 <p className="is-capitalize">
-                                    <strong>{bootleg.countries.length > 1 ? 'Countries' : 'Country'}:</strong>
+                                    <strong>{bootleg.countries?.length > 1 ? 'Countries' : 'Country'}:</strong>
                                     {bootleg.countries?.map((country, i) => (
                                         <React.Fragment key={i}>
                                             <Link
@@ -173,13 +173,13 @@ function BootlegDetail({ bootleg, bootlegManager, ...props }) {
                                             >
                                                 {country}
                                             </Link>
-                                            {i < bootleg.countries.length - 1 && ', '}
+                                            {i < bootleg.countries?.length - 1 && ', '}
                                         </React.Fragment>
                                     ))}
                                 </p>
 
                                 <p className="is-capitalize">
-                                    <strong>{bootleg.cities.length > 1 ? 'Cities' : 'City'}:</strong>
+                                    <strong>{bootleg.cities?.length > 1 ? 'Cities' : 'City'}:</strong>
                                     {bootleg.cities?.map((city, i) => (
                                         <React.Fragment key={i}>
                                             <Link
@@ -187,7 +187,7 @@ function BootlegDetail({ bootleg, bootlegManager, ...props }) {
                                             >
                                                 {city}
                                             </Link>
-                                            {i < bootleg.countries.length - 1 && ', '}
+                                            {i < bootleg.countries?.length - 1 && ', '}
                                         </React.Fragment>
                                     ))}
                                 </p>
@@ -282,7 +282,7 @@ function BootlegDetail({ bootleg, bootlegManager, ...props }) {
                                         href={`/bootleg/search?authorId=${encodeURIComponent(bootleg.createdById)}`}
                                     >
                                         <a>
-                                            {bootleg.createdBy.username ?? <i>Deleted user</i>}
+                                            {bootleg.createdBy?.username ?? <i>Deleted user</i>}
                                         </a>
                                     </Link>
                                 </p>
@@ -341,8 +341,8 @@ export const getServerSideProps = wrapper.getServerSideProps(
             return { props: { bootleg: JSON.parse(JSON.stringify(bootleg)) } }
         } catch (error) {
             console.log(error)
-            // return {notFound: true }
-            return { props: { bootleg: {} } }
+            return { notFound: true }
+            // return { props: { bootleg: {} } }
         }
     }
 )
