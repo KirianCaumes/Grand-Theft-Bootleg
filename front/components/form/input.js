@@ -67,7 +67,7 @@ export default function Input({
                 <div className={classNames("control is-expanded", { 'has-icons-left': iconLeft }, styles.control, inputStyles.control)}>
                     <input
                         id={id}
-                        className={classNames("input is-pink", { 'is-danger': !!errorMessage }, styles.input, inputStyles.input)}
+                        className={classNames("input is-greyblue", { 'is-danger': !!errorMessage }, styles.input, inputStyles.input)}
                         type={type}
                         placeholder={placeholder}
                         onChange={onChange}

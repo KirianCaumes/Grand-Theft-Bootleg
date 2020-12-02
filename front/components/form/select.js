@@ -50,7 +50,7 @@ export default function Select({
                 {label}
             </label>
             <div className={classNames("control", { 'has-icons-left': iconLeft }, styles.control, selectStyles.control)}>
-                <div className={classNames("select is-pink", styles.select, selectStyles.select)}>
+                <div className={classNames("select is-greyblue", styles.select, selectStyles.select)}>
                     <select
                         id={id}
                         onChange={ev => onChange(ev, options.find(opt => (opt.key?.toString() || '') === ev.target.value))}
