@@ -1,15 +1,14 @@
-import React, { useEffect } from "react"
+import React from "react"
 import Head from "next/head"
 // @ts-ignore
 import styles from "styles/pages/index.module.scss"
-import { GlobalProps } from "pages/_app"
 import BootlegManager from "request/managers/bootlegManager"
 // @ts-ignore
 import { Section, Columns, Container } from 'react-bulma-components'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faHandshake, faQuestion, faSearch, faUserCheck } from '@fortawesome/free-solid-svg-icons'
 import classNames from 'classnames'
-import BootlegCard from "components/bootlegCard"
+import BootlegCard from "components/general/bootlegCard"
 import { Logo } from "components/svg/icon"
 import { useRouter } from 'next/router'
 import { Bootleg } from 'request/objects/bootleg'
@@ -17,12 +16,12 @@ import Link from "next/link"
 import config from 'react-reveal/globals'
 import Fade from 'react-reveal/Fade'
 import { ESort } from "static/searchFilters/sort"
-import { GetServerSidePropsContext } from 'next'
 import { wrapper } from "redux/store"
-import axios, { CancelTokenSource, AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios' // eslint-disable-line
-import Cookie from "helpers/cookie"
-import { selectmain, setToken } from "redux/slices/main"
 import { connect } from "react-redux"
+import getConfig from 'next/config'
+import { GetServerSidePropsContext } from 'next'
+import { AnyAction, Store } from 'redux'
+import { MainState } from "redux/slices/main"
 
 config({ ssrFadeout: true })
 
@@ -35,18 +34,19 @@ config({ ssrFadeout: true })
 
 /**
  * Index page
- * @param {GlobalProps & IndexProps} props 
+ * @param {IndexProps} props 
  */
 function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, ...props }) {
     /** @type {[string, function(string):any]} Search text */
     const [searchText, setSearchText] = React.useState(null)
 
     const router = useRouter()
+    const { publicRuntimeConfig } = getConfig()
 
     return (
         <>
             <Head>
-                <title>Home - {props.appname}</title>
+                <title>Home - {publicRuntimeConfig.appName}</title>
             </Head>
 
             <main className={styles.index}>
@@ -79,7 +79,7 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, ...props }) {
                         onSubmit={ev => {
                             ev.preventDefault()
                             router.push({
-                                pathname: '/search',
+                                pathname: '/bootleg/search',
                                 query: {
                                     string: searchText
                                 }
@@ -130,7 +130,7 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, ...props }) {
                             className="has-text-right"
                         >
                             <Link
-                                href="/search?orderBy=CLICKED_DESC"
+                                href="/bootleg/search?orderBy=CLICKED_DESC"
                             >
                                 <a>
                                     See more &gt;
@@ -270,7 +270,7 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, ...props }) {
                             className="has-text-right"
                         >
                             <Link
-                                href="/search?orderBy=DATE_CREATION_DESC"
+                                href="/bootleg/search?orderBy=DATE_CREATION_DESC"
                             >
                                 <a>
                                     See more &gt;
@@ -331,7 +331,7 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, ...props }) {
                             className="has-text-right"
                         >
                             <Link
-                                href="/search?isRandom=1"
+                                href="/bootleg/search?isRandom=1"
                             >
                                 <a>
                                     See more &gt;
@@ -346,8 +346,13 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, ...props }) {
     )
 }
 
+/** Get server side props */
 export const getServerSideProps = wrapper.getServerSideProps(
-    async ({ store, req, res }) => {
+    /**
+     * Get server side props
+     * @param {GetServerSidePropsContext & {store: Store<{ main: MainState; }, AnyAction>;}} ctx
+     */
+    async ({ req }) => {
         try {
             const bootlegManager = new BootlegManager({ req })
             const [bootlegsPopular, bootlesgNew, bootlegsRandom] = await Promise.all([

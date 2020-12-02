@@ -1,8 +1,14 @@
-import { applyMiddleware, configureStore } from "@reduxjs/toolkit"
+import { configureStore } from "@reduxjs/toolkit"
 import { createWrapper } from 'next-redux-wrapper'
 import logger from "redux-logger"
 
-import mainReducer from "redux/slices/main"
+import mainReducer, { MainState } from "redux/slices/main"
+
+/**
+ * Redux props
+ * @typedef {object} ReduxProps
+ * @property {MainState=} main
+ */
 
 export const makeStore = () => configureStore({
     reducer: {

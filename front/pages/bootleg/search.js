@@ -3,7 +3,6 @@ import Head from "next/head"
 import { GetServerSidePropsContext } from 'next'
 // @ts-ignore
 import styles from "styles/pages/search.module.scss"
-import { GlobalProps } from "pages/_app"
 // @ts-ignore
 import { Section, Columns, Container } from 'react-bulma-components'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -20,18 +19,18 @@ import { UnauthorizedError } from "request/errors/unauthorizedError"
 import { InvalidEntityError } from "request/errors/invalidEntityError"
 import { NotImplementedError } from "request/errors/notImplementedError"
 import { Bootleg } from "request/objects/bootleg"
-import BootlegCard from "components/bootlegCard"
+import BootlegCard from "components/general/bootlegCard"
 import { Status } from "static/status"
 import BootlegManager from "request/managers/bootlegManager"
-import Loader from "components/loader"
+import Loader from "components/general/loader"
 import { faCalendarAlt } from "@fortawesome/free-regular-svg-icons"
 import Select from "components/form/select"
 import Input from "components/form/input"
 import Toggle from "components/form/toggle"
 import { wrapper } from "redux/store"
-import { setToken } from "redux/slices/main"
-import Cookie from "helpers/cookie"
-
+import getConfig from 'next/config'
+import { AnyAction, Store } from 'redux'
+import { MainState } from "redux/slices/main"
 
 /**
  * @typedef {object} SearchProps
@@ -40,7 +39,7 @@ import Cookie from "helpers/cookie"
 
 /**
  * Search page
- * @param {GlobalProps & SearchProps & ManagersProps} props 
+ * @param {SearchProps & ManagersProps} props 
  */
 function Search({ bootlegManager, bootlegsProps, ...props }) {
     /** @type {[SearchFilters, function(SearchFilters):any]} Status */
@@ -55,6 +54,7 @@ function Search({ bootlegManager, bootlegsProps, ...props }) {
     const [isFilterDisplay, setIsFilterDisplay] = React.useState(!!false)
 
     const router = useRouter()
+    const { publicRuntimeConfig } = getConfig()
 
     const boolOpts = [
         { key: null, text: 'Any' },
@@ -123,7 +123,7 @@ function Search({ bootlegManager, bootlegsProps, ...props }) {
     return (
         <>
             <Head>
-                <title>Search - {props.appname}</title>
+                <title>Search - {publicRuntimeConfig.appName}</title>
             </Head>
 
             <main className={styles.search}>
@@ -362,18 +362,14 @@ function Search({ bootlegManager, bootlegsProps, ...props }) {
         </>
     )
 }
-/**
- *
- * @param {GetServerSidePropsContext} ctx
- */
-export const getServerSideProps = wrapper.getServerSideProps(
-    async ({ store, req, res, query }) => {
-        // store.dispatch(
-        //     setToken({
-        //         token: Cookie.get(req)
-        //     })
-        // )
 
+/** Get server side props */
+export const getServerSideProps = wrapper.getServerSideProps(
+    /**
+     * Get server side props
+     * @param {GetServerSidePropsContext & {store: Store<{ main: MainState; }, AnyAction>;}} ctx
+     */
+    async ({ req, query }) => {
         try {
             const bootlegManager = new BootlegManager({ req })
             const bootlegs = await bootlegManager.getAll({

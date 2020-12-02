@@ -1,4 +1,4 @@
-import react from 'react'
+import React from 'react'
 // @ts-ignore
 import { Loader as BulmaLoader } from 'react-bulma-components'
 // @ts-ignore

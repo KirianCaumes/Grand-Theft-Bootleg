@@ -1,14 +1,22 @@
-import React, { Children, useEffect } from 'react'
+import React from 'react'
 // @ts-ignore
 import { Navbar } from 'react-bulma-components'
 import Link from 'next/link'
 import { Logo } from 'components/svg/icon'
-import { wrapper } from 'redux/store'
-import { removeToken, setToken } from 'redux/slices/main'
-import Cookie from 'helpers/cookie'
-import { connect, useDispatch, useStore } from 'react-redux'
+import { removeToken } from 'redux/slices/main'
+import { connect, useDispatch } from 'react-redux'
+import { ReduxProps } from 'redux/store'
 
-function Layout({ children, main }) {
+/**
+ * @typedef {object} LayoutProps
+ * @property {React.ReactNode} children
+ */
+
+/**
+ * Login page
+ * @param {LayoutProps & ReduxProps} props
+ */
+function Layout({ children, main: { token } }) {
     /** @type {[boolean, function(boolean):any]} Is burger active */
     const [isActive, setIsActive] = React.useState(!!false)
 
@@ -36,7 +44,7 @@ function Layout({ children, main }) {
                     </Navbar.Brand>
                     <Navbar.Menu>
                         <Navbar.Container>
-                            <Link href="/search">
+                            <Link href="/bootleg/search">
                                 <a
                                     className="navbar-item"
                                     onClick={() => setIsActive(false)}
@@ -46,14 +54,14 @@ function Layout({ children, main }) {
                             </Link>
                         </Navbar.Container>
                         <Navbar.Container position="end">
-                            {!main?.token ? <>
+                            {!token ? <>
                                 <Link href="/login">
                                     <a
                                         className="navbar-item"
                                         onClick={() => setIsActive(false)}
                                     >
                                         Login
-                        </a>
+                                    </a>
                                 </Link>
                                 <div className="navbar-item">
                                     <div className="buttons">
@@ -69,20 +77,12 @@ function Layout({ children, main }) {
                                     </div>
                                 </div></>
                                 :
-                                <div className="navbar-item">
-                                    <div className="buttons">
-                                        <button
-                                            className="button is-pink"
-                                            onClick={() =>
-                                                dispatch(
-                                                    removeToken(undefined)
-                                                )
-                                            }
-                                        >
-                                            <strong>Logout</strong>
-                                        </button>
-                                    </div>
-                                </div>
+                                <a
+                                    className="navbar-item"
+                                    onClick={() => dispatch(removeToken(undefined))}
+                                >
+                                    Logout
+                                    </a>
                             }
                         </Navbar.Container>
                     </Navbar.Menu>

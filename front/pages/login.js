@@ -4,7 +4,6 @@ import Head from "next/head"
 import { Section, Columns, Container } from 'react-bulma-components'
 // @ts-ignore
 import styles from "styles/pages/login.module.scss"
-import { GlobalProps } from "pages/_app"
 import { Logo } from "components/svg/icon"
 import { Status } from "static/status"
 import { ErrorUser, User } from "request/objects/user"
@@ -16,9 +15,10 @@ import { NotImplementedError } from "request/errors/notImplementedError"
 import withManagers, { ManagersProps } from "helpers/hoc/withManagers"
 import Input from "components/form/input"
 import Button from "components/form/button"
-import { connect, useDispatch, useSelector } from "react-redux"
+import { useDispatch } from "react-redux"
 import { setToken } from "redux/slices/main"
 import { useRouter } from "next/router"
+import getConfig from 'next/config'
 
 /**
  * @typedef {object} LoginProps
@@ -26,7 +26,7 @@ import { useRouter } from "next/router"
 
 /**
  * Login page
- * @param {GlobalProps & LoginProps & ManagersProps} props
+ * @param {LoginProps & ManagersProps} props
  */
 function Login({ userManager, ...props }) {
     /** @type {[string, function(string):any]} Status */
@@ -38,6 +38,7 @@ function Login({ userManager, ...props }) {
 
     const dispatch = useDispatch()
     const router = useRouter()
+    const { publicRuntimeConfig } = getConfig()
 
     const _upsert = useCallback(
         async () => {
@@ -67,7 +68,7 @@ function Login({ userManager, ...props }) {
     return (
         <>
             <Head>
-                <title>Login - {props.appname}</title>
+                <title>Login - {publicRuntimeConfig.appName}</title>
             </Head>
 
             <main className={styles.login}>

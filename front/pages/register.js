@@ -4,12 +4,9 @@ import Head from "next/head"
 import { Section, Columns, Container } from 'react-bulma-components'
 // @ts-ignore
 import styles from "styles/pages/register.module.scss"
-import { GlobalProps } from "pages/_app"
 import { Logo } from "components/svg/icon"
-import classNames from 'classnames'
 import { Status } from "static/status"
 import { User, ErrorUser } from "request/objects/user"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faEnvelope, faEye, faKey, faSignInAlt, faUser } from "@fortawesome/free-solid-svg-icons"
 import { CancelRequestError } from "request/errors/cancelRequestError"
 import { UnauthorizedError } from "request/errors/unauthorizedError"
@@ -19,6 +16,9 @@ import { useRouter } from 'next/router'
 import withManagers, { ManagersProps } from "helpers/hoc/withManagers"
 import Input from "components/form/input"
 import Button from "components/form/button"
+import getConfig from 'next/config'
+import { useDispatch } from "react-redux"
+import { setToken } from "redux/slices/main"
 
 /**
  * @typedef {object} RegisterProps
@@ -26,7 +26,7 @@ import Button from "components/form/button"
 
 /**
  * Register page
- * @param {GlobalProps & RegisterProps & ManagersProps} props
+ * @param {RegisterProps & ManagersProps} props
  */
 function Register({ userManager, ...props }) {
     /** @type {[string, function(string):any]} Status */
@@ -39,17 +39,16 @@ function Register({ userManager, ...props }) {
     const [isPwdVisible, setIsPwdVisible] = React.useState(!!false)
 
     const router = useRouter()
+    const dispatch = useDispatch()
+    const { publicRuntimeConfig } = getConfig()
 
     const _upsert = useCallback(
         async () => {
             setStatus(Status.PENDING)
             try {
-                await userManager.create(user)
-                //TODO token                
-                router.push({
-                    pathname: '/'
-                })
-
+                const token = (await userManager.create(user))?.token
+                dispatch(setToken({ token }))
+                router.push('/')
             } catch (error) {
                 switch (error?.constructor) {
                     case CancelRequestError:
@@ -70,7 +69,7 @@ function Register({ userManager, ...props }) {
     return (
         <>
             <Head>
-                <title>Register - {props.appname}</title>
+                <title>Register - {publicRuntimeConfig.appName}</title>
             </Head>
 
             <main className={styles.register}>

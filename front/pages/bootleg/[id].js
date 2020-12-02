@@ -3,7 +3,6 @@ import Head from "next/head"
 import { GetServerSidePropsContext } from 'next'
 // @ts-ignore
 import styles from "styles/pages/bootleg/id.module.scss"
-import { GlobalProps } from "pages/_app"
 import BootlegManager from "request/managers/bootlegManager"
 // @ts-ignore
 import { Section, Columns, Container } from 'react-bulma-components'
@@ -13,6 +12,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faStar, faMapMarker, faHeadphonesAlt } from "@fortawesome/free-solid-svg-icons"
 import { faStar as faStarLight } from '@fortawesome/free-regular-svg-icons'
 import withManagers, { ManagersProps } from "helpers/hoc/withManagers"
+import getConfig from 'next/config'
+import { wrapper } from "redux/store"
+import { AnyAction, Store } from 'redux'
+import { MainState } from "redux/slices/main"
 
 /**
  * @typedef {object} BootlegProps
@@ -21,10 +24,17 @@ import withManagers, { ManagersProps } from "helpers/hoc/withManagers"
 
 /**
  * Bootleg page
- * @param {GlobalProps & BootlegProps & ManagersProps} props 
+ * @param {BootlegProps & ManagersProps} props 
  */
 function BootlegDetail({ bootleg, bootlegManager, ...props }) {
+    const { publicRuntimeConfig } = getConfig()
+
+    /** Score */
     const score = useCallback(
+        /**
+         * Get score
+         * @param {number} value score
+         */
         (value = 0) => <>
             {new Array(value)
                 .fill({})
@@ -42,6 +52,7 @@ function BootlegDetail({ bootleg, bootlegManager, ...props }) {
         [bootleg]
     )
 
+    /** Set list */
     const setlist = useMemo(
         () => <>
             <h2 className="title is-4 is-title-underline">Setlist</h2>
@@ -53,7 +64,7 @@ function BootlegDetail({ bootleg, bootlegManager, ...props }) {
                     >
                         <strong>{i + 1} - </strong>
                         <Link
-                            href={`/search?song=${encodeURIComponent(song?.toLocaleLowerCase())}`}
+                            href={`/bootleg/search?song=${encodeURIComponent(song?.toLocaleLowerCase())}`}
                         >
                             <a>
                                 {song}
@@ -66,10 +77,16 @@ function BootlegDetail({ bootleg, bootlegManager, ...props }) {
         [bootleg]
     )
 
+    /** Hostname */
     const hostname = useCallback(
+        /**
+         * Get hostname
+         * @param {string} url Url
+         */
         (url) => {
             try {
-                return (new URL(url))?.hostname?.split('.')?.[0]
+                const host = (new URL(url))?.hostname?.split('.')
+                return host?.length > 2 ? host?.[1] : host?.[0]
             } catch {
                 return null
             }
@@ -80,7 +97,7 @@ function BootlegDetail({ bootleg, bootlegManager, ...props }) {
     return (
         <>
             <Head>
-                <title>{bootleg.title} - {props.appname}</title>
+                <title>{bootleg.title} - {publicRuntimeConfig.appName}</title>
             </Head>
 
             <main className={styles.id}>
@@ -125,7 +142,7 @@ function BootlegDetail({ bootleg, bootlegManager, ...props }) {
                                 <p className="is-capitalize">
                                     <strong>Date:</strong>
                                     <Link
-                                        href={`/search?year=${encodeURIComponent(new Date(bootleg.date)?.getFullYear())}`}
+                                        href={`/bootleg/search?year=${encodeURIComponent(new Date(bootleg.date)?.getFullYear())}`}
                                     >
                                         <a>
                                             {new Date(bootleg.date)?.toLocaleDateString('en-EN', { year: 'numeric', month: 'short', day: '2-digit' })}
@@ -138,7 +155,7 @@ function BootlegDetail({ bootleg, bootlegManager, ...props }) {
                                     {bootleg.bands?.map((band, i) => (
                                         <React.Fragment key={i}>
                                             <Link
-                                                href={`/search?band=${encodeURIComponent(band?.toLowerCase())}`}
+                                                href={`/bootleg/search?band=${encodeURIComponent(band?.toLowerCase())}`}
                                             >
                                                 {band}
                                             </Link>
@@ -166,7 +183,7 @@ function BootlegDetail({ bootleg, bootlegManager, ...props }) {
                                     {bootleg.cities?.map((city, i) => (
                                         <React.Fragment key={i}>
                                             <Link
-                                                href={`/search?city=${encodeURIComponent(city?.toLowerCase())}`}
+                                                href={`/bootleg/search?city=${encodeURIComponent(city?.toLowerCase())}`}
                                             >
                                                 {city}
                                             </Link>
@@ -213,7 +230,7 @@ function BootlegDetail({ bootleg, bootlegManager, ...props }) {
                                 <p className="is-capitalize">
                                     <strong>Audio only:</strong>
                                     <Link
-                                        href={`/search?isAudioOnly=${encodeURIComponent(bootleg.isAudioOnly ? 1 : 0)}`}
+                                        href={`/bootleg/search?isAudioOnly=${encodeURIComponent(bootleg.isAudioOnly ? 1 : 0)}`}
                                     >
                                         <a>
                                             {bootleg.isAudioOnly ? 'Yes' : 'No'}
@@ -224,7 +241,7 @@ function BootlegDetail({ bootleg, bootlegManager, ...props }) {
                                 <p className="is-capitalize">
                                     <strong>Complete show:</strong>
                                     <Link
-                                        href={`/search?isCompleteShow=${encodeURIComponent(bootleg.isCompleteShow ? 1 : 0)}`}
+                                        href={`/bootleg/search?isCompleteShow=${encodeURIComponent(bootleg.isCompleteShow ? 1 : 0)}`}
                                     >
                                         <a>
                                             {bootleg.isCompleteShow ? 'Yes' : 'No'}
@@ -235,7 +252,7 @@ function BootlegDetail({ bootleg, bootlegManager, ...props }) {
                                 <p className="is-capitalize">
                                     <strong>Pro record:</strong>
                                     <Link
-                                        href={`/search?isProRecord=${encodeURIComponent(bootleg.isProRecord ? 1 : 0)}`}
+                                        href={`/bootleg/search?isProRecord=${encodeURIComponent(bootleg.isProRecord ? 1 : 0)}`}
                                     >
                                         <a>
                                             {bootleg.isProRecord ? 'Yes' : 'No'}
@@ -262,7 +279,7 @@ function BootlegDetail({ bootleg, bootlegManager, ...props }) {
                                 <p className="is-capitalize">
                                     <strong>Submited by:</strong>
                                     <Link
-                                        href={`/search?authorId=${encodeURIComponent(bootleg.createdById)}`}
+                                        href={`/bootleg/search?authorId=${encodeURIComponent(bootleg.createdById)}`}
                                     >
                                         <a>
                                             {bootleg.createdBy.username ?? <i>Deleted user</i>}
@@ -273,7 +290,7 @@ function BootlegDetail({ bootleg, bootlegManager, ...props }) {
                                 <p className="is-capitalize">
                                     <strong>Submited on:</strong>
                                     <Link
-                                        href={`/search?year=${encodeURIComponent(new Date(bootleg.createdOn)?.getFullYear())}`}
+                                        href={`/bootleg/search?year=${encodeURIComponent(new Date(bootleg.createdOn)?.getFullYear())}`}
                                     >
                                         <a>
                                             {new Date(bootleg.createdOn)?.toLocaleDateString('en-EN', { year: 'numeric', month: 'short', day: '2-digit' })}
@@ -309,23 +326,25 @@ function BootlegDetail({ bootleg, bootlegManager, ...props }) {
     )
 }
 
-/**
- *
- * @param {GetServerSidePropsContext} ctx
- */
-export async function getServerSideProps(ctx) {
-    try {
-        const bootlegManager = new BootlegManager()
-        const id = /** @type {string} */ (ctx.query.id)
-        const bootleg = await bootlegManager.getById(id.substring(id?.lastIndexOf("-") + 1))
+/** Get server side props */
+export const getServerSideProps = wrapper.getServerSideProps(
+    /**
+     * Get server side props
+     * @param {GetServerSidePropsContext & {store: Store<{ main: MainState; }, AnyAction>;}} ctx
+     */
+    async ({ query, req }) => {
+        try {
+            const bootlegManager = new BootlegManager({ req })
+            const id = /** @type {string} */ (query.id)
+            const bootleg = await bootlegManager.getById(id.substring(id?.lastIndexOf("-") + 1))
 
-        return { props: { bootleg: JSON.parse(JSON.stringify(bootleg)) } }
-    } catch (error) {
-        console.log(error)
-        // return {notFound: true }
-        return { props: { bootleg: {} } }
+            return { props: { bootleg: JSON.parse(JSON.stringify(bootleg)) } }
+        } catch (error) {
+            console.log(error)
+            // return {notFound: true }
+            return { props: { bootleg: {} } }
+        }
     }
-}
-
+)
 
 export default withManagers(BootlegDetail)

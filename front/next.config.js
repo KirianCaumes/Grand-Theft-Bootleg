@@ -6,6 +6,7 @@ module.exports = {
     // Will be available on both server and client
     publicRuntimeConfig: {
         apiUrl: process.env.REACT_APP_API_URL,
-        storageKey: process.env.REACT_APP_LOCAL_STORAGE_KEY
+        storageKey: process.env.REACT_APP_LOCAL_STORAGE_KEY,
+        appName: 'Grand Theft Bootleg'
     },
 }

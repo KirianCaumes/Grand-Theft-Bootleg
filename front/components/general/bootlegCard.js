@@ -76,7 +76,7 @@ export default function BootlegCard({ bootleg }) {
                         dateTime={new Date(bootleg.date)?.toISOString().slice(0, 10)}
                     >
                         <Link
-                            href={`/search?year=${encodeURIComponent(new Date(bootleg.date)?.getFullYear())}`}
+                            href={`/bootleg/search?year=${encodeURIComponent(new Date(bootleg.date)?.getFullYear())}`}
                         >
                             {new Date(bootleg.date)?.toLocaleDateString('en-EN', { year: 'numeric', month: 'short', day: '2-digit' })}
                         </Link>
@@ -106,7 +106,7 @@ export default function BootlegCard({ bootleg }) {
                             {bootleg.bands?.map((band, i) => (
                                 <React.Fragment key={i}>
                                     <Link
-                                        href={`/search?band=${encodeURIComponent(band)}`}
+                                        href={`/bootleg/search?band=${encodeURIComponent(band)}`}
                                     >
                                         {band}
                                     </Link>

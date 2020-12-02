@@ -44,8 +44,8 @@ const mainSlice = createSlice({
     },
     extraReducers: {
         [HYDRATE]: (state, action) => {
-            // console.log('HYDRATE...')
-            state.token = action.payload.main.token
+            if (action.payload.main.token)
+                state.token = action.payload.main.token
         }
     }
 })
