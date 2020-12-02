@@ -1,13 +1,24 @@
 import { Bootleg, ErrorBootleg } from 'request/objects/bootleg'
 import ApiManager from 'request/apiManager'
+import { IncomingMessage } from 'http'
 
 /**
  * BootlegManager
  * @extends {ApiManager<Bootleg, ErrorBootleg>}
  */
 export default class BootlegManager extends ApiManager {
-    constructor() {
-        super({ type: Bootleg, errorType: ErrorBootleg, key: 'bootleg' })
+    /**
+     * 
+     * @param {object} param
+     * @param {IncomingMessage=} param.req 
+     */
+    constructor({ req } = {}) {
+        super({
+            type: Bootleg,
+            errorType: ErrorBootleg,
+            key: 'bootleg',
+            req
+        })
     }
 
     /**

@@ -6,6 +6,11 @@ import { CancelRequestError } from 'request/errors/cancelRequestError'
 import { MessageBarType } from 'office-ui-fabric-react'
 // import store from 'redux/store'
 import { UnauthorizedError } from './errors/unauthorizedError'
+import Cookie from 'helpers/cookie'
+import { IncomingMessage } from 'http'
+import getConfig from 'next/config'
+
+const { publicRuntimeConfig } = getConfig()
 
 /**
  * @template T, E
@@ -17,6 +22,7 @@ export default class ApiManager {
      * @param {object} settings.type Class to use
      * @param {object} settings.errorType Class to use for error
      * @param {string} settings.key Object name used for base url and retrieve result
+     * @param {IncomingMessage=} settings.req Request if from serverside, to retrieve token
      */
     constructor(settings) {
         /** 
@@ -24,7 +30,7 @@ export default class ApiManager {
          * @protected
          * @type {string} 
          */
-        this.baseUrl = process.env.REACT_APP_API_URL || `${origin}/api/`
+        this.baseUrl = publicRuntimeConfig.apiUrl || `${origin}/api/`
         /** 
          * Type of object to return from API call
          * @protected
@@ -43,6 +49,13 @@ export default class ApiManager {
          * @type {string} 
          */
         this.objectName = settings.key?.toLowerCase()
+
+        /** 
+         * Request if from serverside, to retrieve token
+         * @protected
+         * @type {IncomingMessage} 
+         */
+        this.req = settings.req
 
         /** 
          * List of cancel tokens that can be canceled
@@ -163,7 +176,7 @@ export default class ApiManager {
                 data,
                 params,
                 headers: {
-                    // Authorization: `Bearer ${process.browser ? cookies.get(process.env.REACT_APP_LOCAL_STORAGE_KEY) : '' }`
+                    Authorization: `Bearer ${Cookie.get(this.req)}`
                 },
                 responseType: responseType
             }),

@@ -4,7 +4,7 @@ import { Loader as BulmaLoader } from 'react-bulma-components'
 // @ts-ignore
 import styles from "styles/components/loader.module.scss"
 
-export default function Loader() {
+export default function Layout() {
     return (
         <BulmaLoader
             className={styles.loader}

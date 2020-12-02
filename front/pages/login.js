@@ -6,21 +6,19 @@ import { Section, Columns, Container } from 'react-bulma-components'
 import styles from "styles/pages/login.module.scss"
 import { GlobalProps } from "pages/_app"
 import { Logo } from "components/svg/icon"
-import classNames from 'classnames'
 import { Status } from "static/status"
 import { ErrorUser, User } from "request/objects/user"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faEnvelope, faKey, faSignInAlt } from "@fortawesome/free-solid-svg-icons"
 import { CancelRequestError } from "request/errors/cancelRequestError"
 import { UnauthorizedError } from "request/errors/unauthorizedError"
 import { InvalidEntityError } from "request/errors/invalidEntityError"
 import { NotImplementedError } from "request/errors/notImplementedError"
-// import { Cookies } from 'react-cookie'
 import withManagers, { ManagersProps } from "helpers/hoc/withManagers"
 import Input from "components/form/input"
 import Button from "components/form/button"
-
-// const cookies = new Cookies()
+import { connect, useDispatch, useSelector } from "react-redux"
+import { setToken } from "redux/slices/main"
+import { useRouter } from "next/router"
 
 /**
  * @typedef {object} LoginProps
@@ -38,12 +36,16 @@ function Login({ userManager, ...props }) {
     /** @type {[ErrorUser, function(ErrorUser):any]} Error message */
     const [errorField, setErrorField] = React.useState(new ErrorUser())
 
+    const dispatch = useDispatch()
+    const router = useRouter()
+
     const _upsert = useCallback(
         async () => {
             setStatus(Status.PENDING)
             try {
-                await userManager.login(user)
-                // cookies.set(process.env.REACT_APP_LOCAL_STORAGE_KEY, (await userManager.login(user)).token)
+                const token = (await userManager.login(user))?.token
+                dispatch(setToken({ token }))
+                router.push('/')
             } catch (error) {
                 switch (error?.constructor) {
                     case CancelRequestError:

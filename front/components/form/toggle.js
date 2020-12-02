@@ -25,21 +25,19 @@ export default function Toggle({
     onChange = () => null,
     styles = {}
 }) {
-    const id = Math.random().toString(36).slice(-6)
-
     return (
         <>
-            <label className="label" htmlFor={id}>{label}</label>
+            <label className="label" htmlFor={encodeURIComponent(label)}>{label}</label>
             <div className={classNames("field", styles.field, toggleStyles.field)}>
                 <input
-                    id={id}
+                    id={encodeURIComponent(label)}
                     type="checkbox"
                     className="switch is-rounded is-pink"
                     checked={checked}
                     onChange={onChange}
                     disabled={isDisabled}
                 />
-                <label htmlFor={id}>
+                <label htmlFor={encodeURIComponent(label)}>
                     {!!checked ? 'Yes' : 'No'}
                 </label>
             </div>

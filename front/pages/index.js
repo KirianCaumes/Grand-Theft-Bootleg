@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect } from "react"
 import Head from "next/head"
 // @ts-ignore
 import styles from "styles/pages/index.module.scss"
@@ -17,12 +17,17 @@ import Link from "next/link"
 import config from 'react-reveal/globals'
 import Fade from 'react-reveal/Fade'
 import { ESort } from "static/searchFilters/sort"
+import { GetServerSidePropsContext } from 'next'
+import { wrapper } from "redux/store"
+import axios, { CancelTokenSource, AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios' // eslint-disable-line
+import Cookie from "helpers/cookie"
+import { selectmain, setToken } from "redux/slices/main"
+import { connect } from "react-redux"
 
 config({ ssrFadeout: true })
 
 /**
  * @typedef {object} IndexProps
- * @property {string} test Test
  * @property {Bootleg[]} bootlegsPopular Bootlegs from API
  * @property {Bootleg[]} bootlesgNew Bootlegs from API
  * @property {Bootleg[]} bootlegsRandom Bootlegs from API
@@ -32,11 +37,11 @@ config({ ssrFadeout: true })
  * Index page
  * @param {GlobalProps & IndexProps} props 
  */
-function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", ...props }) {
-    const router = useRouter()
-
+function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, ...props }) {
     /** @type {[string, function(string):any]} Search text */
     const [searchText, setSearchText] = React.useState(null)
+
+    const router = useRouter()
 
     return (
         <>
@@ -341,29 +346,44 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", 
     )
 }
 
+export const getServerSideProps = wrapper.getServerSideProps(
+    async ({ store, req, res }) => {
+        try {
+            const bootlegManager = new BootlegManager({ req })
+            const [bootlegsPopular, bootlesgNew, bootlegsRandom] = await Promise.all([
+                bootlegManager.getAll({
+                    limit: 5,
+                    orderBy: ESort.CLICKED_DESC
+                }),
+                bootlegManager.getAll({
+                    limit: 5,
+                    orderBy: ESort.DATE_CREATION_DESC
+                }),
+                bootlegManager.getAll({
+                    limit: 5,
+                    isRandom: 1
+                })
+            ])
 
-Index.getInitialProps = async (ctx) => {
-    try {
-        const bootlegManager = new BootlegManager()
-        const [bootlegsPopular, bootlesgNew, bootlegsRandom] = await Promise.all([
-            bootlegManager.getAll({
-                limit: 5,
-                orderBy: ESort.CLICKED_DESC
-            }),
-            bootlegManager.getAll({
-                limit: 5,
-                orderBy: ESort.DATE_CREATION_DESC
-            }),
-            bootlegManager.getAll({
-                limit: 5,
-                isRandom: 1
-            })
-        ])
-        return { bootlegsPopular, bootlesgNew, bootlegsRandom }
-    } catch (error) {
-        console.log(error)
-        return { bootlegsPopular: [], bootlesgNew: [], bootlegsRandom: [] }
+            return {
+                props: {
+                    bootlegsPopular: JSON.parse(JSON.stringify(bootlegsPopular)),
+                    bootlesgNew: JSON.parse(JSON.stringify(bootlesgNew)),
+                    bootlegsRandom: JSON.parse(JSON.stringify(bootlegsRandom))
+                }
+            }
+        } catch (error) {
+            console.log(error)
+
+            return {
+                props: {
+                    bootlegsPopular: [],
+                    bootlesgNew: [],
+                    bootlegsRandom: []
+                }
+            }
+        }
     }
-}
+)
 
-export default Index
+export default connect((state) => state)(Index)

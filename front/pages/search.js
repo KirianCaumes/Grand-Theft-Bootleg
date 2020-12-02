@@ -28,6 +28,9 @@ import { faCalendarAlt } from "@fortawesome/free-regular-svg-icons"
 import Select from "components/form/select"
 import Input from "components/form/input"
 import Toggle from "components/form/toggle"
+import { wrapper } from "redux/store"
+import { setToken } from "redux/slices/main"
+import Cookie from "helpers/cookie"
 
 
 /**
@@ -363,20 +366,28 @@ function Search({ bootlegManager, bootlegsProps, ...props }) {
  *
  * @param {GetServerSidePropsContext} ctx
  */
-export async function getServerSideProps(ctx) {
-    try {
-        const bootlegManager = new BootlegManager()
-        const bootlegs = await bootlegManager.getAll({
-            ...ctx.query,
-            orderBy: /** @type {string=} */ (ctx.query?.orderBy) || ESort.DATE_ASC
-        })
+export const getServerSideProps = wrapper.getServerSideProps(
+    async ({ store, req, res, query }) => {
+        // store.dispatch(
+        //     setToken({
+        //         token: Cookie.get(req)
+        //     })
+        // )
 
-        return { props: { bootlegsProps: JSON.parse(JSON.stringify(bootlegs)) } }
-    } catch (error) {
-        console.log(error)
-        // return {notFound: true }
-        return { props: { bootlegsProps: {} } }
+        try {
+            const bootlegManager = new BootlegManager({ req })
+            const bootlegs = await bootlegManager.getAll({
+                ...query,
+                orderBy: /** @type {string=} */ (query?.orderBy) || ESort.DATE_ASC
+            })
+
+            return { props: { bootlegsProps: JSON.parse(JSON.stringify(bootlegs)) } }
+        } catch (error) {
+            console.log(error)
+            // return {notFound: true }
+            return { props: { bootlegsProps: {} } }
+        }
     }
-}
+)
 
 export default withManagers(Search)

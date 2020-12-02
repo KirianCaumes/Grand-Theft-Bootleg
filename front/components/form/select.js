@@ -39,20 +39,18 @@ export default function Select({
     styles = {},
     options = []
 }) {
-    const id = Math.random().toString(36).slice(-6)
-
     return (
         <div className="field">
             <label
                 className="label"
-                htmlFor={id}
+                htmlFor={encodeURIComponent(label)}
             >
                 {label}
             </label>
             <div className={classNames("control", { 'has-icons-left': iconLeft }, styles.control, selectStyles.control)}>
                 <div className={classNames("select is-greyblue", styles.select, selectStyles.select)}>
                     <select
-                        id={id}
+                        id={encodeURIComponent(label)}
                         onChange={ev => onChange(ev, options.find(opt => (opt.key?.toString() || '') === ev.target.value))}
                         value={value || ""}
                         disabled={isDisabled}
