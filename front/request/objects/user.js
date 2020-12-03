@@ -1,7 +1,9 @@
+import { Base } from "request/objects/_base"
+
 /**
  * User Object
  */
-export class User {
+export class User extends Base {
     /**
      * @param {object} data 
      * @param {object=} data._id
@@ -19,9 +21,10 @@ export class User {
         role = null,
         token = null,
     } = {}) {
+        super()
         this._id = _id?.$oid
         this.username = username
-        this.password = password
+        // this.password = password
         this.mail = mail
         this.role = role
         this.token = token

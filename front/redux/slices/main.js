@@ -2,17 +2,23 @@ import { createSlice } from "@reduxjs/toolkit"
 import { Slice, PayloadAction } from "@reduxjs/toolkit" // eslint-disable-line
 import Cookie from "helpers/cookie"
 import { HYDRATE } from 'next-redux-wrapper'
+import { User } from 'request/objects/user'
+
 /**
- * 
  * Payload token
  * @typedef {object} PayloadToken
  * @property {string} token User JWT Token
+ * 
+ * Payload user
+ * @typedef {object} PayloadUser
+ * @property {User} user Me user
  */
 
 /**
  * Main State
  * @typedef {object} MainState
  * @property {string} token User JWT Token
+ * @property {User} me Me user
 */
 
 /**
@@ -22,7 +28,8 @@ import { HYDRATE } from 'next-redux-wrapper'
 const mainSlice = createSlice({
     name: "main",
     initialState: {
-        token: null
+        token: null,
+        me: new User().toJson()
     },
     reducers: {
         /**
@@ -40,6 +47,14 @@ const mainSlice = createSlice({
         removeToken: (state, action) => {
             Cookie.remove()
             state.token = null
+            state.me = new User().toJson()
+        },
+        /**
+         * Set token
+         * @param {PayloadAction<PayloadUser>} action
+         */
+        setUser: (state, action) => {
+            state.me = action.payload.user
         },
     },
     extraReducers: {
@@ -52,6 +67,6 @@ const mainSlice = createSlice({
 
 export const selectmain = state => state.main
 
-export const { setToken, removeToken } = mainSlice.actions
+export const { setToken, removeToken, setUser } = mainSlice.actions
 
 export default mainSlice.reducer

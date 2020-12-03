@@ -6,5 +6,6 @@ const userRouter = new Router({ prefix: '/api/user' })
 userRouter
     .post('/login', userController.login.bind(userController))
     .post('/', userController.register.bind(userController))
+    .get('/me', userController.getMe.bind(userController))
 
 export default userRouter

@@ -302,7 +302,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://127.0.0.1:5000/api/bootleg?orderBy=DATE_DESC",
+							"raw": "http://127.0.0.1:5000/api/bootleg?orderBy=DATE_DESC&authorId=5fa3c4020035365c00a3c87e",
 							"protocol": "http",
 							"host": [
 								"127",
@@ -374,6 +374,10 @@
 									"key": "isRandom",
 									"value": "0",
 									"disabled": true
+								},
+								{
+									"key": "authorId",
+									"value": "5fa3c4020035365c00a3c87e"
 								}
 							]
 						}
@@ -447,7 +451,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://127.0.0.1:5000/api/bootleg/5f917e58008d876700e049dc",
+							"raw": "http://127.0.0.1:5000/api/bootleg/5fa4f90e00f6423700a1e8b8",
 							"protocol": "http",
 							"host": [
 								"127",
@@ -459,7 +463,7 @@
 							"path": [
 								"api",
 								"bootleg",
-								"5f917e58008d876700e049dc"
+								"5fa4f90e00f6423700a1e8b8"
 							]
 						}
 					},
@@ -598,6 +602,52 @@
 							"path": [
 								"api",
 								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get me",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5000/api/user/me",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"user",
+								"me"
 							]
 						}
 					},

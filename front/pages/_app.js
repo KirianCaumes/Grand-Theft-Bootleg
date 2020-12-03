@@ -6,17 +6,17 @@ import { setToken } from 'redux/slices/main'
 import Cookie from 'helpers/cookie'
 import { useDispatch } from 'react-redux'
 import Layout from 'components/layout'
+import withManagers, { ManagersProps } from 'helpers/hoc/withManagers'
 
 /**
  * Base layout
- * @param {AppProps} props 
+ * @param {AppProps & ManagersProps} props 
  * {@link https://nextjs.org/docs/advanced-features/custom-app}
  */
 function MyApp({ Component, pageProps }) {
     const dispatch = useDispatch()
 
     useEffect(
-        /** Component did mount */
         () => {
             dispatch(setToken({ token: Cookie.get() }))
         },
@@ -44,4 +44,4 @@ function MyApp({ Component, pageProps }) {
 //     }
 // }
 
-export default wrapper.withRedux(MyApp)
+export default wrapper.withRedux(withManagers(MyApp))

@@ -113,7 +113,7 @@ function BootlegDetail({ bootleg, bootlegManager, ...props }) {
                                                 alt={bootleg.title ?? "bootleg"}
                                                 onError={ev => {
                                                     const target = /** @type {HTMLImageElement} */(ev.target)
-                                                    target.src = "logo.png"
+                                                    target.src = "/logo.png"
                                                 }}
                                             />
                                         </figure>
@@ -338,11 +338,10 @@ export const getServerSideProps = wrapper.getServerSideProps(
             const id = /** @type {string} */ (query.id)
             const bootleg = await bootlegManager.getById(id.substring(id?.lastIndexOf("-") + 1))
 
-            return { props: { bootleg: JSON.parse(JSON.stringify(bootleg)) } }
+            return { props: { bootleg: bootleg.toJson() } }
         } catch (error) {
             console.log(error)
             return { notFound: true }
-            // return { props: { bootleg: {} } }
         }
     }
 )

@@ -372,9 +372,9 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
             return {
                 props: {
-                    bootlegsPopular: JSON.parse(JSON.stringify(bootlegsPopular)),
-                    bootlesgNew: JSON.parse(JSON.stringify(bootlesgNew)),
-                    bootlegsRandom: JSON.parse(JSON.stringify(bootlegsRandom))
+                    bootlegsPopular: bootlegsPopular.map(x => x.toJson()),
+                    bootlesgNew: bootlesgNew.map(x => x.toJson()),
+                    bootlegsRandom: bootlegsRandom.map(x => x.toJson())
                 }
             }
         } catch (error) {

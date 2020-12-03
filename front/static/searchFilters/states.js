@@ -1,10 +1,10 @@
 /**
  * States
- * @enum {string}
+ * @enum {number}
  */
 export const EStates = {
-    DRAFT: 'DRAFT',
-    PENDING: 'PENDING',
-    PUBLISHED: 'PUBLISHED',
-    DELETED: 'DELETED'
+    DRAFT: 0,
+    PENDING: 1,
+    PUBLISHED: 2,
+    DELETED: 3
 }

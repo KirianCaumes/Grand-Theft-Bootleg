@@ -15,43 +15,6 @@ import { faClock, faEye } from '@fortawesome/free-regular-svg-icons'
  * @param {Bootleg} props.bootleg
  */
 export default function BootlegCard({ bootleg }) {
-    /** @type {string} Time posted ago */
-    const timeAgo = useMemo(
-        () => {
-            if (!bootleg.createdOn)
-                return ''
-
-            const msPerMinute = 60 * 1000
-            const msPerHour = msPerMinute * 60
-            const msPerDay = msPerHour * 24
-            const msPerMonth = msPerDay * 30
-            const msPerYear = msPerDay * 365
-
-            const elapsed = new Date().getTime() - new Date(bootleg.createdOn)?.getTime()
-
-            if (elapsed < msPerMinute) {
-                const res = Math.round(elapsed / 1000)
-                return `${res} second${res > 1 ? 's' : ''} ago`
-            } else if (elapsed < msPerHour) {
-                const res = Math.round(elapsed / msPerMinute)
-                return `${res} minute${res > 1 ? 's' : ''} ago`
-            } else if (elapsed < msPerDay) {
-                const res = Math.round(elapsed / msPerHour)
-                return `${res} hour${res > 1 ? 's' : ''} ago`
-            } else if (elapsed < msPerMonth) {
-                const res = Math.round(elapsed / msPerDay)
-                return `${res} day${res > 1 ? 's' : ''} ago`
-            } else if (elapsed < msPerYear) {
-                const res = Math.round(elapsed / msPerMonth)
-                return `${res} month${res > 1 ? 's' : ''} ago`
-            } else {
-                const res = Math.round(elapsed / msPerYear)
-                return `${res} year${res > 1 ? 's' : ''} ago`
-            }
-        },
-        [bootleg]
-    )
-
     return (
         <article className={classNames(styles.bootlegcard, "card")}>
             <div className="card-image">
@@ -65,7 +28,7 @@ export default function BootlegCard({ bootleg }) {
                                 alt={bootleg.title ?? "bootleg"}
                                 onError={ev => {
                                     const target = /** @type {HTMLImageElement} */(ev.target)
-                                    target.src = "logo.png"
+                                    target.src = "/logo.png"
                                 }}
                             />
                         </figure>
@@ -116,7 +79,7 @@ export default function BootlegCard({ bootleg }) {
                         </Heading>
                         <p className="flex-row flex-space-between">
                             <span className="flex-one">
-                                <FontAwesomeIcon icon={faClock} /> {timeAgo}
+                                <FontAwesomeIcon icon={faClock} /> {bootleg.timeAgo}
                             </span>
                             <span className="flex-one has-text-right">
                                 <FontAwesomeIcon icon={faEye} /> {bootleg.clickedCount} times

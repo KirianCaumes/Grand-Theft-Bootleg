@@ -31,6 +31,8 @@ import { wrapper } from "redux/store"
 import getConfig from 'next/config'
 import { AnyAction, Store } from 'redux'
 import { MainState } from "redux/slices/main"
+import { connect } from "react-redux"
+import { ReduxProps } from 'redux/store'
 
 /**
  * @typedef {object} SearchProps
@@ -39,9 +41,9 @@ import { MainState } from "redux/slices/main"
 
 /**
  * Search page
- * @param {SearchProps & ManagersProps} props 
+ * @param {SearchProps & ManagersProps & ReduxProps} props 
  */
-function Search({ bootlegManager, bootlegsProps, ...props }) {
+function Search({ bootlegManager, bootlegsProps, main: { me }, ...props }) {
     /** @type {[SearchFilters, function(SearchFilters):any]} Status */
     const [searchFilters, setSearchFilters] = React.useState(new SearchFilters())
     /** @type {['string' | 'band' | 'song' | string, function('global' | 'band' | 'song' | string):any]} Type of search */
@@ -191,25 +193,27 @@ function Search({ bootlegManager, bootlegsProps, ...props }) {
                                             control: styles.select
                                         }}
                                     />
-                                    <Select
-                                        label="State"
-                                        isDisabled={status === Status.PENDING}
-                                        iconLeft={faMapMarker}
-                                        onChange={(ev, option) => setSearchFilters({
-                                            ...searchFilters,
-                                            state: /** @type {string} */(option.key)
-                                        })}
-                                        value={searchFilters.state}
-                                        options={[
-                                            { key: null, text: 'Any' },
-                                            ...Object.keys(EStates).map(state => ({
-                                                key: state, text: `${EStates[state].charAt(0).toUpperCase()}${EStates[state].toLowerCase().slice(1)}`
-                                            }))
-                                        ]}
-                                        styles={{
-                                            control: styles.select
-                                        }}
-                                    />
+                                    {me?.role > 1 &&
+                                        <Select
+                                            label="State"
+                                            isDisabled={status === Status.PENDING}
+                                            iconLeft={faMapMarker}
+                                            onChange={(ev, option) => setSearchFilters({
+                                                ...searchFilters,
+                                                state: /** @type {number} */(option.key)
+                                            })}
+                                            value={searchFilters.state?.toString()}
+                                            options={[
+                                                { key: null, text: 'Any' },
+                                                ...Object.keys(EStates).map(state => ({
+                                                    key: EStates[state], text: `${state.charAt(0).toUpperCase()}${state.toLowerCase().slice(1)}`
+                                                }))
+                                            ]}
+                                            styles={{
+                                                control: styles.select
+                                            }}
+                                        />
+                                    }
                                     <Select
                                         label="Complete show"
                                         isDisabled={status === Status.PENDING}
@@ -377,7 +381,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
                 orderBy: /** @type {string=} */ (query?.orderBy) || ESort.DATE_ASC
             })
 
-            return { props: { bootlegsProps: JSON.parse(JSON.stringify(bootlegs)) } }
+            return { props: { bootlegsProps: bootlegs.map(x => x.toJson()) } }
         } catch (error) {
             console.log(error)
             // return {notFound: true }
@@ -386,4 +390,4 @@ export const getServerSideProps = wrapper.getServerSideProps(
     }
 )
 
-export default withManagers(Search)
+export default connect((state) => state)(withManagers(Search))

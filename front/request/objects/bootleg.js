@@ -1,7 +1,10 @@
+import { EStates } from "static/searchFilters/states"
+import { Base } from "request/objects/_base"
+
 /**
  * Bootleg Object
  */
-export class Bootleg {
+export class Bootleg extends Base {
     /**
      * @param {object} data
      * @param {object=} data._id
@@ -57,7 +60,7 @@ export class Bootleg {
         clickedCount = 0,
         report = null
     } = {}) {
-
+        super()
         this._id = _id?.$oid
         this.title = title
         this.description = description
@@ -84,7 +87,40 @@ export class Bootleg {
         this.clickedCount = clickedCount
         // this.report = report
 
-        this.stateName = ["Draft", "Prending", "Published", "Deleted"][this.state]
+        this.stateName = Object.keys(EStates).map(state => `${state.charAt(0).toUpperCase()}${state.toLowerCase().slice(1)}`)[this.state || 0]
+
+        this.timeAgo = (() => {
+            if (!createdOn)
+                return ''
+
+            const msPerMinute = 60 * 1000
+            const msPerHour = msPerMinute * 60
+            const msPerDay = msPerHour * 24
+            const msPerMonth = msPerDay * 30
+            const msPerYear = msPerDay * 365
+
+            const elapsed = new Date().getTime() - new Date(createdOn)?.getTime()
+
+            if (elapsed < msPerMinute) {
+                const res = Math.round(elapsed / 1000)
+                return `${res} second${res > 1 ? 's' : ''} ago`
+            } else if (elapsed < msPerHour) {
+                const res = Math.round(elapsed / msPerMinute)
+                return `${res} minute${res > 1 ? 's' : ''} ago`
+            } else if (elapsed < msPerDay) {
+                const res = Math.round(elapsed / msPerHour)
+                return `${res} hour${res > 1 ? 's' : ''} ago`
+            } else if (elapsed < msPerMonth) {
+                const res = Math.round(elapsed / msPerDay)
+                return `${res} day${res > 1 ? 's' : ''} ago`
+            } else if (elapsed < msPerYear) {
+                const res = Math.round(elapsed / msPerMonth)
+                return `${res} month${res > 1 ? 's' : ''} ago`
+            } else {
+                const res = Math.round(elapsed / msPerYear)
+                return `${res} year${res > 1 ? 's' : ''} ago`
+            }
+        })()
     }
 }
 

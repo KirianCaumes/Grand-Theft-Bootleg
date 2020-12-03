@@ -79,4 +79,19 @@ export default class UserController extends BaseController {
             }
         })
     }
+
+    /**
+     * getMe
+     */
+    async getMe({ request, response }: { request: Request; response: Response }) {
+        //Get user
+        const user = await this._getUser(request)
+
+        response.body = this._render({
+            message: 'User got',
+            result: {
+                ...user
+            }
+        })
+    }
 }
