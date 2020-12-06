@@ -4,17 +4,18 @@ import { Navbar } from 'react-bulma-components'
 import Link from 'next/link'
 import { Logo } from 'components/svg/icon'
 import { removeToken, setUser } from 'redux/slices/main'
+import { setBootlegs } from 'redux/slices/notification'
 import { connect, useDispatch } from 'react-redux'
 import { ReduxProps } from 'redux/store'
 import onClickOutside from "react-onclickoutside"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBell, faClock } from '@fortawesome/free-regular-svg-icons'
-import { faPlus, faSearch, faBell as faBellSolid } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faSearch, faBell as faBellSolid, faUser, faSignOutAlt, faTachometerAlt } from '@fortawesome/free-solid-svg-icons'
 import classNames from 'classnames'
 import { useRouter } from 'next/router'
 import { ESort } from 'static/searchFilters/sort'
 import { EStates } from 'static/searchFilters/states'
-import { Bootleg } from 'request/objects/bootleg'
+import Bootleg from 'request/objects/bootleg'
 import withManagers, { ManagersProps } from "helpers/hoc/withManagers"
 
 /**
@@ -26,11 +27,9 @@ import withManagers, { ManagersProps } from "helpers/hoc/withManagers"
  * Login page
  * @param {LayoutProps & ReduxProps & ManagersProps} props 
  */
-function Layout({ children, main: { token, me }, bootlegManager, userManager }) {
+function Layout({ children, main: { token, me }, notification: { bootlegs }, bootlegManager, userManager }) {
     /** @type {[boolean, function(boolean):any]} Is burger active */
     const [isActive, setIsActive] = React.useState(!!false)
-    /** @type {[Bootleg[], function(Bootleg[]):any]} Bootlegs */
-    const [bootlegs, setBootlegs] = React.useState([])
 
     // @ts-ignore
     Layout.handleClickOutside = () => setIsActive(false)
@@ -48,13 +47,13 @@ function Layout({ children, main: { token, me }, bootlegManager, userManager }) 
                             state: EStates.PENDING,
                             limit: 5
                         })
-                        setBootlegs(bootlegs)
+                        dispatch(setBootlegs({ bootlegs: bootlegs.map(x => x.toJson()) }))
                     } catch (error) {
                         console.error(error)
                     }
                 })()
             else
-                setBootlegs([])
+                dispatch(setBootlegs({ bootlegs: [] }))
 
         },
         [token]
@@ -67,6 +66,9 @@ function Layout({ children, main: { token, me }, bootlegManager, userManager }) 
                     try {
                         const user = await userManager.getMe()
                         dispatch(setUser({ user: user.toJson() }))
+
+                        if (!user?._id)
+                            dispatch(removeToken(undefined))
                     } catch (error) {
                         console.error(error)
                     }
@@ -156,15 +158,43 @@ function Layout({ children, main: { token, me }, bootlegManager, userManager }) 
                                             className="is-hidden-touch"
                                         />
                                     }
-                                    <a
-                                        className="navbar-item"
-                                        onClick={() => {
-                                            dispatch(removeToken(undefined))
-                                            router.push('/')
-                                        }}
+                                    <Navbar.Item
+                                        dropdown
+                                        hoverable
                                     >
-                                        Logout
-                                    </a>
+                                        <Navbar.Link>
+                                            <FontAwesomeIcon icon={faUser} className="is-hidden-touch" />
+                                            <FontAwesomeIcon icon={faUser} className="has-text-pink is-hidden-desktop" />
+                                            <span className="is-hidden-desktop">
+                                                &nbsp;User
+                                            </span>
+                                        </Navbar.Link>
+                                        <Navbar.Dropdown
+                                            className="is-right"
+                                        >
+                                            <Link href="/register">
+                                                <a
+                                                    className="navbar-item"
+                                                    onClick={() => setIsActive(false)}
+                                                >
+                                                    <FontAwesomeIcon icon={faTachometerAlt} className="has-text-pink" />&nbsp;
+                                                Dashboard
+                                            </a>
+                                            </Link>
+                                            <a
+                                                className="navbar-item"
+                                                onClick={() => {
+                                                    dispatch(removeToken(undefined))
+                                                    router.push('/')
+                                                    setIsActive(false)
+                                                }}
+                                            >
+                                                <FontAwesomeIcon icon={faSignOutAlt} className="has-text-pink" />&nbsp;
+                                                Logout
+                                            </a>
+                                        </Navbar.Dropdown>
+                                    </Navbar.Item>
+
                                 </>
                             }
                         </Navbar.Container>

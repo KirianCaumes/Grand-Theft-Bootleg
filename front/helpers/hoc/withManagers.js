@@ -1,9 +1,9 @@
 import React from 'react'
 import ApiManager from 'request/apiManager'// eslint-disable-line
 import BootlegManager from 'request/managers/bootlegManager'
-import { Bootleg } from 'request/objects/bootleg'
+import Bootleg from 'request/objects/bootleg'
 import UserManager from 'request/managers/userManager'
-import { User } from 'request/objects/user'
+import User from 'request/objects/user'
 
 /**
  * @typedef {object} ManagersProps

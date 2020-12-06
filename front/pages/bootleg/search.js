@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from "react"
+import React, { useEffect, useCallback, useMemo } from "react"
 import Head from "next/head"
 import { GetServerSidePropsContext } from 'next'
 // @ts-ignore
@@ -18,7 +18,7 @@ import { CancelRequestError } from "request/errors/cancelRequestError"
 import { UnauthorizedError } from "request/errors/unauthorizedError"
 import { InvalidEntityError } from "request/errors/invalidEntityError"
 import { NotImplementedError } from "request/errors/notImplementedError"
-import { Bootleg } from "request/objects/bootleg"
+import Bootleg from "request/objects/bootleg"
 import BootlegCard from "components/general/bootlegCard"
 import { Status } from "static/status"
 import BootlegManager from "request/managers/bootlegManager"
@@ -33,6 +33,7 @@ import { AnyAction, Store } from 'redux'
 import { MainState } from "redux/slices/main"
 import { connect } from "react-redux"
 import { ReduxProps } from 'redux/store'
+import { NotificationState } from 'redux/slices/notification'
 
 /**
  * @typedef {object} SearchProps
@@ -58,11 +59,11 @@ function Search({ bootlegManager, bootlegsProps, main: { me }, ...props }) {
     const router = useRouter()
     const { publicRuntimeConfig } = getConfig()
 
-    const boolOpts = [
+    const boolOpts = useMemo(() => [
         { key: null, text: 'Any' },
         { key: 1, text: 'Yes' },
         { key: 0, text: 'No' }
-    ]
+    ], [])
 
     useEffect(
         () => {
@@ -371,7 +372,7 @@ function Search({ bootlegManager, bootlegsProps, main: { me }, ...props }) {
 export const getServerSideProps = wrapper.getServerSideProps(
     /**
      * Get server side props
-     * @param {GetServerSidePropsContext & {store: Store<{ main: MainState; }, AnyAction>;}} ctx
+     * @param {GetServerSidePropsContext & {store: Store<{ main: MainState; notification: NotificationState }, AnyAction>;}} ctx
      */
     async ({ req, query }) => {
         try {

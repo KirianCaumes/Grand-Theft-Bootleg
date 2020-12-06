@@ -6,15 +6,15 @@ import styles from "styles/pages/bootleg/create.module.scss"
 import BootlegManager from "request/managers/bootlegManager"
 // @ts-ignore
 import { Section, Columns, Container } from 'react-bulma-components'
-import { Bootleg } from 'request/objects/bootleg'
+import Bootleg from 'request/objects/bootleg'
 import withManagers, { ManagersProps } from "helpers/hoc/withManagers"
 import getConfig from 'next/config'
 import { wrapper } from "redux/store"
 import { AnyAction, Store } from 'redux'
 import { MainState } from "redux/slices/main"
-import { Router, useRouter } from "next/router"
 import Cookie from "helpers/cookie"
 import { setToken } from 'redux/slices/main'
+import { NotificationState } from 'redux/slices/notification'
 
 /**
  * @typedef {object} BootlegProps
@@ -45,7 +45,7 @@ function Edit({ bootleg, bootlegManager, ...props }) {
 export const getServerSideProps = wrapper.getServerSideProps(
     /**
      * Get server side props
-     * @param {GetServerSidePropsContext & {store: Store<{ main: MainState; }, AnyAction>;}} ctx
+     * @param {GetServerSidePropsContext & {store: Store<{ main: MainState; notification: NotificationState }, AnyAction>;}} ctx
      */
     async ({ query, req, store }) => {
         const token = Cookie.get(req)

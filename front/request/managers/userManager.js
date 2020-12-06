@@ -1,4 +1,4 @@
-import { User, ErrorUser } from 'request/objects/user'
+import User, { ErrorUser } from 'request/objects/user'
 import ApiManager from 'request/apiManager'
 
 /**

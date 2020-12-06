@@ -6,7 +6,7 @@ import { Section, Columns, Container } from 'react-bulma-components'
 import styles from "styles/pages/register.module.scss"
 import { Logo } from "components/svg/icon"
 import { Status } from "static/status"
-import { User, ErrorUser } from "request/objects/user"
+import User, { ErrorUser } from "request/objects/user"
 import { faEnvelope, faEye, faKey, faSignInAlt, faUser } from "@fortawesome/free-solid-svg-icons"
 import { CancelRequestError } from "request/errors/cancelRequestError"
 import { UnauthorizedError } from "request/errors/unauthorizedError"
@@ -107,7 +107,7 @@ function Register({ userManager, ...props }) {
                                         value={user.mail}
                                         iconLeft={faEnvelope}
                                         errorMessage={errorField.mail}
-                                        onChange={ev => setUser({ ...user, mail: ev.target.value })}
+                                        onChange={ev => setUser(new User({ ...user, mail: ev.target.value }))}
                                     />
                                     <Input
                                         label="Username"
@@ -117,7 +117,7 @@ function Register({ userManager, ...props }) {
                                         value={user.username}
                                         iconLeft={faUser}
                                         errorMessage={errorField.username}
-                                        onChange={ev => setUser({ ...user, username: ev.target.value })}
+                                        onChange={ev => setUser(new User({ ...user, username: ev.target.value }))}
                                     />
                                     <Input
                                         label="Password"
@@ -127,7 +127,7 @@ function Register({ userManager, ...props }) {
                                         value={user.password}
                                         iconLeft={faKey}
                                         errorMessage={errorField.password}
-                                        onChange={ev => setUser({ ...user, password: ev.target.value })}
+                                        onChange={ev => setUser(new User({ ...user, password: ev.target.value }))}
                                         isWithBtn={true}
                                         onClickBtn={() => setIsPwdVisible(!isPwdVisible)}
                                         iconBtn={faEye}

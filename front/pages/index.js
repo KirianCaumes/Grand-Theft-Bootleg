@@ -11,7 +11,7 @@ import classNames from 'classnames'
 import BootlegCard from "components/general/bootlegCard"
 import { Logo } from "components/svg/icon"
 import { useRouter } from 'next/router'
-import { Bootleg } from 'request/objects/bootleg'
+import Bootleg from 'request/objects/bootleg'
 import Link from "next/link"
 import config from 'react-reveal/globals'
 import Fade from 'react-reveal/Fade'
@@ -22,6 +22,7 @@ import getConfig from 'next/config'
 import { GetServerSidePropsContext } from 'next'
 import { AnyAction, Store } from 'redux'
 import { MainState } from "redux/slices/main"
+import { NotificationState } from 'redux/slices/notification'
 
 config({ ssrFadeout: true })
 
@@ -350,7 +351,7 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, ...props }) {
 export const getServerSideProps = wrapper.getServerSideProps(
     /**
      * Get server side props
-     * @param {GetServerSidePropsContext & {store: Store<{ main: MainState; }, AnyAction>;}} ctx
+     * @param {GetServerSidePropsContext & {store: Store<{ main: MainState; notification: NotificationState }, AnyAction>;}} ctx
      */
     async ({ req }) => {
         try {

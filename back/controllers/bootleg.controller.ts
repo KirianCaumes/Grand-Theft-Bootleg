@@ -181,7 +181,7 @@ export default class BootlegController extends BaseController {
         this.denyAccessUnlessGranted(EActions.CREATE_REPORT, bootlegBdd, user)
 
         //Validate data
-        const reportBody = this.validatorReport(await request.body().value)
+        const reportBody = await this.validatorReport(await request.body().value)
 
         //Update element
         const bootlegBddUpd = await this.collection.updateOneById(

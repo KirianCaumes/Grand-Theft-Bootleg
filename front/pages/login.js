@@ -6,7 +6,7 @@ import { Section, Columns, Container } from 'react-bulma-components'
 import styles from "styles/pages/login.module.scss"
 import { Logo } from "components/svg/icon"
 import { Status } from "static/status"
-import { ErrorUser, User } from "request/objects/user"
+import User, { ErrorUser } from "request/objects/user"
 import { faEnvelope, faKey, faSignInAlt } from "@fortawesome/free-solid-svg-icons"
 import { CancelRequestError } from "request/errors/cancelRequestError"
 import { UnauthorizedError } from "request/errors/unauthorizedError"
@@ -106,7 +106,7 @@ function Login({ userManager, ...props }) {
                                         value={user.mail}
                                         iconLeft={faEnvelope}
                                         errorMessage={errorField.mail}
-                                        onChange={ev => setUser({ ...user, mail: ev.target.value })}
+                                        onChange={ev => setUser(new User({ ...user, mail: ev.target.value }))}
                                     />
                                     <Input
                                         label="Password"
@@ -116,7 +116,7 @@ function Login({ userManager, ...props }) {
                                         value={user.password}
                                         iconLeft={faKey}
                                         errorMessage={errorField.password}
-                                        onChange={ev => setUser({ ...user, password: ev.target.value })}
+                                        onChange={ev => setUser(new User({ ...user, password: ev.target.value }))}
                                     />
 
                                     <Button

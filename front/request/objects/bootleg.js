@@ -1,16 +1,17 @@
 import { EStates } from "static/searchFilters/states"
-import { Base } from "request/objects/_base"
+import Report, { ErrorReport } from "./report"
+import Base from "./_base"
 
 /**
  * Bootleg Object
  */
-export class Bootleg extends Base {
+export default class Bootleg extends Base {
     /**
      * @param {object} data
-     * @param {object=} data._id
+     * @param {object | number=} data._id
      * @param {string=} data.title
      * @param {string=} data.description
-     * @param {string=} data.date
+     * @param {string | Date=} data.date
      * @param {string=} data.picture
      * @param {string[]=} data.links
      * @param {string[]=} data.bands
@@ -25,16 +26,16 @@ export class Bootleg extends Base {
      * @param {number=} data.state
      * @param {object=} data.createdById
      * @param {object=} data.createdBy
-     * @param {string=} data.createdOn
+     * @param {string | Date=} data.createdOn
      * @param {object=} data.modifiedById
      * @param {object=} data.modifiedBy
-     * @param {string=} data.modifiedOn
-     * @param {string=} data.clicked
+     * @param {string | Date=} data.modifiedOn
+     * @param {object[]=} data.clicked
      * @param {number=} data.clickedCount
-     * @param {string=} data.report
+     * @param {object[]=} data.report
      */
     constructor({
-        _id = {},
+        _id = null,
         title = null,
         description = null,
         date = null,
@@ -61,7 +62,7 @@ export class Bootleg extends Base {
         report = null
     } = {}) {
         super()
-        this._id = _id?.$oid
+        this._id = _id?.$oid ?? _id
         this.title = title
         this.description = description
         this.date = date ? new Date(date) : null
@@ -77,15 +78,15 @@ export class Bootleg extends Base {
         this.soundQuality = soundQuality
         this.videoQuality = videoQuality
         this.state = state
-        this.createdById = createdById?.$oid
+        this.createdById = createdById?.$oid || createdById
         this.createdBy = createdBy
         this.createdOn = createdOn ? new Date(createdOn) : createdOn
-        this.modifiedById = modifiedById?.$oid
+        this.modifiedById = modifiedById?.$oid || modifiedById
         this.modifiedBy = modifiedBy
         this.modifiedOn = modifiedOn ? new Date(modifiedOn) : modifiedOn
         // this.clicked = clicked
         this.clickedCount = clickedCount
-        // this.report = report
+        this.report = report?.map(x => new Report(x))
 
         this.stateName = Object.keys(EStates).map(state => `${state.charAt(0).toUpperCase()}${state.toLowerCase().slice(1)}`)[this.state || 0]
 
@@ -123,6 +124,7 @@ export class Bootleg extends Base {
         })()
     }
 }
+
 
 /**
  * Bootleg Object used to bind error message

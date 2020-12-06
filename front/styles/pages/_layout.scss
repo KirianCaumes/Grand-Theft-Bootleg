@@ -18,9 +18,26 @@ body {
           left: 0;
           right: 0;
         }
+        .navbar-link,
+        .navbar-item {
+          &:hover {
+            color: $pink;
+          }
+        }
         .navbar-item {
           .navbar-dropdown {
             width: 200px;
+          }
+          .navbar-link:not(.is-arrowless)::after {
+            @include until($desktop) {
+              display: none;
+            }
+            right: 1.5em;
+            width: 0.525em;
+            height: 0.525em;
+            border: 2px solid;
+            border-right: 0;
+            border-top: 0;
           }
         }
       }

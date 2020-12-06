@@ -1,0 +1,14 @@
+@import "../variables";
+
+.modal {
+    .header {
+        background-color: white;
+    }
+    .body {
+    }
+    .footer {
+        background-color: white;
+        padding: 0 20px 20px;
+        border-top: unset;
+    }
+}

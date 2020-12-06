@@ -1,8 +1,17 @@
 import { createSlice } from "@reduxjs/toolkit"
-import { Slice, PayloadAction } from "@reduxjs/toolkit" // eslint-disable-line
+import { Slice, PayloadAction, ActionCreatorWithPayload } from "@reduxjs/toolkit"
 import Cookie from "helpers/cookie"
 import { HYDRATE } from 'next-redux-wrapper'
-import { User } from 'request/objects/user'
+import User from 'request/objects/user'
+import { ReactNotificationOptions, store } from 'react-notifications-component'
+
+/**
+ * @typedef {object} Message
+ * @property {boolean=} isDisplay Is notif display
+ * @property {ReactNotificationOptions['title']} title
+ * @property {ReactNotificationOptions['message']} message
+ * @property {ReactNotificationOptions['type']} type
+ */
 
 /**
  * Payload token
@@ -12,6 +21,10 @@ import { User } from 'request/objects/user'
  * Payload user
  * @typedef {object} PayloadUser
  * @property {User} user Me user
+ * 
+ * Payload message
+ * @typedef {object} PayloadMessage
+ * @property {Message} message Message
  */
 
 /**
@@ -19,6 +32,7 @@ import { User } from 'request/objects/user'
  * @typedef {object} MainState
  * @property {string} token User JWT Token
  * @property {User} me Me user
+ * @property {Message} message Message to display  
 */
 
 /**
@@ -27,9 +41,16 @@ import { User } from 'request/objects/user'
  */
 const mainSlice = createSlice({
     name: "main",
+    /** @type {MainState} */
     initialState: {
         token: null,
-        me: new User().toJson()
+        me: new User().toJson(),
+        message: {
+            isDisplay: false,
+            title: null,
+            message: null,
+            type: null,
+        }
     },
     reducers: {
         /**
@@ -50,11 +71,31 @@ const mainSlice = createSlice({
             state.me = new User().toJson()
         },
         /**
-         * Set token
+         * Set user
          * @param {PayloadAction<PayloadUser>} action
          */
         setUser: (state, action) => {
             state.me = action.payload.user
+        },
+        /**
+         * Set notification
+         * @param {PayloadAction<PayloadMessage>} action
+         */
+        setMessage: (state, action) => {
+            state.message = action.payload.message
+            store.addNotification({
+                title: state.message.title,
+                message: state.message.message,
+                type: state.message.type,
+                insert: "top",
+                container: "bottom-left",
+                animationIn: ["animate__animated", "animate__fadeIn"],
+                animationOut: ["animate__animated", "animate__fadeOut"],
+                dismiss: {
+                    duration: 5000
+                },
+                // onRemoval: () => dispatch(setMessage({ message: { isDsiplay: false } }))
+            })
         },
     },
     extraReducers: {
@@ -67,6 +108,9 @@ const mainSlice = createSlice({
 
 export const selectmain = state => state.main
 
-export const { setToken, removeToken, setUser } = mainSlice.actions
+export const setToken = /** @type {ActionCreatorWithPayload<PayloadToken, string>} */(mainSlice.actions.setToken)
+export const removeToken = /** @type {ActionCreatorWithPayload<undefined, string>} */(mainSlice.actions.removeToken)
+export const setUser = /** @type {ActionCreatorWithPayload<PayloadUser, string>} */(mainSlice.actions.setUser)
+export const setMessage = /** @type {ActionCreatorWithPayload<PayloadMessage, string>} */(mainSlice.actions.setMessage)
 
 export default mainSlice.reducer

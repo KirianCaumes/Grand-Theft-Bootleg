@@ -26,11 +26,12 @@ import inputStyles from 'styles/components/form/input.module.scss'
  * @param {string=} props.value
  * @param {IconProp=} props.iconLeft
  * @param {string=} props.errorMessage
- * @param {function(React.ChangeEvent<HTMLInputElement>)=} props.onChange
+ * @param {function(React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): any=} props.onChange
  * @param {Styles=} props.styles
  * @param {boolean=} props.isWithBtn
  * @param {function()=} props.onClickBtn
  * @param {IconProp=} props.iconBtn
+ * @param {boolean=} props.multiline
  */
 export default function Input({
     label = "",
@@ -49,13 +50,16 @@ export default function Input({
 
     isWithBtn = false,
     onClickBtn = () => null,
-    iconBtn = undefined
+    iconBtn = undefined,
+
+    multiline = false
 }) {
+    const Ipt = multiline ? 'textarea' : 'input'
     return (
         <>
             <label
                 htmlFor={encodeURIComponent(label)}
-                className={classNames("label", { 'is-isRequired': isRequired })}
+                className={classNames("label", { 'is-required': isRequired })}
             >
                 {label}
             </label>
@@ -63,9 +67,9 @@ export default function Input({
                 className={classNames("field", { 'has-addons': isWithBtn })}
             >
                 <div className={classNames("control is-expanded", { 'has-icons-left': iconLeft }, styles.control, inputStyles.control)}>
-                    <input
+                    <Ipt
                         id={encodeURIComponent(label)}
-                        className={classNames("input is-greyblue", { 'is-danger': !!errorMessage }, styles.input, inputStyles.input)}
+                        className={classNames("is-greyblue", { 'input': !multiline }, { 'textarea': multiline }, { 'is-danger': !!errorMessage }, styles.input, inputStyles.input)}
                         type={type}
                         placeholder={placeholder}
                         onChange={onChange}

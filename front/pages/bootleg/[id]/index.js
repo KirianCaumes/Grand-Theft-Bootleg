@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react"
+import React, { useCallback, useEffect, useMemo, useState } from "react"
 import Head from "next/head"
 import { GetServerSidePropsContext } from 'next'
 // @ts-ignore
@@ -6,49 +6,84 @@ import styles from "styles/pages/bootleg/id.module.scss"
 import BootlegManager from "request/managers/bootlegManager"
 // @ts-ignore
 import { Section, Columns, Container } from 'react-bulma-components'
-import { Bootleg } from 'request/objects/bootleg'
+import Bootleg from 'request/objects/bootleg'
 import Link from "next/link"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faStar, faMapMarker, faHeadphonesAlt } from "@fortawesome/free-solid-svg-icons"
+import { faStar, faHeadphonesAlt, faEdit, faCheck, faTimes, faTrash, faCheckDouble, faMapMarker } from "@fortawesome/free-solid-svg-icons"
 import { faStar as faStarLight } from '@fortawesome/free-regular-svg-icons'
 import withManagers, { ManagersProps } from "helpers/hoc/withManagers"
 import getConfig from 'next/config'
 import { wrapper } from "redux/store"
 import { AnyAction, Store } from 'redux'
-import { MainState } from "redux/slices/main"
+import { MainState, setMessage } from "redux/slices/main"
+import Button from "components/form/button"
+import classNames from 'classnames'
+import { connect, useDispatch } from "react-redux"
+import { ReduxProps } from 'redux/store'
+import { useRouter } from "next/router"
+import { CancelRequestError } from "request/errors/cancelRequestError"
+import { UnauthorizedError } from "request/errors/unauthorizedError"
+import { InvalidEntityError } from "request/errors/invalidEntityError"
+import { NotImplementedError } from "request/errors/notImplementedError"
+import Modal, { ModalType } from "components/general/modal"
+import Input from "components/form/input"
+import Report, { ErrorReport } from "request/objects/report"
+import { NotificationState, removeFromBootlegs, addToBootlegs } from 'redux/slices/notification'
 
 /**
  * @typedef {object} BootlegProps
- * @property {Bootleg} bootleg Bootleg
+ * @property {Bootleg} bootlegProps Bootleg from props
  */
 
 /**
  * Bootleg page
- * @param {BootlegProps & ManagersProps} props 
+ * @param {BootlegProps & ManagersProps & ReduxProps} props 
  */
-function BootlegDetail({ bootleg, bootlegManager, ...props }) {
+function BootlegDetail({ bootlegProps, bootlegManager, main: { token, me }, ...props }) {
+    /** @type {[Bootleg, function(Bootleg):any]} Bootleg */
+    const [bootleg, setBootleg] = useState(new Bootleg(bootlegProps))
+    /** @type {[ModalType, function(ModalType):any]} Modal */
+    const [modal, setModal] = useState({ isDisplay: !!false })
+    /** @type {[ModalType, function(ModalType):any]} Modal */
+    const [modalReport, setModalReport] = useState({ isDisplay: !!false })
+    /** @type {[ErrorReport, function(ErrorReport):any]} Error message */
+    const [errorFieldReport, setErrorFieldReport] = useState(new ErrorReport())
+    /** @type {[Report, function(Report):any]} Report */
+    const [report, setReport] = useState(new Report())
+
     const { publicRuntimeConfig } = getConfig()
+    const router = useRouter()
+    const dispatch = useDispatch()
 
     /** Score */
     const score = useCallback(
         /**
          * Get score
-         * @param {number} value score
+         * @param {number} value score  
          */
-        (value = 0) => <>
-            {new Array(value)
-                .fill({})
-                .map((x, i) =>
-                    <FontAwesomeIcon className="has-text-pink" icon={faStar} key={i} />
-                )
-            }
-            {new Array(5 - value)
-                .fill({})
-                .map((x, i) =>
-                    <FontAwesomeIcon className="has-text-pink" icon={faStarLight} key={i} />
-                )
-            }
-        </>,
+        (value = 0) => {
+            if (value > 5)
+                value = 5
+            else if (value < 0)
+                value = 0
+
+            return (<>
+                {
+                    new Array(value <= 5 ? value : 5)
+                        .fill({})
+                        .map((x, i) =>
+                            <FontAwesomeIcon className="has-text-pink" icon={faStar} key={i} />
+                        )
+                }
+                {
+                    new Array(5 - value > 0 ? 5 - value : 0)
+                        .fill({})
+                        .map((x, i) =>
+                            <FontAwesomeIcon className="has-text-pink" icon={faStarLight} key={i} />
+                        )
+                }
+            </>)
+        },
         [bootleg]
     )
 
@@ -94,6 +129,101 @@ function BootlegDetail({ bootleg, bootlegManager, ...props }) {
         [bootleg]
     )
 
+    /** Update bootleg API */
+    const update = useCallback(
+        /**
+         * @param {Bootleg} bootlegData
+         */
+        async (bootlegData) => {
+            try {
+                const id = /** @type {string} */ (router?.query?.id)
+                if (bootlegData?.state !== 3)
+                    setBootleg(await bootlegManager.updateById(bootlegData, id?.substring(id?.lastIndexOf("-") + 1)))
+                else
+                    setBootleg(await bootlegManager.removeById(id?.substring(id?.lastIndexOf("-") + 1)))
+
+                dispatch(setMessage({
+                    message: {
+                        title: 'Bootleg updated',
+                        message: 'Bootleg state has been correctly updated',
+                        type: 'success'
+                    }
+                }))
+            } catch (error) {
+                switch (error?.constructor) {
+                    case CancelRequestError:
+                    case UnauthorizedError: break
+                    case InvalidEntityError:
+                    case NotImplementedError:
+                    default:
+                        dispatch(setMessage({
+                            message: {
+                                title: 'Failed to update bootleg',
+                                message: 'An error occured during the bootleg update',
+                                type: 'danger'
+                            }
+                        }))
+                        console.log(error)
+                        break
+                }
+                return error
+            }
+        },
+        []
+    )
+
+    /** Clicked on link */
+    const click = useCallback(
+        async () => {
+            try {
+                setBootleg(await bootlegManager.click(bootleg._id))
+            } catch (error) {
+                console.error(error?.message)
+            }
+        },
+        [bootleg]
+    )
+
+    /** Report */
+    const addReport = useCallback(
+        async () => {
+            try {
+                setBootleg(await bootlegManager.createReport(bootleg._id, { message: report.message }))
+                setReport(new Report())
+                setErrorFieldReport(new ErrorReport())
+                dispatch(setMessage({
+                    message: {
+                        title: 'Report added',
+                        message: 'Your report has been correctly added',
+                        type: 'success'
+                    }
+                }))
+            } catch (error) {
+                switch (error?.constructor) {
+                    case CancelRequestError:
+                    case UnauthorizedError: break
+                    case InvalidEntityError:
+                        setErrorFieldReport(error.errorField)
+                        console.log(errorFieldReport)
+                        break
+                    case NotImplementedError:
+                    default:
+                        dispatch(setMessage({
+                            message: {
+                                title: 'Failed to add report',
+                                message: 'An error occured during the report',
+                                type: 'danger'
+                            }
+                        }))
+                        console.log(error)
+                        break
+                }
+                return error
+            }
+        },
+        [bootleg, report]
+    )
+
     return (
         <>
             <Head>
@@ -135,9 +265,126 @@ function BootlegDetail({ bootleg, bootlegManager, ...props }) {
                                 </div>
                             </Columns.Column>
                             <Columns.Column size="one-third">
+                                {!!token && (me?.role > 1 || me?._id === bootleg.createdById) && <>
+                                    <h2 className="title is-4 is-title-underline">
+                                        Actions&nbsp;
+                                        <span className="tag is-dark-pink is-v-bottom"><FontAwesomeIcon icon={faMapMarker} />&nbsp;&nbsp;{bootleg.stateName}</span>
+                                    </h2>
+                                    <div className={classNames("buttons", styles.buttons)}>
+                                        {(me?.role > 1 || me?._id === bootleg.createdById) &&
+                                            <Button
+                                                label="Edit"
+                                                type="button"
+                                                iconLeft={faEdit}
+                                                color="greyblue"
+                                                styles={{
+                                                    button: classNames('is-small', styles.button)
+                                                }}
+                                                href={`/bootleg/${router.query?.id}/edit`}
+                                            />
+                                        }
+                                        {((me?.role > 1 || me?._id === bootleg.createdById) && bootleg.state === 0) &&
+                                            <Button
+                                                label="Validate"
+                                                type="button"
+                                                iconLeft={faCheck}
+                                                onClick={() => {
+                                                    setModal({
+                                                        isDisplay: true,
+                                                        title: 'Validate the bootleg?',
+                                                        children: <>Are you sure you want to validate this bootleg?<br /> The bootleg is going to be in the <b>Pending</b> state.</>,
+                                                        onClickYes: async () => {
+                                                            const err = await update(new Bootleg({ ...bootleg, state: 1 }))
+                                                            if (!err)
+                                                                dispatch(addToBootlegs({ bootleg }))
+                                                            setModal({ isDisplay: false })
+                                                        }
+                                                    })
+                                                }}
+                                                color="greyblue"
+                                                styles={{
+                                                    button: classNames('is-small', styles.button)
+                                                }}
+                                            />
+                                        }
+                                        {me?.role > 1 && bootleg.state < 2 &&
+                                            <Button
+                                                label="Publish"
+                                                type="button"
+                                                iconLeft={faCheckDouble}
+                                                onClick={() => {
+                                                    setModal({
+                                                        isDisplay: true,
+                                                        title: 'Publish the bootleg?',
+                                                        children: <>Are you sure you want to Publish this bootleg?<br /> The bootleg is going to be in the <b>Published</b> state and going to be visible from everyone.</>,
+                                                        onClickYes: async () => {
+                                                            const err = await update(new Bootleg({ ...bootleg, state: 2 }))
+                                                            if (!err)
+                                                                dispatch(removeFromBootlegs({ bootleg: bootleg.toJson() }))
+                                                            setModal({ isDisplay: false })
+                                                        }
+                                                    })
+                                                }}
+                                                color="greyblue"
+                                                styles={{
+                                                    button: classNames('is-small', styles.button)
+                                                }}
+                                            />
+                                        }
+                                        {me?.role > 1 && bootleg.state !== 0 &&
+                                            <Button
+                                                label="Draft"
+                                                type="button"
+                                                iconLeft={faTimes}
+                                                onClick={() => {
+                                                    setModal({
+                                                        isDisplay: true,
+                                                        title: 'Draft the bootleg?',
+                                                        children: <>Are you sure you want this bootleg to go back to draft?<br /> The bootleg is going to be in the <b>Draft</b> state.</>,
+                                                        onClickYes: async () => {
+                                                            const err = await update(new Bootleg({ ...bootleg, state: 0 }))
+                                                            if (!err)
+                                                                dispatch(removeFromBootlegs({ bootleg: bootleg.toJson() }))
+                                                            setModal({ isDisplay: false })
+                                                        }
+                                                    })
+                                                }}
+                                                color="greyblue"
+                                                styles={{
+                                                    button: classNames('is-small', styles.button)
+                                                }}
+                                            />
+                                        }
+                                        {me?.role > 2 && bootleg.state !== 3 &&
+                                            <Button
+                                                label="Delete"
+                                                type="button"
+                                                iconLeft={faTrash}
+                                                onClick={() => {
+                                                    setModal({
+                                                        isDisplay: true,
+                                                        title: 'Delete the bootleg?',
+                                                        children: <>Are you sure you want to delete this bootleg?<br /> The bootleg is going to be in the <b>Deleted</b> state.</>,
+                                                        onClickYes: async () => {
+                                                            const err = await update(new Bootleg({ ...bootleg, state: 3 }))
+                                                            if (!err)
+                                                                dispatch(removeFromBootlegs({ bootleg: bootleg.toJson() }))
+                                                            setModal({ isDisplay: false })
+                                                        }
+                                                    })
+                                                }}
+                                                color="greyblue"
+                                                styles={{
+                                                    button: classNames('is-small', styles.button)
+                                                }}
+                                            />
+                                        }
+                                    </div>
+
+                                    <br />
+                                </>}
                                 <h2 className="title is-4 is-title-underline">
-                                    Details&nbsp;
-                                    <span className="tag is-greyblue is-v-bottom"><FontAwesomeIcon icon={faMapMarker} />&nbsp;&nbsp;{bootleg.stateName}</span>
+                                    Details
                                 </h2>
                                 <p className="is-capitalize">
                                     <strong>Date:</strong>
@@ -204,13 +451,7 @@ function BootlegDetail({ bootleg, bootlegManager, ...props }) {
                                                 className="button is-pink"
                                                 href={link}
                                                 target="_blank"
-                                                onClick={async () => {
-                                                    try {
-                                                        await bootlegManager.click(bootleg._id)
-                                                    } catch (error) {
-                                                        console.error(error?.message)
-                                                    }
-                                                }}
+                                                onClick={click}
                                             >
                                                 <span className="icon">
                                                     <FontAwesomeIcon icon={faHeadphonesAlt} />
@@ -289,13 +530,7 @@ function BootlegDetail({ bootleg, bootlegManager, ...props }) {
 
                                 <p className="is-capitalize">
                                     <strong>Submited on:</strong>
-                                    <Link
-                                        href={`/bootleg/search?year=${encodeURIComponent(new Date(bootleg.createdOn)?.getFullYear())}`}
-                                    >
-                                        <a>
-                                            {new Date(bootleg.createdOn)?.toLocaleDateString('en-EN', { year: 'numeric', month: 'short', day: '2-digit' })}
-                                        </a>
-                                    </Link>
+                                    {new Date(bootleg.createdOn)?.toLocaleDateString('en-EN', { year: 'numeric', month: 'short', day: '2-digit' })}
                                 </p>
 
                                 <p className="is-capitalize">
@@ -311,9 +546,7 @@ function BootlegDetail({ bootleg, bootlegManager, ...props }) {
 
                                 <br />
                                 <a
-                                    onClick={() => {
-
-                                    }}
+                                    onClick={() => setModalReport({ isDisplay: true })}
                                 >
                                     Report
                                 </a>
@@ -322,6 +555,37 @@ function BootlegDetail({ bootleg, bootlegManager, ...props }) {
                     </Container>
                 </Section>
             </main>
+
+            <Modal
+                isDisplay={modal.isDisplay}
+                title={modal.title}
+                onClickYes={modal.onClickYes}
+                onClickNo={() => setModal({ isDisplay: false })}
+            >
+                {modal.children}
+            </Modal>
+
+            <Modal
+                isDisplay={modalReport.isDisplay}
+                title="Report a problem"
+                onClickYes={async () => {
+                    const err = await addReport()
+                    if (!err)
+                        setModalReport({ isDisplay: false })
+                }}
+                onClickNo={() => setModalReport({ isDisplay: false })}
+            >
+                <Input
+                    label="Message"
+                    placeholder="Your message"
+                    isRequired={true}
+                    value={report.message}
+                    errorMessage={errorFieldReport.message}
+                    onChange={ev => setReport(new Report({ ...report, message: ev.target.value }))}
+                    multiline
+                // min={5}
+                />
+            </Modal>
         </>
     )
 }
@@ -330,7 +594,7 @@ function BootlegDetail({ bootleg, bootlegManager, ...props }) {
 export const getServerSideProps = wrapper.getServerSideProps(
     /**
      * Get server side props
-     * @param {GetServerSidePropsContext & {store: Store<{ main: MainState; }, AnyAction>;}} ctx
+     * @param {GetServerSidePropsContext & {store: Store<{ main: MainState; notification: NotificationState }, AnyAction>;}} ctx
      */
     async ({ query, req }) => {
         try {
@@ -338,7 +602,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
             const id = /** @type {string} */ (query.id)
             const bootleg = await bootlegManager.getById(id.substring(id?.lastIndexOf("-") + 1))
 
-            return { props: { bootleg: bootleg.toJson() } }
+            return { props: { bootlegProps: bootleg.toJson() } }
         } catch (error) {
             console.log(error)
             return { notFound: true }
@@ -346,4 +610,4 @@ export const getServerSideProps = wrapper.getServerSideProps(
     }
 )
 
-export default withManagers(BootlegDetail)
+export default connect((state) => state)(withManagers(BootlegDetail))

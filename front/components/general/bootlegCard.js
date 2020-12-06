@@ -5,7 +5,7 @@ import { Card, Heading } from 'react-bulma-components'
 import styles from "styles/components/bootlegcard.module.scss"
 import classNames from 'classnames'
 import Link from 'next/link'
-import { Bootleg } from 'request/objects/bootleg'
+import Bootleg from 'request/objects/bootleg'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faClock, faEye } from '@fortawesome/free-regular-svg-icons'
 

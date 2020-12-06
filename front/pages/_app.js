@@ -1,12 +1,13 @@
 import React, { useEffect } from 'react'
 import 'styles/index.scss'
 import { AppProps } from 'next/dist/next-server/lib/router/router'
-import { wrapper } from 'redux/store'
 import { setToken } from 'redux/slices/main'
 import Cookie from 'helpers/cookie'
 import { useDispatch } from 'react-redux'
 import Layout from 'components/layout'
 import withManagers, { ManagersProps } from 'helpers/hoc/withManagers'
+import { wrapper } from 'redux/store'
+import Notification from 'components/general/notification'
 
 /**
  * Base layout
@@ -24,9 +25,12 @@ function MyApp({ Component, pageProps }) {
     )
 
     return (
-        <Layout>
-            <Component {...pageProps} />
-        </Layout>
+        <>
+            <Notification />
+            <Layout>
+                <Component {...pageProps} />
+            </Layout>
+        </>
     )
 }
 

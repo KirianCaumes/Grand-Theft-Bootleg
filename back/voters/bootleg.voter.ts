@@ -93,7 +93,7 @@ export default class BootlegVoter extends BaseVoter {
     }
 
     private canClick(subject: BootlegSchema, user: UserSchema) {
-        if (!!subject.clicked.find(x =>
+        if (!!subject.clicked?.find(x =>
             x.userId?.$oid === user._id.$oid &&
             x.date > new Date(new Date().getTime() - (24 * 60 * 60 * 1000))
         ))

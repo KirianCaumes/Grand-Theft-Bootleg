@@ -9,6 +9,7 @@ import { UnauthorizedError } from './errors/unauthorizedError'
 import Cookie from 'helpers/cookie'
 import { IncomingMessage } from 'http'
 import getConfig from 'next/config'
+import { store } from 'react-notifications-component'
 
 const { publicRuntimeConfig } = getConfig()
 
@@ -39,7 +40,7 @@ export default class ApiManager {
         this.type = settings.type
         /** 
          * Type of error object to return from API call when fields are invalid
-         * @private
+         * @protected
          * @type {E & Object} 
          */
         this.errorType = settings.errorType
@@ -234,7 +235,6 @@ export default class ApiManager {
 
         return request.req
             .then(res => {
-                // store.dispatch(setMessageBar({ isDisplayed: true, type: MessageBarType.success, message: "L'élément a bien été créée" }))
                 return new (this.type)(res.data[this.objectName])
             })
             .catch(err => {

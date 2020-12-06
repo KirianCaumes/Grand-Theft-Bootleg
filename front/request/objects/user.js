@@ -1,9 +1,9 @@
-import { Base } from "request/objects/_base"
+import Base from "./_base"
 
 /**
  * User Object
  */
-export class User extends Base {
+export default class User extends Base {
     /**
      * @param {object} data 
      * @param {object=} data._id
@@ -14,7 +14,7 @@ export class User extends Base {
      * @param {string=} data.token 
      */
     constructor({
-        _id = {},
+        _id = null,
         username = null,
         password = null,
         mail = null,
@@ -22,9 +22,9 @@ export class User extends Base {
         token = null,
     } = {}) {
         super()
-        this._id = _id?.$oid
+        this._id = _id?.$oid || _id
         this.username = username
-        // this.password = password
+        this.password = password
         this.mail = mail
         this.role = role
         this.token = token
