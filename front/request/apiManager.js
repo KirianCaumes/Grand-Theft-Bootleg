@@ -10,11 +10,13 @@ import Cookie from 'helpers/cookie'
 import { IncomingMessage } from 'http'
 import getConfig from 'next/config'
 import { store } from 'react-notifications-component'
+import { AuthentificationError } from './errors/authentificationError'
+import { NotFoundError } from './errors/notFoundError'
 
 const { publicRuntimeConfig } = getConfig()
 
 /**
- * @template T, E
+ * @template T, E, M
  * @abstract
  */
 export default class ApiManager {
@@ -22,6 +24,7 @@ export default class ApiManager {
      * @param {object} settings 
      * @param {object} settings.type Class to use
      * @param {object} settings.errorType Class to use for error
+     * @param {object=} settings.metaType Class to use for meta data
      * @param {string} settings.key Object name used for base url and retrieve result
      * @param {IncomingMessage=} settings.req Request if from serverside, to retrieve token
      */
@@ -44,6 +47,12 @@ export default class ApiManager {
          * @type {E & Object} 
          */
         this.errorType = settings.errorType
+        /** 
+         * Type of object for meta data
+         * @protected
+         * @type {M & Object} 
+         */
+        this.metaType = settings.metaType
         /** 
          * Key to find in API call results
          * @protected
@@ -102,50 +111,37 @@ export default class ApiManager {
      * @param {AxiosError} err 
      */
     _handleError(err) {
-        /**
-         * Set error
-         * @param {object} props 
-         * @param {MessageBarType=} props.type 
-         * @param {string=} props.message 
-         */
-        const setMessage = ({ type = MessageBarType.error, message = 'Something bad happened' }) => null //store.dispatch(setMessageBar({ isDisplayed: true, type, message }))
-
-
         if (axios.isCancel(err)) {
             return new CancelRequestError(err.message)
         } else if (err.response) {
             switch (err.response.status) {
                 case 400:
-                    const dataNotWellFormated = err.response.data?.errors?.find(x => x.code === "data_not_well_formated")
-                    if (dataNotWellFormated?.validationResults) {
-                        setMessage({ message: dataNotWellFormated?.description })
-                        return new InvalidEntityError({ content: dataNotWellFormated, errorType: this.errorType })
+                    switch (err.response.data?.error?.code) {
+                        case 'data_not_well_formated':
+                            return new InvalidEntityError({ content: err.response.data?.error, errorType: this.errorType })
+                        default:
+                            return new Error(err.response?.data?.message)
                     }
-                    setMessage({})
-                    return new Error(err.response?.data?.message)
                 case 401:
-                    setMessage({ type: MessageBarType.blocked, message: err.response?.data?.message ?? "You are not allowed to do this action" })
-                    // store.dispatch(signOut(undefined))
-                    return new UnauthorizedError("Unauthorized")
+                    switch (err.response.data?.error?.code) {
+                        case 'jwt_expired':
+                            return new AuthentificationError(err.response.data?.error?.description ?? "You are not allowed to do this action")
+                        default:
+                            return new UnauthorizedError(err.response?.data?.message ?? "You are not allowed to do this action")
+                    }
                 case 403:
-                    setMessage({ type: MessageBarType.blocked, message: err.response?.data?.message ?? "You are not allowed to do this action" })
-                    return new Error(err.response?.data?.message)
+                    return new UnauthorizedError(err.response?.data?.message ?? "You are not allowed to do this action")
                 case 404:
-                    setMessage({ message: err.response?.data?.message ?? "Item not found" })
-                    return new Error(err.response?.data?.message)
+                    return new NotFoundError(err.response?.data?.message ?? "Item not found")
                 case 500:
-                    setMessage({ message: err.response?.data?.message ?? "Something bad happened" })
-                    return new Error(err.response?.data)
+                    return new Error(err.response?.data?.toString() ?? "Something bad happened")
                 default:
-                    setMessage({ message: err.response?.data?.message ?? "Something bad happened" })
-                    return new Error(err.response?.data?.errors)
+                    return new Error(err.response?.data?.toString() ?? "Something bad happened")
             }
         } else if (err.request) {
-            setMessage({ message: err.request?.toString() })
-            return err.request?.toString()
+            return new Error(err.message?.toString())
         } else {
-            setMessage({ message: err.request?.toString() })
-            return err.message?.toString()
+            return new Error(err.message?.toString())
         }
     }
 
@@ -208,14 +204,17 @@ export default class ApiManager {
     /**
      * Get all
      * @param {AxiosRequestConfig['params']=} params
-     * @returns {Promise<T[]>}
+     * @returns {Promise<[T[], M]>}
      */
     getAll(params = {}) {
         const request = this._getRequest({ params })
 
         return request.req
             .then(res => {
-                return res.data[this.objectName]?.map(x => new (this.type)(x)) ?? []
+                return /** @type {[T[], M]} */ ([
+                    res.data[this.objectName]?.map(x => new (this.type)(x)) ?? [],
+                    this.metaType ? new (this.metaType)(res.data.meta) : null
+                ])
             })
             .catch(err => {
                 throw this._handleError(err)
@@ -255,7 +254,6 @@ export default class ApiManager {
 
         return request.req
             .then(res => {
-                // store.dispatch(setMessageBar({ isDisplayed: true, type: MessageBarType.success, message: "L'élément a bien été modifiée" }))
                 return new (this.type)(res.data[this.objectName])
             })
             .catch(err => {
@@ -289,7 +287,6 @@ export default class ApiManager {
 
         return request.req
             .then(res => {
-                // store.dispatch(setMessageBar({ isDisplayed: true, type: MessageBarType.success, message: "L'élément a a bien été supprimée" }))
                 return new (this.type)(res.data[this.objectName])
             })
             .catch(err => {

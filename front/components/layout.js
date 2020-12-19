@@ -42,7 +42,7 @@ function Layout({ children, main: { token, me }, notification: { bootlegs }, boo
             if (token)
                 (async () => {
                     try {
-                        const bootlegs = await bootlegManager.getAll({
+                        const [bootlegs] = await bootlegManager.getAll({
                             orderBy: ESort.DATE_CREATION_ASC,
                             state: EStates.PENDING,
                             limit: 5

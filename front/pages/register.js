@@ -18,7 +18,9 @@ import Input from "components/form/input"
 import Button from "components/form/button"
 import getConfig from 'next/config'
 import { useDispatch } from "react-redux"
-import { setToken } from "redux/slices/main"
+import { removeToken, setMessage, setToken } from "redux/slices/main"
+import { AuthentificationError } from "request/errors/authentificationError"
+import { NotFoundError } from "request/errors/notFoundError"
 
 /**
  * @typedef {object} RegisterProps
@@ -51,11 +53,23 @@ function Register({ userManager, ...props }) {
                 router.push('/')
             } catch (error) {
                 switch (error?.constructor) {
-                    case CancelRequestError:
-                    case UnauthorizedError: break
+                    case CancelRequestError: break
+                    case UnauthorizedError:
+                    case AuthentificationError:
+                        router.push('/login')
+                        dispatch(removeToken(undefined))
+                        dispatch(setMessage({
+                            message: {
+                                isDisplay: true,
+                                content: /** @type {Error} */(error).message,
+                                type: 'warning'
+                            }
+                        }))
+                        break
                     case InvalidEntityError:
                         setStatus(Status.REJECTED)
                         setErrorField(error.errorField)
+                    case NotFoundError:
                     case NotImplementedError:
                     default:
                         console.log(error)

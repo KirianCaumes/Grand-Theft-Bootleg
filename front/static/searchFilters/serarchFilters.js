@@ -1,5 +1,6 @@
 import { ECountries } from 'static/searchFilters/countries'
 import { ESort } from 'static/searchFilters/sort'
+import { ESearch } from 'static/searchFilters/search'
 import { EStates } from 'static/searchFilters/states'
 
 export default class SearchFilters {
@@ -8,13 +9,12 @@ export default class SearchFilters {
      * @param {string=} data.string Title, description, songs, bands
      * @param {number=} data.year Nombre
      * @param {ESort=} data.orderBy Order by
-     * @param {string=} data.band Band
-     * @param {string=} data.song Song
+     * @param {string=} data.searchBy Search by
      * @param {ECountries=} data.country Country
      * @param {number=} data.isCompleteShow Is Complete Show
      * @param {number=} data.isAudioOnly Is Audio Only
      * @param {number=} data.isProRecord Is Pro Record
-     * @param {number=} data.startAt StartAt
+     * @param {number=} data.page Page
      * @param {number=} data.limit Limit
      * @param {EStates=} data.state State
      * @param {number=} data.isRandom IsRandom
@@ -24,13 +24,12 @@ export default class SearchFilters {
         string = null,
         year = null,
         orderBy = null,
-        band = null,
-        song = null,
+        searchBy = null,
         country = null,
         isCompleteShow = null,
         isAudioOnly = null,
         isProRecord = null,
-        startAt = null,
+        page = null,
         limit = null,
         state = null,
         isRandom = null,
@@ -42,10 +41,8 @@ export default class SearchFilters {
         this.year = year
         /** @type {ESort} Order by */
         this.orderBy = orderBy
-        /** @type {string} Band */
-        this.band = band
-        /** @type {string} Song */
-        this.song = song
+        /** @type {ESearch} Band */
+        this.searchBy = searchBy
         /** @type {ECountries} Country */
         this.country = country
         /** @type {number} Is Complete Show */
@@ -54,8 +51,8 @@ export default class SearchFilters {
         this.isAudioOnly = isAudioOnly
         /** @type {number} Is Pro Record */
         this.isProRecord = isProRecord
-        /** @type {number} StartAt */
-        this.startAt = startAt
+        /** @type {number} Page */
+        this.page = page
         /** @type {number} Limit */
         this.limit = limit
         /** @type {EStates} State */

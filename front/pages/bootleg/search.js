@@ -1,12 +1,12 @@
-import React, { useEffect, useCallback, useMemo } from "react"
+import React, { useEffect, useCallback, useMemo, useRef } from "react"
 import Head from "next/head"
 import { GetServerSidePropsContext } from 'next'
 // @ts-ignore
 import styles from "styles/pages/bootleg/search.module.scss"
 // @ts-ignore
-import { Section, Columns, Container } from 'react-bulma-components'
+import { Section, Columns, Container, Tabs } from 'react-bulma-components'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faCompactDisc, faFilter, faGlobeEurope, faHeadphonesAlt, faMapMarker, faSearch, faSort, faVolumeUp } from "@fortawesome/free-solid-svg-icons"
+import { faCompactDisc, faFilter, faGlobe, faGlobeEurope, faHeadphonesAlt, faMapMarker, faMusic, faSearch, faSort, faUsers, faVolumeUp } from "@fortawesome/free-solid-svg-icons"
 import classNames from 'classnames'
 import SearchFilters from "static/searchFilters/serarchFilters"
 import { ECountries } from 'static/searchFilters/countries'
@@ -19,6 +19,7 @@ import { UnauthorizedError } from "request/errors/unauthorizedError"
 import { InvalidEntityError } from "request/errors/invalidEntityError"
 import { NotImplementedError } from "request/errors/notImplementedError"
 import Bootleg from "request/objects/bootleg"
+import BootlegMeta from "request/objects/meta/bootlegMeta"
 import BootlegCard from "components/general/bootlegCard"
 import { Status } from "static/status"
 import BootlegManager from "request/managers/bootlegManager"
@@ -30,33 +31,39 @@ import Toggle from "components/form/toggle"
 import { wrapper } from "redux/store"
 import getConfig from 'next/config'
 import { AnyAction, Store } from 'redux'
-import { MainState } from "redux/slices/main"
-import { connect } from "react-redux"
+import { MainState, removeToken, setMessage } from "redux/slices/main"
+import { connect, useDispatch } from "react-redux"
 import { ReduxProps } from 'redux/store'
 import { NotificationState } from 'redux/slices/notification'
+import Pagination from "components/general/pagination"
+import { AuthentificationError } from "request/errors/authentificationError"
+import { NotFoundError } from "request/errors/notFoundError"
+import { ESearch } from "static/searchFilters/search"
 
 /**
  * @typedef {object} SearchProps
  * @property {Bootleg[]} bootlegsProps
+ * @property {BootlegMeta} metaProps
  */
 
 /**
  * Search page
  * @param {SearchProps & ManagersProps & ReduxProps} props 
  */
-function Search({ bootlegManager, bootlegsProps, main: { me }, ...props }) {
+function Search({ bootlegManager, bootlegsProps, metaProps, main: { me }, ...props }) {
     /** @type {[SearchFilters, function(SearchFilters):any]} Status */
     const [searchFilters, setSearchFilters] = React.useState(new SearchFilters())
-    /** @type {['string' | 'band' | 'song' | string, function('global' | 'band' | 'song' | string):any]} Type of search */
-    const [searchType, setSearchType] = React.useState('string')
     /** @type {[Bootleg[], function(Bootleg[]):any]} Bootlegs */
     const [bootlegs, setBootlegs] = React.useState(bootlegsProps)
+    /** @type {[BootlegMeta, function(BootlegMeta):any]} Meta */
+    const [meta, setMeta] = React.useState(metaProps)
     /** @type {[string, function(string):any]} Status */
     const [status, setStatus] = React.useState(Status.RESOLVED)
     /** @type {[boolean, function(boolean):any]} Is filter display */
     const [isFilterDisplay, setIsFilterDisplay] = React.useState(!!false)
 
     const router = useRouter()
+    const dispatch = useDispatch()
     const { publicRuntimeConfig } = getConfig()
 
     const boolOpts = useMemo(() => [
@@ -72,13 +79,6 @@ function Search({ bootlegManager, bootlegsProps, main: { me }, ...props }) {
                 ...router.query,
                 orderBy: /** @type {string=} */ (router.query?.orderBy) || ESort.DATE_ASC
             })
-            if (router.query?.string) {
-                setSearchType('string')
-            } else if (router.query?.band) {
-                setSearchType('band')
-            } else if (router.query?.song) {
-                setSearchType('song')
-            }
         },
         [router]
     )
@@ -102,14 +102,27 @@ function Search({ bootlegManager, bootlegsProps, main: { me }, ...props }) {
         async () => {
             try {
                 setStatus(Status.PENDING)
-                const bootlegs = await bootlegManager.getAll(searchFilters)
+                const [bootlegs, meta] = await bootlegManager.getAll(searchFilters)
                 setBootlegs(bootlegs)
+                setMeta(meta)
                 setStatus(Status.RESOLVED)
             } catch (error) {
                 switch (error?.constructor) {
-                    case CancelRequestError:
+                    case CancelRequestError: break
                     case UnauthorizedError:
+                    case AuthentificationError:
+                        router.push('/login')
+                        dispatch(removeToken(undefined))
+                        dispatch(setMessage({
+                            message: {
+                                isDisplay: true,
+                                content: /** @type {Error} */(error).message,
+                                type: 'warning'
+                            }
+                        }))
+                        break
                     case InvalidEntityError:
+                    case NotFoundError:
                     case NotImplementedError:
                         console.error(error)
                         break
@@ -123,6 +136,21 @@ function Search({ bootlegManager, bootlegsProps, main: { me }, ...props }) {
         [searchFilters]
     )
 
+    useEffect(
+        () => {
+            if (searchFilters.page)
+                getBootlegs()
+        },
+        [searchFilters.page]
+    )
+
+    useEffect(
+        () => {
+            getBootlegs()
+        },
+        [searchFilters.searchBy]
+    )
+
     return (
         <>
             <Head>
@@ -130,34 +158,72 @@ function Search({ bootlegManager, bootlegsProps, main: { me }, ...props }) {
             </Head>
 
             <main className={styles.search}>
-                <Section>
-                    <Container>
-                        <h1
-                            className="title is-3 is-title-underline"
-                        >
-                            Search on <b>G</b>rand <b>T</b>heft <b>B</b>ootleg database
-                        </h1>
-                        <br />
-                        <div className="is-hidden-desktop">
-                            <button
-                                className="button is-pink"
-                                onClick={ev => setIsFilterDisplay(!isFilterDisplay)}
-                            >
-                                <span className="icon">
-                                    <FontAwesomeIcon icon={faFilter} />
-                                </span>
-                                <span>{isFilterDisplay ? 'Hide' : 'Show'}</span>
-                            </button>
-                            <br />
-                            <br />
-                        </div>
+                <Section className="flex">
+                    <Container className="flex-one">
                         <form
                             onSubmit={ev => {
                                 ev.preventDefault()
                                 getBootlegs()
                             }}
                         >
-                            <Columns className="is-variable is-8-widescreen is-desktop">
+                            <Columns className={classNames("is-variable is-8-widescreen is-desktop", styles.searchrow)}>
+                                <Columns.Column className="is-one-fifth-desktop" />
+                                <Columns.Column className="is-four-fifths-desktop">
+                                    <div className="field has-addons">
+                                        <div className="control is-expanded">
+                                            <input
+                                                type="text"
+                                                placeholder="What are you looking for?"
+                                                value={searchFilters.string || ''}
+                                                className="input is-pink"
+                                                disabled={status === Status.PENDING}
+                                                onChange={ev => setSearchFilters({
+                                                    ...searchFilters,
+                                                    string: ev.target.value?.length ? ev.target.value : null
+                                                })}
+                                                minLength={3}
+                                            />
+                                            <h1 className="help" >
+                                                <i>
+                                                    Bootlegs found for {searchFilters.string || 'your search'} ({(() => {
+                                                        switch (searchFilters.searchBy) {
+                                                            case ESearch.BAND:
+                                                                return meta?.total?.band
+                                                            case ESearch.SONG:
+                                                                return meta?.total?.song
+                                                            case ESearch.GLOBAL:
+                                                            default:
+                                                                return meta?.total?.global
+                                                        }
+                                                    })()})
+                                                </i>
+                                            </h1>
+                                        </div>
+                                        <p className="control">
+                                            <button
+                                                className={classNames("button is-pink", { 'is-loading': status === Status.PENDING })}
+                                                type="submit"
+                                            >
+                                                <FontAwesomeIcon icon={faSearch} />
+                                            </button>
+                                        </p>
+                                    </div>
+                                </Columns.Column>
+                            </Columns>
+                            <div className="is-hidden-desktop">
+                                <button
+                                    className="button is-pink"
+                                    onClick={ev => setIsFilterDisplay(!isFilterDisplay)}
+                                >
+                                    <span className="icon">
+                                        <FontAwesomeIcon icon={faFilter} />
+                                    </span>
+                                    <span>{isFilterDisplay ? 'Hide' : 'Show'}</span>
+                                </button>
+                                <br />
+                                <br />
+                            </div>
+                            <Columns className={classNames("is-variable is-8-widescreen is-desktop", styles.contentrow)}>
                                 <Columns.Column className={classNames("is-one-fifth-desktop", { 'is-hidden-touch': !isFilterDisplay })}>
                                     <Select
                                         label="Order by"
@@ -288,53 +354,53 @@ function Search({ bootlegManager, bootlegsProps, main: { me }, ...props }) {
                                     />
                                 </Columns.Column>
                                 <Columns.Column className="is-four-fifths-desktop">
-                                    <label className="label is-hidden-touch">&nbsp;</label>
-                                    <div className="field has-addons">
-                                        <p className={classNames("control", { 'is-hidden-touch': !isFilterDisplay })}>
-                                            <span className="select is-pink">
-                                                <select
-                                                    onChange={ev => {
-                                                        setSearchType(ev.target.value)
-                                                        setSearchFilters({
-                                                            ...searchFilters,
-                                                            string: null,
-                                                            band: null,
-                                                            song: null
-                                                        })
-                                                    }}
-                                                    value={searchType || ""}
-                                                    disabled={status === Status.PENDING}
-                                                >
-                                                    <option value="string">Global</option>
-                                                    <option value="band">Band</option>
-                                                    <option value="song">Song</option>
-                                                </select>
-                                            </span>
-                                        </p>
-                                        <p className="control is-expanded">
-                                            <input
-                                                type="text"
-                                                placeholder="What are you looking for?"
-                                                value={searchFilters[searchType] || ''}
-                                                className="input is-pink"
-                                                disabled={status === Status.PENDING}
-                                                onChange={ev => setSearchFilters({
+                                    <Tabs>
+                                        <Tabs.Tab
+                                            active={searchFilters.searchBy === ESearch.GLOBAL || !searchFilters.searchBy}
+                                            onClick={() => {
+                                                setSearchFilters({
                                                     ...searchFilters,
-                                                    [searchType]: ev.target.value?.length ? ev.target.value : null
-                                                })}
-                                                minLength={3}
-                                            />
-                                        </p>
-                                        <p className="control">
-                                            <button
-                                                className={classNames("button is-pink", { 'is-loading': status === Status.PENDING })}
-                                                type="submit"
-                                            >
-                                                <FontAwesomeIcon icon={faSearch} />
-                                            </button>
-                                        </p>
-                                    </div>
-                                    <br />
+                                                    searchBy: ESearch.GLOBAL,
+                                                    page: null
+                                                })
+                                            }}
+                                        >
+                                            <span className="icon is-small">
+                                                <FontAwesomeIcon icon={faGlobe} />
+                                            </span>
+                                            <span>Global ({meta?.total?.global || 0})</span>
+                                        </Tabs.Tab>
+                                        <Tabs.Tab
+                                            active={searchFilters.searchBy === ESearch.BAND}
+                                            onClick={() => {
+                                                setSearchFilters({
+                                                    ...searchFilters,
+                                                    searchBy: ESearch.BAND,
+                                                    page: null
+                                                })
+                                            }}
+                                        >
+                                            <span className="icon is-small">
+                                                <FontAwesomeIcon icon={faUsers} />
+                                            </span>
+                                            <span>Band ({meta?.total?.band || 0})</span>
+                                        </Tabs.Tab>
+                                        <Tabs.Tab
+                                            active={searchFilters.searchBy === ESearch.SONG}
+                                            onClick={() => {
+                                                setSearchFilters({
+                                                    ...searchFilters,
+                                                    searchBy: ESearch.SONG,
+                                                    page: null
+                                                })
+                                            }}
+                                        >
+                                            <span className="icon is-small">
+                                                <FontAwesomeIcon icon={faMusic} />
+                                            </span>
+                                            <span>Song ({meta?.total?.song || 0})</span>
+                                        </Tabs.Tab>
+                                    </Tabs>
                                     {[Status.IDLE, Status.RESOLVED, Status.REJECTED].includes(status) ?
                                         <>
                                             {bootlegs?.length ?
@@ -353,10 +419,24 @@ function Search({ bootlegManager, bootlegsProps, main: { me }, ...props }) {
                                                     ))}
                                                 </Columns>
                                                 :
-                                                'No result'
+                                                <p>No result</p>
                                             }
                                         </> :
                                         <Loader />
+                                    }
+                                    <br />
+
+                                    {[Status.IDLE, Status.RESOLVED, Status.REJECTED].includes(status) &&
+                                        <Pagination
+                                            current={meta?.page?.current}
+                                            total={meta?.page?.last}
+                                            onClick={(ev, newPage) => {
+                                                setSearchFilters({
+                                                    ...searchFilters,
+                                                    page: newPage
+                                                })
+                                            }}
+                                        />
                                     }
                                 </Columns.Column>
                             </Columns>
@@ -377,16 +457,24 @@ export const getServerSideProps = wrapper.getServerSideProps(
     async ({ req, query }) => {
         try {
             const bootlegManager = new BootlegManager({ req })
-            const bootlegs = await bootlegManager.getAll({
+            const [bootlegs, meta] = await bootlegManager.getAll({
                 ...query,
                 orderBy: /** @type {string=} */ (query?.orderBy) || ESort.DATE_ASC
             })
 
-            return { props: { bootlegsProps: bootlegs.map(x => x.toJson()) } }
+            return { props: { bootlegsProps: bootlegs.map(x => x.toJson()), metaProps: meta.toJson() } }
         } catch (error) {
-            console.log(error)
-            // return {notFound: true }
-            return { props: { bootlegsProps: {} } }
+            switch (error?.constructor) {
+                case CancelRequestError:
+                case UnauthorizedError:
+                case AuthentificationError:
+                case InvalidEntityError:
+                case NotImplementedError:
+                case NotFoundError:
+                default:
+                    console.log(error)
+                    return { props: { bootlegsProps: {} } }
+            }
         }
     }
 )

@@ -6,20 +6,23 @@ import IApiError from "../types/interfaces/IApiError.ts"
  * @param obj.result
  * @param obj.message
  * @param obj.stacktrace
+ * @param obj.meta Extra data
  */
 export default function render({
     result = {},
     message = undefined,
     stacktrace = undefined,
-    errors = [],
-    resultKey = undefined
+    error = undefined,
+    resultKey = undefined,
+    meta = undefined
 }:
     {
         result?: any | any[];
         message?: string | undefined;
         stacktrace?: any;
-        errors?: IApiError[];
-        resultKey?: string
+        error?: IApiError;
+        resultKey?: string;
+        meta?: any;
     }
 ): object {
     const res = {
@@ -29,8 +32,11 @@ export default function render({
             : (stacktrace || null)
     }
 
-    if (errors.length)
-        res.errors = errors
+    if (error)
+        res.error = error
+
+    if (meta)
+        res.meta = meta
 
     return res
 }

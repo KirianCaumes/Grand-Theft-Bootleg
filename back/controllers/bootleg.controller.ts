@@ -8,6 +8,7 @@ import { Context } from "https://deno.land/x/oak@v6.3.2/context.ts"
 import { EBootlegStates } from "../types/enumerations/EBootlegStates.ts"
 import { EActions } from "../types/enumerations/EActions.ts"
 import { ReportValidatorType } from "../validators/report.validator.ts"
+import { ESearch } from "../types/enumerations/ESsearch.ts"
 
 /**
  * Bootleg Controller
@@ -32,33 +33,66 @@ export default class BootlegController extends BaseController {
      */
     async getAllBootlegs(ctx: Context) {
         const { response } = ctx
-        const { string, year, orderBy, band, song, country, isCompleteShow, isAudioOnly, isProRecord, startAt, limit, state, isRandom, authorId } = getQuery(ctx)
+        const { string, year, orderBy, searchBy, country, isCompleteShow, isAudioOnly, isProRecord, page, limit, state, isRandom, authorId } = getQuery(ctx)
+
+        //Set search params
+        const searchParams = {
+            string: string || '',
+            year: parseInt(year),
+            orderBy,
+            searchBy: searchBy || ESearch.GLOBAL,
+            country,
+            isCompleteShow: isCompleteShow ? !!parseInt(isCompleteShow) : undefined,
+            isAudioOnly: isAudioOnly ? !!parseInt(isAudioOnly) : undefined,
+            isProRecord: isProRecord ? !!parseInt(isProRecord) : undefined,
+            page: !isNaN(parseInt(page)) ? parseInt(page) : 1,
+            limit: !isNaN(parseInt(limit)) ? parseInt(limit) : undefined,
+            state: !isNaN(parseInt(state)) ? parseInt(state) : undefined,
+            isRandom: isRandom ? !!parseInt(isRandom) : undefined,
+            authorId
+        }
 
         //Get user
         const user = await this._getUser(ctx.request)
 
-        response.body = this._render({
-            message: 'List of bootlegs',
-            result: await this.collection.findAdvanced({
-                searchParams: {
-                    string,
-                    year: parseInt(year),
-                    orderBy,
-                    band,
-                    song,
-                    country,
-                    isCompleteShow: isCompleteShow ? !!parseInt(isCompleteShow) : undefined,
-                    isAudioOnly: isAudioOnly ? !!parseInt(isAudioOnly) : undefined,
-                    isProRecord: isProRecord ? !!parseInt(isProRecord) : undefined,
-                    startAt: !isNaN(parseInt(startAt)) ? parseInt(startAt) : undefined,
-                    limit: !isNaN(parseInt(limit)) ? parseInt(limit) : undefined,
-                    state: !isNaN(parseInt(state)) ? parseInt(state) : undefined,
-                    isRandom: isRandom ? !!parseInt(isRandom) : undefined,
-                    authorId
-                },
-                user
-            })
-        })
+        const [result, totalGlobal, totalBand, totalSong] = await Promise.all([
+            await this.collection.findAdvanced({ searchParams, user }),
+            ((await this.collection.findAdvanced({ searchParams: { ...searchParams, searchBy: ESearch.GLOBAL, limit: undefined, page: undefined, isCount: true }, user }))?.[0] as any)?.count as number ?? 0,
+            ((await this.collection.findAdvanced({ searchParams: { ...searchParams, searchBy: ESearch.BAND, limit: undefined, page: undefined, isCount: true }, user }))?.[0] as any)?.count as number ?? 0,
+            ((await this.collection.findAdvanced({ searchParams: { ...searchParams, searchBy: ESearch.SONG, limit: undefined, page: undefined, isCount: true }, user }))?.[0] as any)?.count as number ?? 0,
+        ])
+
+        response.body = {
+            ...this._render({
+                message: 'List of bootlegs',
+                result,
+                meta: {
+                    total: {
+                        global: totalGlobal,
+                        band: totalBand,
+                        song: totalSong
+                    },
+                    page: {
+                        current: searchParams.page,
+                        last: Math.ceil(
+                            (() => {
+                                switch (searchBy) {
+                                    case ESearch.BAND:
+                                        return totalBand
+                                    case ESearch.SONG:
+                                        return totalSong
+                                    case ESearch.GLOBAL:
+                                    default:
+                                        return totalGlobal
+                                }
+                            })() /
+                            (searchParams.limit && searchParams.limit < this.collection.limit ? searchParams.limit : this.collection.limit)
+                        )
+                    }
+                }
+            }),
+
+        }
     }
 
     /**

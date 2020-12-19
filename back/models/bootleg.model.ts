@@ -7,6 +7,7 @@ import { EBootlegStates } from "../types/enumerations/EBootlegStates.ts"
 import { UserSchema } from "./user.model.ts"
 import { env } from "../helpers/config.ts"
 import { EUserRoles } from "../types/enumerations/EUserRoles.ts"
+import { ESearch } from "../types/enumerations/ESsearch.ts"
 
 export interface BootlegSchema {
     _id: { $oid: string }
@@ -193,31 +194,31 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
      * @param string String to search
      * @param year Year to search
      * @param orderBy Order by
-     * @param band Bande name
-     * @param song Song Name
+     * @param searchBy Search by
      * @param country Country
      * @param isCompleteShow Is show complete, 1 or 0
      * @param isAudioOnly Is audio only, 1 or 0
      * @param isProRecord Is prop record, 1 or 0
-     * @param startAt Start at index
+     * @param page Page nbr
      * @param limit Limit to search
+     * @param isCount Is counting result
      */
     async findAdvanced({
         searchParams: {
             string,
             year,
             orderBy,
-            band,
-            song,
+            searchBy,
             country,
             isCompleteShow,
             isAudioOnly,
             isProRecord,
-            startAt = 0,
+            page = 1,
             limit,
             state = EBootlegStates.PUBLISHED,
             isRandom = false,
-            authorId
+            authorId,
+            isCount = false
         },
         user
     }: {
@@ -225,17 +226,17 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
             string?: string;
             year?: number;
             orderBy?: string;
-            band?: string;
-            song?: string;
+            searchBy?: string;
             country?: string;
             isCompleteShow?: boolean;
             isAudioOnly?: boolean;
             isProRecord?: boolean;
-            startAt?: number;
+            page?: number;
             limit?: number;
             state?: EBootlegStates;
             isRandom?: boolean;
             authorId?: string;
+            isCount?: boolean;
         }
         user?: UserSchema
     }): Promise<BootlegSchema[]> {
@@ -244,33 +245,34 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
         //Filter to query
         let $match = {}
 
-        //To match string
-        if (string)
-            $match = {
-                ...$match,
-                $or: [
-                    { title: { $regex: string, $options: "i" } },
-                    { description: { $regex: string, $options: "i" } },
-                    { songs: { $in: [{ $regex: string, $options: "i" }] } },
-                    { bands: { $in: [{ $regex: string, $options: "i" }] } },
-                ]
-            }
-
-        //To match bands
-        if (band)
-            $match = {
-                ...$match,
-                bands: {
-                    $in: [{ $regex: band, $options: "i" }]
+        switch (searchBy) {
+            case ESearch.BAND:
+                $match = {
+                    ...$match,
+                    bands: {
+                        $in: [{ $regex: string, $options: "i" }]
+                    }
                 }
-            }
-
-        //To match songs
-        if (song)
-            $match = {
-                ...$match,
-                songs: { $in: [{ $regex: song, $options: "i" }] }
-            }
+                break
+            case ESearch.SONG:
+                $match = {
+                    ...$match,
+                    songs: { $in: [{ $regex: string, $options: "i" }] }
+                }
+                break
+            case ESearch.GLOBAL:
+            default:
+                $match = {
+                    ...$match,
+                    $or: [
+                        { title: { $regex: string, $options: "i" } },
+                        { description: { $regex: string, $options: "i" } },
+                        { songs: { $in: [{ $regex: string, $options: "i" }] } },
+                        { bands: { $in: [{ $regex: string, $options: "i" }] } },
+                    ]
+                }
+                break
+        }
 
         //To match country
         if (country)
@@ -390,8 +392,17 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
             },
             //Get random item
             (() => isRandom ? { $sample: { size: max } } : {})(),
-            { $limit: startAt + max },
-            { $skip: startAt },
+            ...(() =>
+                isCount ?
+                    [
+                        { $group: { _id: null, count: { $sum: 1 } } }
+                    ]
+                    :
+                    [
+                        { $limit: page * max },
+                        { $skip: (page - 1) * max },
+                    ]
+            )(),
             ...this._setupRelations(),
             ...this._setupClear(user)
         ].filter(x => Object.keys(x).length))

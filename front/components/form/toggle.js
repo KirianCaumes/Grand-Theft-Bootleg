@@ -17,13 +17,15 @@ import toggleStyles from 'styles/components/form/toggle.module.scss'
  * @param {boolean=} props.isDisabled
  * @param {function(React.ChangeEvent<HTMLInputElement>)=} props.onChange
  * @param {Styles=} props.styles
+ * @param {string=} props.color
  */
 export default function Toggle({
     label = "",
     checked = null,
     isDisabled = false,
     onChange = () => null,
-    styles = {}
+    styles = {},
+    color = 'greyblue',
 }) {
     return (
         <>
@@ -32,7 +34,7 @@ export default function Toggle({
                 <input
                     id={encodeURIComponent(label)}
                     type="checkbox"
-                    className="switch is-rounded is-pink"
+                    className={`switch is-rounded is-${color}`}
                     checked={checked}
                     onChange={onChange}
                     disabled={isDisabled}

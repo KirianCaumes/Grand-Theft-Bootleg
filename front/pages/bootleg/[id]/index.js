@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react"
+import React, { useCallback, useMemo, useState } from "react"
 import Head from "next/head"
 import { GetServerSidePropsContext } from 'next'
 // @ts-ignore
@@ -15,7 +15,7 @@ import withManagers, { ManagersProps } from "helpers/hoc/withManagers"
 import getConfig from 'next/config'
 import { wrapper } from "redux/store"
 import { AnyAction, Store } from 'redux'
-import { MainState, setMessage } from "redux/slices/main"
+import { MainState, removeToken, setMessage } from "redux/slices/main"
 import Button from "components/form/button"
 import classNames from 'classnames'
 import { connect, useDispatch } from "react-redux"
@@ -29,6 +29,9 @@ import Modal, { ModalType } from "components/general/modal"
 import Input from "components/form/input"
 import Report, { ErrorReport } from "request/objects/report"
 import { NotificationState, removeFromBootlegs, addToBootlegs } from 'redux/slices/notification'
+import { AuthentificationError } from "request/errors/authentificationError"
+import { NotFoundError } from "request/errors/notFoundError"
+import { ESearch } from "static/searchFilters/search"
 
 /**
  * @typedef {object} BootlegProps
@@ -99,7 +102,7 @@ function BootlegDetail({ bootlegProps, bootlegManager, main: { token, me }, ...p
                     >
                         <strong>{i + 1} - </strong>
                         <Link
-                            href={`/bootleg/search?song=${encodeURIComponent(song?.toLocaleLowerCase())}`}
+                            href={`/bootleg/search?string=${encodeURIComponent(song?.toLocaleLowerCase())}&searchBy=${ESearch.SONG}`}
                         >
                             <a>
                                 {song}
@@ -144,22 +147,34 @@ function BootlegDetail({ bootlegProps, bootlegManager, main: { token, me }, ...p
 
                 dispatch(setMessage({
                     message: {
-                        title: 'Bootleg updated',
-                        message: 'Bootleg state has been correctly updated',
+                        isDisplay: true,
+                        content: 'Bootleg state has been correctly updated',
                         type: 'success'
                     }
                 }))
             } catch (error) {
                 switch (error?.constructor) {
-                    case CancelRequestError:
-                    case UnauthorizedError: break
+                    case CancelRequestError: break
+                    case UnauthorizedError:
+                    case AuthentificationError:
+                        router.push('/login')
+                        dispatch(removeToken(undefined))
+                        dispatch(setMessage({
+                            message: {
+                                isDisplay: true,
+                                content: /** @type {Error} */(error).message,
+                                type: 'warning'
+                            }
+                        }))
+                        break
                     case InvalidEntityError:
+                    case NotFoundError:
                     case NotImplementedError:
                     default:
                         dispatch(setMessage({
                             message: {
-                                title: 'Failed to update bootleg',
-                                message: 'An error occured during the bootleg update',
+                                isDisplay: true,
+                                content: 'An error occured during the bootleg update',
                                 type: 'danger'
                             }
                         }))
@@ -193,25 +208,34 @@ function BootlegDetail({ bootlegProps, bootlegManager, main: { token, me }, ...p
                 setErrorFieldReport(new ErrorReport())
                 dispatch(setMessage({
                     message: {
-                        title: 'Report added',
-                        message: 'Your report has been correctly added',
+                        isDisplay: true,
+                        content: 'Your report has been correctly added',
                         type: 'success'
                     }
                 }))
             } catch (error) {
                 switch (error?.constructor) {
-                    case CancelRequestError:
-                    case UnauthorizedError: break
-                    case InvalidEntityError:
-                        setErrorFieldReport(error.errorField)
-                        console.log(errorFieldReport)
+                    case CancelRequestError: break
+                    case UnauthorizedError:
+                    case AuthentificationError:
+                        router.push('/login')
+                        dispatch(removeToken(undefined))
+                        dispatch(setMessage({
+                            message: {
+                                isDisplay: true,
+                                content: /** @type {Error} */(error).message,
+                                type: 'warning'
+                            }
+                        }))
                         break
+                    case InvalidEntityError:
+                    case NotFoundError:
                     case NotImplementedError:
                     default:
                         dispatch(setMessage({
                             message: {
-                                title: 'Failed to add report',
-                                message: 'An error occured during the report',
+                                isDisplay: true,
+                                content: 'An error occured during the report',
                                 type: 'danger'
                             }
                         }))
@@ -402,7 +426,7 @@ function BootlegDetail({ bootlegProps, bootlegManager, main: { token, me }, ...p
                                     {bootleg.bands?.map((band, i) => (
                                         <React.Fragment key={i}>
                                             <Link
-                                                href={`/bootleg/search?band=${encodeURIComponent(band?.toLowerCase())}`}
+                                                href={`/bootleg/search?string=${encodeURIComponent(band?.toLowerCase())}&searchBy=${ESearch.BAND}`}
                                             >
                                                 {band}
                                             </Link>
@@ -596,7 +620,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
      * Get server side props
      * @param {GetServerSidePropsContext & {store: Store<{ main: MainState; notification: NotificationState }, AnyAction>;}} ctx
      */
-    async ({ query, req }) => {
+    async ({ query, req, store }) => {
         try {
             const bootlegManager = new BootlegManager({ req })
             const id = /** @type {string} */ (query.id)
@@ -604,8 +628,33 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
             return { props: { bootlegProps: bootleg.toJson() } }
         } catch (error) {
+            switch (error?.constructor) {
+                case CancelRequestError: break
+                case UnauthorizedError:
+                case AuthentificationError:
+                    store.dispatch(removeToken(undefined))
+                    store.dispatch(setMessage({
+                        message: {
+                            isDisplay: true,
+                            content: /** @type {Error} */(error).message,
+                            type: 'warning'
+                        }
+                    }))
+                    return {
+                        redirect: {
+                            destination: '/login',
+                            permanent: false
+                        }
+                    }
+                case NotFoundError:
+                    return { notFound: true }
+                case InvalidEntityError:
+                case NotImplementedError:
+                default:
+                    console.log(error)
+                    break
+            }
             console.log(error)
-            return { notFound: true }
         }
     }
 )

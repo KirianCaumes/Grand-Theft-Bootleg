@@ -2,10 +2,11 @@ import Bootleg, { ErrorBootleg } from 'request/objects/bootleg'
 import ApiManager from 'request/apiManager'
 import { IncomingMessage } from 'http'
 import { ErrorReport } from 'request/objects/report'
+import BootlegMeta from 'request/objects/meta/bootlegMeta'
 
 /**
  * BootlegManager
- * @extends {ApiManager<Bootleg, ErrorBootleg & ErrorReport>}
+ * @extends {ApiManager<Bootleg, ErrorBootleg & ErrorReport, BootlegMeta>}
  */
 export default class BootlegManager extends ApiManager {
     /**
@@ -17,6 +18,7 @@ export default class BootlegManager extends ApiManager {
         super({
             type: Bootleg,
             errorType: ErrorBootleg,
+            metaType: BootlegMeta,
             key: 'bootleg',
             req
         })

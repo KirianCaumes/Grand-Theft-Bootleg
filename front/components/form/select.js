@@ -9,6 +9,7 @@ import selectStyles from 'styles/components/form/select.module.scss'
  * Select styles
  * @typedef {object} Styles
  * @property {any=} control
+ * @property {any=} selectContainer
  * @property {any=} select
  */
 
@@ -26,6 +27,7 @@ import selectStyles from 'styles/components/form/select.module.scss'
  * @param {boolean=} props.isDisabled
  * @param {function(React.ChangeEvent<HTMLSelectElement>, Options)=} props.onChange
  * @param {Styles=} props.styles
+ * @param {string=} props.color
  * @param {IconProp=} props.iconLeft
  * @param {string=} props.value
  * @param {Options[]=} props.options
@@ -37,6 +39,7 @@ export default function Select({
     value = null,
     onChange = () => null,
     styles = {},
+    color = 'greyblue',
     options = []
 }) {
     return (
@@ -48,12 +51,13 @@ export default function Select({
                 {label}
             </label>
             <div className={classNames("control", { 'has-icons-left': iconLeft }, styles.control, selectStyles.control)}>
-                <div className={classNames("select is-greyblue", styles.select, selectStyles.select)}>
+                <div className={classNames(`select is-${color}`, styles.selectContainer, selectStyles.selectContainer)}>
                     <select
                         id={encodeURIComponent(label)}
                         onChange={ev => onChange(ev, options.find(opt => (opt.key?.toString() || '') === ev.target.value))}
                         value={value || ""}
                         disabled={isDisabled}
+                        className={classNames(styles.select, selectStyles.select)}
                     >
                         {options.map((opt, i) =>
                             <option

@@ -8,6 +8,7 @@ import Link from 'next/link'
 import Bootleg from 'request/objects/bootleg'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faClock, faEye } from '@fortawesome/free-regular-svg-icons'
+import { ESearch } from "static/searchFilters/search"
 
 /**
  * BootlegCard
@@ -69,7 +70,7 @@ export default function BootlegCard({ bootleg }) {
                             {bootleg.bands?.map((band, i) => (
                                 <React.Fragment key={i}>
                                     <Link
-                                        href={`/bootleg/search?band=${encodeURIComponent(band)}`}
+                                        href={`/bootleg/search?string=${encodeURIComponent(band?.toLowerCase())}&searchBy=${ESearch.BAND}`}
                                     >
                                         {band}
                                     </Link>

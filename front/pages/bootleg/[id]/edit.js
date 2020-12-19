@@ -15,6 +15,12 @@ import { MainState } from "redux/slices/main"
 import Cookie from "helpers/cookie"
 import { setToken } from 'redux/slices/main'
 import { NotificationState } from 'redux/slices/notification'
+import { CancelRequestError } from "request/errors/cancelRequestError"
+import { UnauthorizedError } from "request/errors/unauthorizedError"
+import { AuthentificationError } from "request/errors/authentificationError"
+import { InvalidEntityError } from "request/errors/invalidEntityError"
+import { NotImplementedError } from "request/errors/notImplementedError"
+import { NotFoundError } from "request/errors/notFoundError"
 
 /**
  * @typedef {object} BootlegProps
@@ -72,8 +78,18 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
             return { props: { bootleg: JSON.parse(JSON.stringify(bootleg)) } }
         } catch (error) {
-            console.log(error)
-            return { notFound: true }
+            switch (error?.constructor) {
+                case CancelRequestError:
+                case UnauthorizedError:
+                case AuthentificationError:
+                case InvalidEntityError:
+                case NotImplementedError: break
+                case NotFoundError:
+                    return { notFound: true }
+                default:
+                    console.log(error)
+                    return { props: { bootlegsProps: {} } }
+            }
         }
     }
 )

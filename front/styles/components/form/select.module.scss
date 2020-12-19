@@ -1,8 +1,21 @@
+@import "../../helpers";
+@import "../../variables";
+
 .control {
   > div:first-child {
     width: 100%;
-    > select {
+    > select.select {
       width: 100%;
+      &[class="is-greyblue"] {
+        &:focus:not(:active) {
+          box-shadow: 0 0 0 0.125em rgba($greyblue, 0.25) !important;
+        }
+      }
+      &[class="is-pink"] {
+        &:focus:not(:active) {
+          box-shadow: 0 0 0 0.125em rgba($pink, 0.25) !important;
+        }
+      }
     }
   }
 }

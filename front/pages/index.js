@@ -23,6 +23,12 @@ import { GetServerSidePropsContext } from 'next'
 import { AnyAction, Store } from 'redux'
 import { MainState } from "redux/slices/main"
 import { NotificationState } from 'redux/slices/notification'
+import { CancelRequestError } from "request/errors/cancelRequestError"
+import { AuthentificationError } from "request/errors/authentificationError"
+import { UnauthorizedError } from "request/errors/unauthorizedError"
+import { InvalidEntityError } from "request/errors/invalidEntityError"
+import { NotFoundError } from "request/errors/notFoundError"
+import { NotImplementedError } from "request/errors/notImplementedError"
 
 config({ ssrFadeout: true })
 
@@ -353,10 +359,10 @@ export const getServerSideProps = wrapper.getServerSideProps(
      * Get server side props
      * @param {GetServerSidePropsContext & {store: Store<{ main: MainState; notification: NotificationState }, AnyAction>;}} ctx
      */
-    async ({ req }) => {
+    async ({ req, store }) => {
         try {
             const bootlegManager = new BootlegManager({ req })
-            const [bootlegsPopular, bootlesgNew, bootlegsRandom] = await Promise.all([
+            const [[bootlegsPopular], [bootlesgNew], [bootlegsRandom]] = await Promise.all([
                 bootlegManager.getAll({
                     limit: 5,
                     orderBy: ESort.CLICKED_DESC
@@ -379,14 +385,22 @@ export const getServerSideProps = wrapper.getServerSideProps(
                 }
             }
         } catch (error) {
-            console.log(error)
-
-            return {
-                props: {
-                    bootlegsPopular: [],
-                    bootlesgNew: [],
-                    bootlegsRandom: []
-                }
+            switch (error?.constructor) {
+                case CancelRequestError:
+                case UnauthorizedError:
+                case AuthentificationError:
+                case InvalidEntityError:
+                case NotImplementedError:
+                case NotFoundError:
+                default:
+                    console.log(error)
+                    return {
+                        props: {
+                            bootlegsPopular: [],
+                            bootlesgNew: [],
+                            bootlegsRandom: []
+                        }
+                    }
             }
         }
     }

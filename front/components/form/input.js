@@ -28,6 +28,7 @@ import inputStyles from 'styles/components/form/input.module.scss'
  * @param {string=} props.errorMessage
  * @param {function(React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): any=} props.onChange
  * @param {Styles=} props.styles
+ * @param {string=} props.color
  * @param {boolean=} props.isWithBtn
  * @param {function()=} props.onClickBtn
  * @param {IconProp=} props.iconBtn
@@ -47,6 +48,7 @@ export default function Input({
     errorMessage = undefined,
     onChange = () => null,
     styles = {},
+    color = 'greyblue',
 
     isWithBtn = false,
     onClickBtn = () => null,
@@ -69,7 +71,7 @@ export default function Input({
                 <div className={classNames("control is-expanded", { 'has-icons-left': iconLeft }, styles.control, inputStyles.control)}>
                     <Ipt
                         id={encodeURIComponent(label)}
-                        className={classNames("is-greyblue", { 'input': !multiline }, { 'textarea': multiline }, { 'is-danger': !!errorMessage }, styles.input, inputStyles.input)}
+                        className={classNames(`is-${color}`, { 'input': !multiline }, { 'textarea': multiline }, { 'is-danger': !!errorMessage }, styles.input, inputStyles.input)}
                         type={type}
                         placeholder={placeholder}
                         onChange={onChange}
@@ -93,7 +95,7 @@ export default function Input({
                     isWithBtn &&
                     <div className="control">
                         <button
-                            className="button is-greyblue"
+                            className={`button is-${color}`}
                             onClick={onClickBtn}
                             type="button"
                         >

@@ -2,26 +2,34 @@
 @import "../../variables";
 
 .search {
-  .select {
-    > div:first-child {
-      height: 2em;
-      > select {
-        height: 2em;
-        line-height: 1.5em;
-        padding-bottom: calc(0.5em - 5px);
-        padding-top: calc(0.5em - 5px);
-      }
-    }
-    > div:last-child {
-      height: 2em;
+  .searchrow {
+    margin-bottom: 0;
+    h1 {
+      color: $greyblue;
     }
   }
-  .input {
-    > input {
-      height: 2em;
+  .contentrow {
+    .select {
+      > div:first-child {
+        height: 2em;
+        > select {
+          height: 2em;
+          line-height: 1.5em;
+          padding-bottom: calc(0.5em - 5px);
+          padding-top: calc(0.5em - 5px);
+        }
+      }
+      > div:last-child {
+        height: 2em;
+      }
     }
-    > span {
-      height: 2em !important;
+    .input {
+      > input {
+        height: 2em;
+      }
+      > span {
+        height: 2em !important;
+      }
     }
   }
 }

@@ -7,7 +7,7 @@ import { useDispatch } from 'react-redux'
 import Layout from 'components/layout'
 import withManagers, { ManagersProps } from 'helpers/hoc/withManagers'
 import { wrapper } from 'redux/store'
-import Notification from 'components/general/notification'
+import Message from 'components/general/message'
 
 /**
  * Base layout
@@ -26,10 +26,10 @@ function MyApp({ Component, pageProps }) {
 
     return (
         <>
-            <Notification />
             <Layout>
                 <Component {...pageProps} />
             </Layout>
+            <Message />
         </>
     )
 }

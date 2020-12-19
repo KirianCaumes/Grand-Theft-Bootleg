@@ -3,14 +3,12 @@ import { Slice, PayloadAction, ActionCreatorWithPayload } from "@reduxjs/toolkit
 import Cookie from "helpers/cookie"
 import { HYDRATE } from 'next-redux-wrapper'
 import User from 'request/objects/user'
-import { ReactNotificationOptions, store } from 'react-notifications-component'
 
 /**
  * @typedef {object} Message
- * @property {boolean=} isDisplay Is notif display
- * @property {ReactNotificationOptions['title']} title
- * @property {ReactNotificationOptions['message']} message
- * @property {ReactNotificationOptions['type']} type
+ * @property {boolean} isDisplay Is notif display
+ * @property {string} content
+ * @property {'primary' | 'link' | 'info' | 'success' | 'warning' | 'danger'} type
  */
 
 /**
@@ -47,8 +45,7 @@ const mainSlice = createSlice({
         me: new User().toJson(),
         message: {
             isDisplay: false,
-            title: null,
-            message: null,
+            content: null,
             type: null,
         }
     },
@@ -83,19 +80,6 @@ const mainSlice = createSlice({
          */
         setMessage: (state, action) => {
             state.message = action.payload.message
-            store.addNotification({
-                title: state.message.title,
-                message: state.message.message,
-                type: state.message.type,
-                insert: "top",
-                container: "bottom-left",
-                animationIn: ["animate__animated", "animate__fadeIn"],
-                animationOut: ["animate__animated", "animate__fadeOut"],
-                dismiss: {
-                    duration: 5000
-                },
-                // onRemoval: () => dispatch(setMessage({ message: { isDsiplay: false } }))
-            })
         },
     },
     extraReducers: {

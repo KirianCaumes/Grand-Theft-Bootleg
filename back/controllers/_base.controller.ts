@@ -30,16 +30,18 @@ export default abstract class BaseController {
         result = {},
         message = undefined,
         stacktrace = undefined,
-        errors = []
+        error = undefined,
+        meta = undefined
     }:
         {
             result?: any | any[];
             message?: string | undefined;
             stacktrace?: any;
-            errors?: IApiError[];
+            error?: IApiError;
+            meta?: any
         }
     ): object {
-        return render({ result, message, stacktrace, errors, resultKey: this.resultKey })
+        return render({ result, message, stacktrace, error, resultKey: this.resultKey, meta })
     }
 
     /**
