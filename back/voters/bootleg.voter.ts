@@ -65,7 +65,7 @@ export default class BootlegVoter extends BaseVoter {
         if (
             [EBootlegStates.DRAFT, EBootlegStates.PENDING].includes(subject.state) &&
             [EUserRoles.VISITOR, EUserRoles.USER].includes(user.role) &&
-            subject.createdById?.$oid === user._id.$oid
+            subject.createdById?.$oid === user._id?.$oid
         )
             return true
 

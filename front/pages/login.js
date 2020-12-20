@@ -134,6 +134,7 @@ function Login({ userManager, ...props }) {
 
                                     <Button
                                         label="Login"
+                                        type="submit"
                                         isLoading={status === Status.PENDING}
                                         iconRight={faSignInAlt}
                                     />

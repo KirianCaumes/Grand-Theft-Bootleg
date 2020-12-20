@@ -4,7 +4,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
 // @ts-ignore
 import inputStyles from 'styles/components/form/input.module.scss'
-
+import Label from "./label"
+import Button, { ButtonType } from 'components/form/button'
 /**
  * Input styles
  * @typedef {object} Styles
@@ -15,7 +16,7 @@ import inputStyles from 'styles/components/form/input.module.scss'
 /**
  * Simple input
  * @param {object} props
- * @param {string} props.label
+ * @param {string=} props.label
  * @param {string} props.placeholder
  * @param {string=} props.type
  * @param {boolean=} props.isDisabled
@@ -29,9 +30,7 @@ import inputStyles from 'styles/components/form/input.module.scss'
  * @param {function(React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): any=} props.onChange
  * @param {Styles=} props.styles
  * @param {string=} props.color
- * @param {boolean=} props.isWithBtn
- * @param {function()=} props.onClickBtn
- * @param {IconProp=} props.iconBtn
+ * @param {ButtonType=} props.button
  * @param {boolean=} props.multiline
  */
 export default function Input({
@@ -50,23 +49,23 @@ export default function Input({
     styles = {},
     color = 'greyblue',
 
-    isWithBtn = false,
-    onClickBtn = () => null,
-    iconBtn = undefined,
+    button = {},
 
     multiline = false
 }) {
     const Ipt = multiline ? 'textarea' : 'input'
     return (
         <>
-            <label
-                htmlFor={encodeURIComponent(label)}
-                className={classNames("label", { 'is-required': isRequired })}
-            >
-                {label}
-            </label>
+            {!!label &&
+                <Label
+                    htmlFor={encodeURIComponent(label)}
+                    isRequired={isRequired}
+                >
+                    {label}
+                </Label>
+            }
             <div
-                className={classNames("field", { 'has-addons': isWithBtn })}
+                className={classNames("field", { 'has-addons': Object.keys(button)?.length > 0 })}
             >
                 <div className={classNames("control is-expanded", { 'has-icons-left': iconLeft }, styles.control, inputStyles.control)}>
                     <Ipt
@@ -92,15 +91,11 @@ export default function Input({
                     }
                 </div>
                 {
-                    isWithBtn &&
+                    Object.keys(button)?.length > 0 &&
                     <div className="control">
-                        <button
-                            className={`button is-${color}`}
-                            onClick={onClickBtn}
-                            type="button"
-                        >
-                            <FontAwesomeIcon icon={iconBtn} />
-                        </button>
+                        <Button
+                            {...button}
+                        />
                     </div>
                 }
             </div>

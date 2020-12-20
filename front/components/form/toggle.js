@@ -2,6 +2,7 @@ import React from "react"
 import classNames from 'classnames'
 // @ts-ignore
 import toggleStyles from 'styles/components/form/toggle.module.scss'
+import Label from "./label"
 
 /**
  * Toggle styles
@@ -29,7 +30,13 @@ export default function Toggle({
 }) {
     return (
         <>
-            <label className="label" htmlFor={encodeURIComponent(label)}>{label}</label>
+            {!!label &&
+                <Label
+                    htmlFor={encodeURIComponent(label)}
+                >
+                    {label}
+                </Label>
+            }
             <div className={classNames("field", styles.field, toggleStyles.field)}>
                 <input
                     id={encodeURIComponent(label)}

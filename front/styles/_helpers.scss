@@ -110,6 +110,9 @@
     height: 0.25em;
     display: block;
   }
+  + .subtitle {
+    margin-top: -0.5rem !important;
+  }
 }
 
 .is-pointer-events-none {

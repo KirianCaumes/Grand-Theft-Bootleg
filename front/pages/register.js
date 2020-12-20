@@ -142,13 +142,15 @@ function Register({ userManager, ...props }) {
                                         iconLeft={faKey}
                                         errorMessage={errorField.password}
                                         onChange={ev => setUser(new User({ ...user, password: ev.target.value }))}
-                                        isWithBtn={true}
-                                        onClickBtn={() => setIsPwdVisible(!isPwdVisible)}
-                                        iconBtn={faEye}
+                                        button={{
+                                            onClick: () => setIsPwdVisible(!isPwdVisible),
+                                            iconLeft: faEye
+                                        }}
                                     />
 
                                     <Button
                                         label="Register"
+                                        type="submit"
                                         isLoading={status === Status.PENDING}
                                         iconRight={faSignInAlt}
                                     />

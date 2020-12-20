@@ -47,7 +47,6 @@ export default function My404() {
                                     <p className="control">
                                         <Button
                                             label="Go back"
-                                            type="button"
                                             iconLeft={faBackward}
                                             onClick={() => router.back()}
                                         />
@@ -55,7 +54,6 @@ export default function My404() {
                                     <p className="control">
                                         <Button
                                             label="Go home"
-                                            type="button"
                                             iconRight={faHome}
                                             onClick={() => router.push('/')}
                                         />

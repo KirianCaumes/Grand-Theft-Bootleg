@@ -146,7 +146,8 @@ function Search({ bootlegManager, bootlegsProps, metaProps, main: { me }, ...pro
 
     useEffect(
         () => {
-            getBootlegs()
+            if (searchFilters.searchBy)
+                getBootlegs()
         },
         [searchFilters.searchBy]
     )

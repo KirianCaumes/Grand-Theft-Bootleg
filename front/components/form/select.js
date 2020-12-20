@@ -4,6 +4,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
 // @ts-ignore
 import selectStyles from 'styles/components/form/select.module.scss'
+import Label from "./label"
+import Button, { ButtonType } from 'components/form/button'
 
 /**
  * Select styles
@@ -23,7 +25,7 @@ import selectStyles from 'styles/components/form/select.module.scss'
 /**
  * Simple select
  * @param {object} props
- * @param {string} props.label
+ * @param {string=} props.label
  * @param {boolean=} props.isDisabled
  * @param {function(React.ChangeEvent<HTMLSelectElement>, Options)=} props.onChange
  * @param {Styles=} props.styles
@@ -31,6 +33,7 @@ import selectStyles from 'styles/components/form/select.module.scss'
  * @param {IconProp=} props.iconLeft
  * @param {string=} props.value
  * @param {Options[]=} props.options
+ * @param {ButtonType=} props.button
  */
 export default function Select({
     label = "",
@@ -40,16 +43,20 @@ export default function Select({
     onChange = () => null,
     styles = {},
     color = 'greyblue',
-    options = []
+    options = [],
+    button = {},
 }) {
     return (
-        <div className="field">
-            <label
-                className="label"
-                htmlFor={encodeURIComponent(label)}
-            >
-                {label}
-            </label>
+        <div
+            className={classNames("field", { 'has-addons': Object.keys(button)?.length > 0 })}
+        >
+            {!!label &&
+                <Label
+                    htmlFor={encodeURIComponent(label)}
+                >
+                    {label}
+                </Label>
+            }
             <div className={classNames("control", { 'has-icons-left': iconLeft }, styles.control, selectStyles.control)}>
                 <div className={classNames(`select is-${color}`, styles.selectContainer, selectStyles.selectContainer)}>
                     <select
@@ -75,6 +82,14 @@ export default function Select({
                     </div>
                 }
             </div>
+            {
+                Object.keys(button)?.length > 0 &&
+                <div className="control">
+                    <Button
+                        {...button}
+                    />
+                </div>
+            }
         </div>
     )
 }

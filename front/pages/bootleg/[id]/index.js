@@ -298,7 +298,6 @@ function BootlegDetail({ bootlegProps, bootlegManager, main: { token, me }, ...p
                                         {(me?.role > 1 || me?._id === bootleg.createdById) &&
                                             <Button
                                                 label="Edit"
-                                                type="button"
                                                 iconLeft={faEdit}
                                                 color="greyblue"
                                                 styles={{
@@ -310,7 +309,6 @@ function BootlegDetail({ bootlegProps, bootlegManager, main: { token, me }, ...p
                                         {((me?.role > 1 || me?._id === bootleg.createdById) && bootleg.state === 0) &&
                                             <Button
                                                 label="Validate"
-                                                type="button"
                                                 iconLeft={faCheck}
                                                 onClick={() => {
                                                     setModal({
@@ -334,7 +332,6 @@ function BootlegDetail({ bootlegProps, bootlegManager, main: { token, me }, ...p
                                         {me?.role > 1 && bootleg.state < 2 &&
                                             <Button
                                                 label="Publish"
-                                                type="button"
                                                 iconLeft={faCheckDouble}
                                                 onClick={() => {
                                                     setModal({
@@ -358,7 +355,6 @@ function BootlegDetail({ bootlegProps, bootlegManager, main: { token, me }, ...p
                                         {me?.role > 1 && bootleg.state !== 0 &&
                                             <Button
                                                 label="Draft"
-                                                type="button"
                                                 iconLeft={faTimes}
                                                 onClick={() => {
                                                     setModal({
@@ -382,7 +378,6 @@ function BootlegDetail({ bootlegProps, bootlegManager, main: { token, me }, ...p
                                         {me?.role > 2 && bootleg.state !== 3 &&
                                             <Button
                                                 label="Delete"
-                                                type="button"
                                                 iconLeft={faTrash}
                                                 onClick={() => {
                                                     setModal({
@@ -632,7 +627,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
                 case CancelRequestError: break
                 case UnauthorizedError:
                 case AuthentificationError:
-                    store.dispatch(removeToken(undefined))
+                    /** Issue: https://github.com/kirill-konshin/next-redux-wrapper/pull/295 */
                     store.dispatch(setMessage({
                         message: {
                             isDisplay: true,
@@ -640,6 +635,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
                             type: 'warning'
                         }
                     }))
+                    store.dispatch(removeToken(undefined))
                     return {
                         redirect: {
                             destination: '/login',
@@ -654,7 +650,6 @@ export const getServerSideProps = wrapper.getServerSideProps(
                     console.log(error)
                     break
             }
-            console.log(error)
         }
     }
 )

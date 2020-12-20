@@ -14,19 +14,20 @@ import { setMessage } from "redux/slices/main"
 function Message({ main: { message } }) {
     const dispatch = useDispatch()
     const timer = useRef(null)
+    console.log(message)
 
-    useEffect(() => {
-        clearTimeout(timer.current)
+    // useEffect(() => {
+    //     clearTimeout(timer.current)
 
-        timer.current = setTimeout(
-            () => dispatch(setMessage({ message: { ...message, isDisplay: false } })),
-            7000
-        )
+    //     timer.current = setTimeout(
+    //         () => dispatch(setMessage({ message: { ...message, isDisplay: false } })),
+    //         7000
+    //     )
 
-        return () => {
-            clearTimeout(timer.current)
-        }
-    }, [message.content])
+    //     return () => {
+    //         clearTimeout(timer.current)
+    //     }
+    // }, [message.content])
 
     if (!message.isDisplay)
         return null
@@ -49,7 +50,6 @@ function Message({ main: { message } }) {
                 }}
             />
         </BulmaNotification>
-
     )
 }
 

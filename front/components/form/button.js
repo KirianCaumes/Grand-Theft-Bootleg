@@ -13,22 +13,27 @@ import Link from "next/link"
  */
 
 /**
+ * Button styles
+ * @typedef {object} ButtonType
+ * @property {string=} label
+ * @property {"button" | "submit" | "reset"=} type
+ * @property {function(React.MouseEvent<any, MouseEvent>)=} onClick
+ * @property {boolean=} isLoading
+ * @property {boolean=} isDisabled
+ * @property {IconProp=} iconLeft
+ * @property {IconProp=} iconRight
+ * @property {Styles=} styles
+ * @property {string=} color
+ * @property {string=} href
+ */
+
+/**
  * Simple button
- * @param {object} props
- * @param {string} props.label
- * @param {"button" | "submit" | "reset"=} props.type
- * @param {function(React.MouseEvent<any, MouseEvent>)=} props.onClick
- * @param {boolean=} props.isLoading
- * @param {boolean=} props.isDisabled
- * @param {IconProp=} props.iconLeft
- * @param {IconProp=} props.iconRight
- * @param {Styles=} props.styles
- * @param {string=} props.color
- * @param {string=} props.href
+ * @param {ButtonType} props
  */
 export default function Button({
     label = "",
-    type = "submit",
+    type = "button",
     onClick = () => null,
     isLoading = false,
     isDisabled = false,
@@ -51,7 +56,9 @@ export default function Button({
                 <FontAwesomeIcon icon={iconLeft} />
             </span>
         }
-        <span>{label}</span>
+        {label &&
+            <span>{label}</span>
+        }
         {iconRight &&
             <span className="icon is-small">
                 <FontAwesomeIcon icon={iconRight} />
