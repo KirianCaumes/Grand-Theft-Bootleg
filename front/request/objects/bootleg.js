@@ -40,11 +40,11 @@ export default class Bootleg extends Base {
         description = null,
         date = null,
         picture = null,
-        links = null,
-        bands = null,
-        songs = null,
-        countries = null,
-        cities = null,
+        links = [],
+        bands = [],
+        songs = [],
+        countries = [],
+        cities = [],
         isCompleteShow = null,
         isAudioOnly = null,
         isProRecord = null,
@@ -57,9 +57,9 @@ export default class Bootleg extends Base {
         modifiedById = null,
         modifiedBy = {},
         modifiedOn = null,
-        clicked = null,
+        clicked = [],
         clickedCount = 0,
-        report = null
+        report = []
     } = {}) {
         super()
         this._id = _id?.$oid ?? _id

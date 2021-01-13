@@ -1,7 +1,7 @@
 import React, { ReactChild } from "react"
 import classNames from 'classnames'
 // @ts-ignore
-import labelStyles from 'styles/components/form/label.module.scss'
+import labelStyles from 'styles/components/form/addons/label.module.scss'
 
 /**
  * Label styles

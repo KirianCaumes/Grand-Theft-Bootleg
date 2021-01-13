@@ -2,7 +2,8 @@ import React from "react"
 import classNames from 'classnames'
 // @ts-ignore
 import toggleStyles from 'styles/components/form/toggle.module.scss'
-import Label from "./label"
+import Label from "./addons/label"
+import Help from "./addons/help"
 
 /**
  * Toggle styles
@@ -19,6 +20,8 @@ import Label from "./label"
  * @param {function(React.ChangeEvent<HTMLInputElement>)=} props.onChange
  * @param {Styles=} props.styles
  * @param {string=} props.color
+ * @param {string=} props.errorMessage
+ * @param {boolean=} props.isRequired
  */
 export default function Toggle({
     label = "",
@@ -27,12 +30,15 @@ export default function Toggle({
     onChange = () => null,
     styles = {},
     color = 'greyblue',
+    errorMessage = undefined,
+    isRequired = false,
 }) {
     return (
         <>
             {!!label &&
                 <Label
                     htmlFor={encodeURIComponent(label)}
+                    isRequired={isRequired}
                 >
                     {label}
                 </Label>
@@ -49,6 +55,9 @@ export default function Toggle({
                 <label htmlFor={encodeURIComponent(label)}>
                     {!!checked ? 'Yes' : 'No'}
                 </label>
+                <Help>
+                    {errorMessage}
+                </Help>
             </div>
         </>
     )

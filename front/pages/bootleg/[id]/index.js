@@ -32,6 +32,7 @@ import { NotificationState, removeFromBootlegs, addToBootlegs } from 'redux/slic
 import { AuthentificationError } from "request/errors/authentificationError"
 import { NotFoundError } from "request/errors/notFoundError"
 import { ESearch } from "static/searchFilters/search"
+import Rating from "components/form/rating"
 
 /**
  * @typedef {object} BootlegProps
@@ -75,14 +76,14 @@ function BootlegDetail({ bootlegProps, bootlegManager, main: { token, me }, ...p
                     new Array(value <= 5 ? value : 5)
                         .fill({})
                         .map((x, i) =>
-                            <FontAwesomeIcon className="has-text-pink" icon={faStar} key={i} />
+                            <span className="has-text-pink" key={i}>★</span>
                         )
                 }
                 {
                     new Array(5 - value > 0 ? 5 - value : 0)
                         .fill({})
                         .map((x, i) =>
-                            <FontAwesomeIcon className="has-text-pink" icon={faStarLight} key={i} />
+                            <span className="has-text-pink" key={i}>☆</span>
                         )
                 }
             </>)
@@ -522,12 +523,19 @@ function BootlegDetail({ bootlegProps, bootlegManager, main: { token, me }, ...p
 
                                 <p className="is-capitalize">
                                     <strong>Sound quality:</strong>
-                                    {score(bootleg.soundQuality)}
+                                    <Rating
+                                        value={bootleg.soundQuality}
+                                    />
                                 </p>
 
                                 <p className="is-capitalize">
                                     <strong>Video quality:</strong>
-                                    {bootleg.isAudioOnly ? <i>N/A</i> : score(bootleg.videoQuality)}
+                                    {bootleg.isAudioOnly ?
+                                        <i>N/A</i> :
+                                        <Rating
+                                            value={bootleg.videoQuality}
+                                        />
+                                    }
                                 </p>
 
                                 <br />

@@ -2,6 +2,7 @@
 @import "../../variables";
 
 .control {
+  width: 100%;
   > div:first-child {
     width: 100%;
     > select.select {
@@ -18,4 +19,8 @@
       }
     }
   }
+}
+.danger {
+  margin-top: -0.5rem;
+  margin-bottom: 0.5rem;
 }
