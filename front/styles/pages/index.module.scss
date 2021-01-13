@@ -2,9 +2,9 @@
 @import "../variables";
 
 .index {
-    a:not(.button):hover {
-        text-decoration: underline;
-    }
+    // a:not(.button):hover {
+    //     text-decoration: underline;
+    // }
     .carousel {
         @include flex-col;
         height: 50vh;

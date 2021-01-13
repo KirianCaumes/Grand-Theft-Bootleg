@@ -39,6 +39,7 @@ import Pagination from "components/general/pagination"
 import { AuthentificationError } from "request/errors/authentificationError"
 import { NotFoundError } from "request/errors/notFoundError"
 import { ESearch } from "static/searchFilters/search"
+import Button from "components/form/button"
 
 /**
  * @typedef {object} SearchProps
@@ -212,15 +213,11 @@ function Search({ bootlegManager, bootlegsProps, metaProps, main: { me }, ...pro
                                 </Columns.Column>
                             </Columns>
                             <div className="is-hidden-desktop">
-                                <button
-                                    className="button is-pink"
-                                    onClick={ev => setIsFilterDisplay(!isFilterDisplay)}
-                                >
-                                    <span className="icon">
-                                        <FontAwesomeIcon icon={faFilter} />
-                                    </span>
-                                    <span>{isFilterDisplay ? 'Hide' : 'Show'}</span>
-                                </button>
+                                <Button
+                                    onClick={() => setIsFilterDisplay(!isFilterDisplay)}
+                                    iconLeft={faFilter}
+                                    label={isFilterDisplay ? 'Hide filters' : 'Show filters'}
+                                />
                                 <br />
                                 <br />
                             </div>

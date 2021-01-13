@@ -11,6 +11,9 @@ body {
         span {
           margin-left: 0.5em;
         }
+        .navbar-burger {
+          height: auto !important;
+        }
       }
       div.navbar-menu {
         @include until($desktop) {

@@ -11,9 +11,9 @@
         //     opacity: 0.9;
         // }
     }
-    a:not(.button):hover {
-        text-decoration: underline;
-    }
+    // a:not(.button):hover {
+    //     text-decoration: underline;
+    // }
     figure {
         @include flex-col;
         height: 250px;

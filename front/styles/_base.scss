@@ -27,6 +27,9 @@ html {
     }
     a {
       color: inherit;
+      &:not(.button):hover {
+        text-decoration: underline;
+      }
     }
     textarea {
       resize: vertical;
