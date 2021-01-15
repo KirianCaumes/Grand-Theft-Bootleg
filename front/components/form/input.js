@@ -32,6 +32,7 @@ import Help from "components/form/addons/help"
  * @param {function(React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): any=} props.onChange
  * @param {function(React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>): any=} props.onFocus
  * @param {function(React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>): any=} props.onBlur
+ * @param {function(React.FormEvent<HTMLInputElement | HTMLTextAreaElement>): any=} props.onInput
  * @param {Styles=} props.styles
  * @param {string=} props.color
  * @param {number=} props.minLength
@@ -57,6 +58,7 @@ export default function Input({
     onChange = () => null,
     onFocus = () => null,
     onBlur = () => null,
+    onInput = () => null,
     styles = {},
     color = 'greyblue',
     minLength = null,
@@ -112,6 +114,7 @@ export default function Input({
                         maxLength={maxLength}
                         list={!!options?.length ? id || encodeURIComponent(label) : undefined}
                         autoComplete={autoComplete}
+                        onInput={onInput}
                     />
                     {iconLeft &&
                         <span className="icon is-small is-left">

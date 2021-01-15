@@ -4,12 +4,18 @@ import BootlegManager from 'request/managers/bootlegManager'
 import Bootleg from 'request/objects/bootleg'
 import UserManager from 'request/managers/userManager'
 import User from 'request/objects/user'
+import SongManager from 'request/managers/songManager'
+import BandManager from 'request/managers/bandManager'
+import Band from 'request/objects/band'
+import Song from 'request/objects/song'
 
 /**
  * @typedef {object} ManagersProps
  * @property {function(object):ApiManager<any>} manager Function to get proper manager for a desired object
  * @property {BootlegManager} bootlegManager Bootleg Manager
  * @property {UserManager} userManager User Manager
+ * @property {SongManager} songManager Song Manager
+ * @property {BandManager} bandManager Band Manager
  */
 
 /**
@@ -24,11 +30,15 @@ export default function withManagers(WrappedComponent) {
             // Declare all managers
             const bootlegManager = new BootlegManager()
             const userManager = new UserManager()
+            const songManager = new SongManager()
+            const bandManager = new BandManager()
 
             /** @type {object} Store managers in an object */
             this.managers = {
                 bootlegManager,
                 userManager,
+                songManager,
+                bandManager
             }
 
             /** @type {function(object):ApiManager<any>} Function to get proper manager for a desired object */
@@ -38,6 +48,10 @@ export default function withManagers(WrappedComponent) {
                         return bootlegManager
                     case User:
                         return userManager
+                    case Band:
+                        return bandManager
+                    case Song:
+                        return songManager
                     default:
                         return null
                 }

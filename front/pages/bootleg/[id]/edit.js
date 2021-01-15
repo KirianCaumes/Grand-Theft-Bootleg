@@ -35,11 +35,13 @@ import { ECountries } from "static/searchFilters/countries"
 import Toggle from "components/form/toggle"
 import { EStates } from "static/searchFilters/states"
 import Rating from "components/form/rating"
+import Song from 'request/objects/song'
+import Band from 'request/objects/band'
 
 /**
  * @typedef {object} SuggestionsType
- * @property {Object<string, string[]>} bands
- * @property {Object<string, string[]>} songs
+ * @property {Object<string, Band[]>} bands
+ * @property {Object<string, Song[]>} songs
  */
 
 /**
@@ -51,7 +53,7 @@ import Rating from "components/form/rating"
  * Bootleg page
  * @param {BootlegProps & ManagersProps} props 
  */
-function Edit({ bootlegProps, bootlegManager, ...props }) {
+function Edit({ bootlegProps, bootlegManager, songManager, bandManager, ...props }) {
     /** @type {[Bootleg, function(Bootleg):any]} Bootlegs */
     const [bootleg, setBootleg] = React.useState(bootlegProps)
     /** @type {[string, function(string):any]} Status */
@@ -136,12 +138,23 @@ function Edit({ bootlegProps, bootlegManager, ...props }) {
     const updateSuggestions = useCallback(
         /**
          * @param {object} data 
-         * @param {'bands' | 'songs'=} data.key 
+         * @param {Band | Song | Object} data.object 
          * @param {number=} data.index 
          * @param {string=} data.value 
          * @param {boolean=} data.isClear 
          */
-        ({ key, index, value, isClear = false }) => {
+        async ({ object, index, value, isClear = false }) => {
+            const key = (() => {
+                switch (object) {
+                    case Band:
+                        return 'bands'
+                    case Song:
+                        return 'songs'
+                    default:
+                        return null
+                }
+            })()
+
             const newSugts = { ...suggestions[key] }
 
             if (!newSugts[index])
@@ -150,12 +163,32 @@ function Edit({ bootlegProps, bootlegManager, ...props }) {
             if (isClear) {
                 newSugts[index] = []
                 setSuggestions({ ...suggestions, [key]: newSugts })
+                return
             }
 
-            if (value?.length >= 3) {
-                //TODO connect api
-                newSugts[index] = [...newSugts[index], value + "az"]
-                setSuggestions({ ...suggestions, [key]: newSugts })
+            switch (object) {
+                case Band:
+                    bandManager.cancel()
+                    try {
+                        const [bands] = await bandManager.getAll({ string: value })
+                        newSugts[index] = bands
+                        setSuggestions({ ...suggestions, [key]: newSugts })
+                    } catch (error) {
+                        console.error(error)
+                    }
+                    break
+                case Song:
+                    songManager.cancel()
+                    try {
+                        const [songs] = await songManager.getAll({ string: value })
+                        newSugts[index] = songs
+                        setSuggestions({ ...suggestions, [key]: newSugts })
+                    } catch (error) {
+                        console.error(error)
+                    }
+                    break
+                default:
+                    break
             }
         },
         [suggestions]
@@ -184,12 +217,6 @@ function Edit({ bootlegProps, bootlegManager, ...props }) {
                                     <h2 className="subtitle is-5">
                                         General informations
                                     </h2>
-                                    <input type="text" id="band" className="is-greyblue input" placeholder="Band" required list="band123" onChange={(ev) => setTest([...test, ev.target.value + 'abc'])} autoComplete="off" />
-                                    <datalist id="band123">
-                                        {test?.map((x, i) => (
-                                            <option key={i} value={x}>{x}</option>
-                                        ))}
-                                    </datalist>
                                     <Input
                                         label="Title"
                                         placeholder="Bootleg's title"
@@ -264,22 +291,22 @@ function Edit({ bootlegProps, bootlegManager, ...props }) {
                                             value={band}
                                             iconLeft={faUsers}
                                             errorMessage={errorField.bands}
-                                            onChange={ev => {
-                                                updateSuggestions({
-                                                    key: 'bands',
-                                                    index: i,
-                                                    value: ev.target.value
-                                                })
-                                                let bands = [...bootleg.bands]
-                                                bands[i] = ev.target.value
-                                                setBootleg(new Bootleg({ ...bootleg, bands }))
+                                            onInput={ev => {
+                                                const value = /** @type {HTMLInputElement} */(ev.target).value
+                                                switch (/** @type {any} */(ev.nativeEvent)?.constructor) {
+                                                    case InputEvent:
+                                                        updateSuggestions({ object: Band, index: i, value })
+                                                        break
+                                                    case Event:
+                                                        updateSuggestions({ object: Band, index: i, isClear: true })
+                                                        break
+                                                    default:
+                                                        break
+                                                }
+                                                setBootleg(new Bootleg({ ...bootleg, bands: [...bootleg.bands].map((band, index) => index === i ? value : band) }))
                                             }}
                                             onBlur={() => {
-                                                updateSuggestions({
-                                                    key: 'bands',
-                                                    index: i,
-                                                    isClear: true
-                                                })
+                                                updateSuggestions({ object: Band, index: i, isClear: true })
                                             }}
                                             button={{
                                                 isDisabled: bootleg.bands?.length <= 1 || status === Status.PENDING,
@@ -290,7 +317,7 @@ function Edit({ bootlegProps, bootlegManager, ...props }) {
                                             isDisabled={status === Status.PENDING}
                                             minLength={1}
                                             maxLength={255}
-                                            options={suggestions.bands?.[0] ?? []}
+                                            options={/** @type {String[]} */(suggestions.bands?.[i]) ?? []}
                                         />
                                     )}
                                     <Button
@@ -319,9 +346,7 @@ function Edit({ bootlegProps, bootlegManager, ...props }) {
                                             errorMessage={errorField.links}
                                             type="url"
                                             onChange={ev => {
-                                                let links = [...bootleg.links]
-                                                links[i] = ev.target.value
-                                                setBootleg(new Bootleg({ ...bootleg, links }))
+                                                setBootleg(new Bootleg({ ...bootleg, links: [...bootleg.links].map((link, index) => index === i ? ev.target.value : link) }))
                                             }}
                                             button={{
                                                 isDisabled: bootleg.links?.length <= 1 || status === Status.PENDING,
@@ -351,29 +376,29 @@ function Edit({ bootlegProps, bootlegManager, ...props }) {
                                     </Label>
                                     {bootleg.songs?.map((song, i) =>
                                         <Input
-                                            id="song"
+                                            id={`song-${i}`}
                                             key={`song-${i}`}
                                             placeholder="Song"
                                             isRequired={true}
                                             value={song}
                                             iconLeft={faMusic}
                                             errorMessage={errorField.songs}
-                                            onChange={ev => {
-                                                updateSuggestions({
-                                                    key: 'songs',
-                                                    index: i,
-                                                    value: ev.target.value
-                                                })
-                                                let songs = [...bootleg.songs]
-                                                songs[i] = ev.target.value
-                                                setBootleg(new Bootleg({ ...bootleg, songs }))
+                                            onInput={ev => {
+                                                const value = /** @type {HTMLInputElement} */(ev.target).value
+                                                switch (/** @type {any} */(ev.nativeEvent)?.constructor) {
+                                                    case InputEvent:
+                                                        updateSuggestions({ object: Song, index: i, value })
+                                                        break
+                                                    case Event:
+                                                        updateSuggestions({ object: Song, index: i, isClear: true })
+                                                        break
+                                                    default:
+                                                        break
+                                                }
+                                                setBootleg(new Bootleg({ ...bootleg, songs: [...bootleg.songs].map((song, index) => index === i ? value : song) }))
                                             }}
                                             onBlur={() => {
-                                                updateSuggestions({
-                                                    key: 'songs',
-                                                    index: i,
-                                                    isClear: true
-                                                })
+                                                updateSuggestions({ object: Song, index: i, isClear: true })
                                             }}
                                             button={{
                                                 isDisabled: bootleg.songs?.length <= 1 || status === Status.PENDING,
@@ -384,7 +409,7 @@ function Edit({ bootlegProps, bootlegManager, ...props }) {
                                             isDisabled={status === Status.PENDING}
                                             minLength={1}
                                             maxLength={255}
-                                            options={suggestions.songs?.[i] ?? []}
+                                            options={/** @type {String[]} */(suggestions.songs?.[i]) ?? []}
                                         />
                                     )}
                                     <Button
@@ -417,9 +442,7 @@ function Edit({ bootlegProps, bootlegManager, ...props }) {
                                                     iconLeft={faGlobeEurope}
                                                     errorMessage={errorField.countries}
                                                     onChange={(ev, option) => {
-                                                        let countries = [...bootleg.countries]
-                                                        countries[i] =/** @type {string} */(option.key)
-                                                        setBootleg(new Bootleg({ ...bootleg, countries }))
+                                                        setBootleg(new Bootleg({ ...bootleg, countries: [...bootleg.countries].map((country, index) => index === i ? ev.target.value : country) }))
                                                     }}
                                                     options={[
                                                         { key: null, text: '' },
@@ -459,9 +482,7 @@ function Edit({ bootlegProps, bootlegManager, ...props }) {
                                                     iconLeft={faCity}
                                                     errorMessage={errorField.cities}
                                                     onChange={ev => {
-                                                        let cities = [...bootleg.cities]
-                                                        cities[i] = ev.target.value
-                                                        setBootleg(new Bootleg({ ...bootleg, cities }))
+                                                        setBootleg(new Bootleg({ ...bootleg, cities: [...bootleg.cities].map((city, index) => index === i ? ev.target.value : city) }))
                                                     }}
                                                     button={{
                                                         isDisabled: bootleg.cities?.length <= 1 || status === Status.PENDING,
