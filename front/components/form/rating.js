@@ -26,6 +26,7 @@ import Help from "./addons/help"
  * @param {'small' | 'medium' | 'large'=} props.size
  * @param {string=} props.errorMessage
  * @param {boolean=} props.isDisabled
+ * @param {boolean=} props.isReadonly
  */
 export default function Rating({
     max = 5,
@@ -39,12 +40,15 @@ export default function Rating({
     size = null,
     errorMessage = undefined,
     isDisabled = false,
+    isReadonly = false,
 }) {
     return (
         <span
             className={classNames(ratingStyles.rating)}
             // @ts-ignore
             disabled={isDisabled}
+            // @ts-ignore
+            readOnly={isReadonly}
         >
             {!!label &&
                 <Label

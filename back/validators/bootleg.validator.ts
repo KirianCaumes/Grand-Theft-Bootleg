@@ -16,12 +16,12 @@ const bootlegValidationSchemaBase = {
         new Date(),
         () => `Expect date to be between ${new Date('1900-01-01T00:00:00.000Z')?.toLocaleDateString('en-EN', { year: 'numeric', month: 'short', day: '2-digit' })} and ${new Date()?.toLocaleDateString('en-EN', { year: 'numeric', month: 'short', day: '2-digit' })}`
     ),
-    picture: string.trim().normalize().transform(urlValidation),
+    picture: unknown.string('A file is required').trim().normalize().optional(),
     links: array.of(string.trim().normalize().between(5, 500).transform(urlValidation), () => `Invalid URLs`).between(1, 10),
-    bands: array.of(string.normalize().between(1, 255)).between(1, 10),
-    songs: array.of(string.normalize().between(1, 255)).between(1, 30),
+    bands: array.of(string.trim().normalize().between(1, 255)).between(1, 10),
+    songs: array.of(string.trim().normalize().between(1, 255)).between(1, 30),
     countries: array.of(Schema.enum(ECountries), arg => `Country ${arg} is invalid`).min(1).max(10),
-    cities: array.of(string.normalize().between(1, 255)).min(0).max(10),
+    cities: array.of(string.trim().normalize().between(1, 255)).min(0).max(10),
     isCompleteShow: unknown.boolean('Expected value to be "True" or "False"'),
     isAudioOnly: unknown.boolean('Expected value to be "True" or "False"'),
     isProRecord: unknown.boolean('Expected value to be "True" or "False"'),
@@ -36,7 +36,7 @@ const bootlegValidationSchemaBase = {
 }
 const bootlegValidationSchema = Schema(bootlegValidationSchemaBase)
 
-type BootlegValidationType = Type<typeof bootlegValidationSchema>
+export type BootlegValidationType = Type<typeof bootlegValidationSchema>
 
 export const bootlegValidator = async (bootleg: BootlegValidationType, action?: EActions, user?: UserSchema): Promise<BootlegValidationType> => {
     bootleg.date = new Date(bootleg.date)
@@ -66,6 +66,7 @@ export const bootlegValidator = async (bootleg: BootlegValidationType, action?: 
     const item = await validator<typeof bootlegValidationSchema, BootlegValidationType>(
         Schema({
             ...bootlegValidationSchemaBase,
+            picture: action === EActions.CREATE ? null : unknown.string('A file is required').trim().normalize().optional(),
             state: unknown.enum(myEnum, arg => `State ${EBootlegStates[arg as number]} is invalid`)
         }),
         bootleg,
@@ -74,6 +75,8 @@ export const bootlegValidator = async (bootleg: BootlegValidationType, action?: 
 
     if (item.isAudioOnly)
         item.videoQuality = null as any
+
+    delete item.picture
 
     return item
 }

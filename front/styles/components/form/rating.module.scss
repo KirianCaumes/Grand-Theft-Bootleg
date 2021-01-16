@@ -6,6 +6,11 @@
       color: #8d959e !important;
     }
   }
+  &[readonly] {
+    span.icon {
+      cursor: initial;
+    }
+  }
   span.icon {
     font-weight: 900;
     font-size: 1.25em;

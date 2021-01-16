@@ -24,7 +24,7 @@ export class UsersCollection extends Collection<UserSchema> {
             },
             {
                 iss: JSON.stringify({ ...user, password: undefined }),
-                exp: Date.now() / 1000 + 60 * 60
+                exp: Date.now() / 1000 + 60 * 60 * 24
             },
             env?.JWT_KEY!
         )

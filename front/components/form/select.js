@@ -67,7 +67,7 @@ export default function Select({
                     </Label>
                 }
                 <div className={classNames("control", { 'has-icons-left': iconLeft }, styles.control, selectStyles.control)}>
-                    <div className={classNames(`select is-${color}`, styles.selectContainer, selectStyles.selectContainer)}>
+                    <div className={classNames(`select`, { [`is-${color}`]: !!color }, styles.selectContainer, selectStyles.selectContainer)}>
                         <select
                             id={id || encodeURIComponent(label)}
                             onChange={ev => onChange(ev, options.find(opt => (opt.key?.toString() || '') === ev.target.value))}

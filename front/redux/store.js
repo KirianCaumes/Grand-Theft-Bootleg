@@ -12,18 +12,20 @@ import notificationReducer, { NotificationState } from "redux/slices/notificatio
  * @property {NotificationState=} notification
  */
 
+const isLogOn = false //process.env.NODE_ENV === 'development'
+
 export const makeStore = () => configureStore({
     reducer: {
         main: mainReducer,
         notification: notificationReducer
     },
-    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(logger),
-    devTools: process.env.NODE_ENV === 'development'
+    middleware: (getDefaultMiddleware) => isLogOn ? getDefaultMiddleware().concat(logger) : null,
+    devTools: isLogOn
 })
 
 export const wrapper = createWrapper(
     makeStore,
     {
-        debug: process.env.NODE_ENV === 'development'
+        debug: isLogOn
     }
 )

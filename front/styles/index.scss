@@ -19,6 +19,10 @@ $tabs-link-active-color: $pink;
 $pagination-focus-border-color: $pink;
 $pagination-current-background-color: $pink;
 $pagination-current-border-color: $pink;
+// $input-disabled-background-color: rgba(
+//     $color: $grey,
+//     $alpha: 0,
+// );
 
 //Used to add colors as bulma helpers
 $colors: map-merge(

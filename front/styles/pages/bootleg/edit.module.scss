@@ -1,0 +1,19 @@
+.edit {
+  div[class="is-one-fifth-desktop"] {
+    position: relative;
+  }
+  .infos {
+    position: sticky;
+    top: 10px;
+    details {
+      padding: 0.5em 0;
+      summary {
+        font-weight: bold;
+        cursor: pointer;
+        &:focus {
+          outline: none;
+        }
+      }
+    }
+  }
+}

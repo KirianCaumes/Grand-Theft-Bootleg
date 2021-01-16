@@ -47,7 +47,7 @@ export default function Toggle({
                 <input
                     id={encodeURIComponent(label)}
                     type="checkbox"
-                    className={`switch is-rounded is-${color}`}
+                    className={classNames(`switch is-rounded`, { [`is-${color}`]: !!color })}
                     checked={checked}
                     onChange={onChange}
                     disabled={isDisabled}

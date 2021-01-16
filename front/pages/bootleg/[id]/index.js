@@ -9,8 +9,7 @@ import { Section, Columns, Container } from 'react-bulma-components'
 import Bootleg from 'request/objects/bootleg'
 import Link from "next/link"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faStar, faHeadphonesAlt, faEdit, faCheck, faTimes, faTrash, faCheckDouble, faMapMarker } from "@fortawesome/free-solid-svg-icons"
-import { faStar as faStarLight } from '@fortawesome/free-regular-svg-icons'
+import { faHeadphonesAlt, faEdit, faCheck, faTimes, faTrash, faCheckDouble, faMapMarker } from "@fortawesome/free-solid-svg-icons"
 import withManagers, { ManagersProps } from "helpers/hoc/withManagers"
 import getConfig from 'next/config'
 import { wrapper } from "redux/store"
@@ -33,6 +32,7 @@ import { AuthentificationError } from "request/errors/authentificationError"
 import { NotFoundError } from "request/errors/notFoundError"
 import { ESearch } from "static/searchFilters/search"
 import Rating from "components/form/rating"
+import Image from 'next/image'
 
 /**
  * @typedef {object} BootlegProps
@@ -263,13 +263,17 @@ function BootlegDetail({ bootlegProps, bootlegManager, main: { token, me }, ...p
                                 <Columns className="is-variable is-3">
                                     <Columns.Column size="one-third">
                                         <figure className="image">
-                                            <img //TODO remplace later with IMAGE component from Next
-                                                src={bootleg.picture}
+                                            <Image //TODO remplace later with IMAGE component from Next
+                                                src={`${publicRuntimeConfig.backUrl}/images/${bootleg.picture}`}
                                                 alt={bootleg.title ?? "bootleg"}
-                                                onError={ev => {
-                                                    const target = /** @type {HTMLImageElement} */(ev.target)
-                                                    target.src = "/logo.png"
-                                                }}
+                                                layout="fill"
+                                            // onError={ev => {
+                                            //     const target = /** @type {HTMLImageElement} */(ev.target)
+                                            //     target.src = "/logo.png"
+                                            // }}
+                                            // layout="responsive"
+                                            // width={250}
+                                            // height={250}
                                             />
                                         </figure>
                                     </Columns.Column>
@@ -319,7 +323,7 @@ function BootlegDetail({ bootlegProps, bootlegManager, main: { token, me }, ...p
                                                         onClickYes: async () => {
                                                             const err = await update(new Bootleg({ ...bootleg, state: 1 }))
                                                             if (!err)
-                                                                dispatch(addToBootlegs({ bootleg }))
+                                                                dispatch(addToBootlegs({ bootleg: bootleg?.toJson() }))
                                                             setModal({ isDisplay: false })
                                                         }
                                                     })
@@ -406,7 +410,7 @@ function BootlegDetail({ bootlegProps, bootlegManager, main: { token, me }, ...p
                                 <h2 className="title is-4 is-title-underline">
                                     Details
                                 </h2>
-                                <p className="is-capitalize">
+                                <span className="is-capitalize">
                                     <strong>Date:</strong>
                                     <Link
                                         href={`/bootleg/search?year=${encodeURIComponent(new Date(bootleg.date)?.getFullYear())}`}
@@ -415,56 +419,66 @@ function BootlegDetail({ bootlegProps, bootlegManager, main: { token, me }, ...p
                                             {new Date(bootleg.date)?.toLocaleDateString('en-EN', { year: 'numeric', month: 'short', day: '2-digit' })}
                                         </a>
                                     </Link>
-                                </p>
+                                </span>
+                                <br />
 
-                                <p className="is-capitalize">
+                                <span className="is-capitalize">
                                     <strong>{bootleg.bands?.length > 1 ? 'Bands' : 'Band'}:</strong>
-                                    {bootleg.bands?.map((band, i) => (
-                                        <React.Fragment key={i}>
-                                            <Link
-                                                href={`/bootleg/search?string=${encodeURIComponent(band?.toLowerCase())}&searchBy=${ESearch.BAND}`}
-                                            >
-                                                {band}
-                                            </Link>
-                                            {i < bootleg.bands?.length - 1 && ', '}
-                                        </React.Fragment>
-                                    ))}
-                                </p>
+                                    <ul className={styles['flat-list']}>
+                                        {bootleg.bands?.map((band, i) => (
+                                            <li key={i}>
+                                                <Link
+                                                    href={`/bootleg/search?string=${encodeURIComponent(band?.toLowerCase())}&searchBy=${ESearch.BAND}`}
+                                                >
+                                                    {band}
+                                                </Link>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </span>
+                                <br />
 
-                                <p className="is-capitalize">
+                                <span className="is-capitalize">
                                     <strong>{bootleg.countries?.length > 1 ? 'Countries' : 'Country'}:</strong>
-                                    {bootleg.countries?.map((country, i) => (
-                                        <React.Fragment key={i}>
-                                            <Link
-                                                href={`/search?country=${encodeURIComponent(country)}`}
-                                            >
-                                                {country}
-                                            </Link>
-                                            {i < bootleg.countries?.length - 1 && ', '}
-                                        </React.Fragment>
-                                    ))}
-                                </p>
+                                    <ul className={styles['flat-list']}>
+                                        {bootleg.countries?.map((country, i) => (
+                                            <li key={i}>
+                                                <Link
+                                                    href={`/search?country=${encodeURIComponent(country)}`}
+                                                >
+                                                    {country}
+                                                </Link>
+                                                {i < bootleg.countries?.length - 1 && ', '}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </span>
+                                <br />
 
-                                <p className="is-capitalize">
+                                <span className="is-capitalize">
                                     <strong>{bootleg.cities?.length > 1 ? 'Cities' : 'City'}:</strong>
-                                    {bootleg.cities?.map((city, i) => (
-                                        <React.Fragment key={i}>
-                                            <Link
-                                                href={`/bootleg/search?city=${encodeURIComponent(city?.toLowerCase())}`}
-                                            >
-                                                {city}
-                                            </Link>
-                                            {i < bootleg.countries?.length - 1 && ', '}
-                                        </React.Fragment>
-                                    ))}
-                                </p>
+                                    <ul className={styles['flat-list']}>
+                                        {bootleg.cities?.map((city, i) => (
+                                            <li key={i}>
+                                                <Link
+                                                    href={`/bootleg/search?city=${encodeURIComponent(city?.toLowerCase())}`}
+                                                >
+                                                    {city}
+                                                </Link>
+                                                {i < bootleg.countries?.length - 1 && ', '}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </span>
 
                                 <br />
                                 <br />
+                                <br />
+
                                 <h2 className="title is-4 is-title-underline">
                                     {bootleg.isAudioOnly ? 'Listen' : 'Watch'}
                                 </h2>
-                                <div className="field is-grouped">
+                                <div className="field is-grouspaned">
                                     {bootleg.links?.map((link, i) =>
                                         <p className="control" key={i}>
                                             <a
@@ -488,7 +502,7 @@ function BootlegDetail({ bootlegProps, bootlegManager, main: { token, me }, ...p
                                     Informations
                                 </h2>
 
-                                <p className="is-capitalize">
+                                <span className="is-capitalize">
                                     <strong>Audio only:</strong>
                                     <Link
                                         href={`/bootleg/search?isAudioOnly=${encodeURIComponent(bootleg.isAudioOnly ? 1 : 0)}`}
@@ -497,9 +511,10 @@ function BootlegDetail({ bootlegProps, bootlegManager, main: { token, me }, ...p
                                             {bootleg.isAudioOnly ? 'Yes' : 'No'}
                                         </a>
                                     </Link>
-                                </p>
+                                </span>
+                                <br />
 
-                                <p className="is-capitalize">
+                                <span className="is-capitalize">
                                     <strong>Complete show:</strong>
                                     <Link
                                         href={`/bootleg/search?isCompleteShow=${encodeURIComponent(bootleg.isCompleteShow ? 1 : 0)}`}
@@ -508,9 +523,10 @@ function BootlegDetail({ bootlegProps, bootlegManager, main: { token, me }, ...p
                                             {bootleg.isCompleteShow ? 'Yes' : 'No'}
                                         </a>
                                     </Link>
-                                </p>
+                                </span>
+                                <br />
 
-                                <p className="is-capitalize">
+                                <span className="is-capitalize">
                                     <strong>Pro record:</strong>
                                     <Link
                                         href={`/bootleg/search?isProRecord=${encodeURIComponent(bootleg.isProRecord ? 1 : 0)}`}
@@ -519,32 +535,37 @@ function BootlegDetail({ bootlegProps, bootlegManager, main: { token, me }, ...p
                                             {bootleg.isProRecord ? 'Yes' : 'No'}
                                         </a>
                                     </Link>
-                                </p>
+                                </span>
+                                <br />
 
-                                <p className="is-capitalize">
+                                <span className="is-capitalize">
                                     <strong>Sound quality:</strong>
                                     <Rating
                                         value={bootleg.soundQuality}
+                                        isReadonly={true}
                                     />
-                                </p>
+                                </span>
+                                <br />
 
-                                <p className="is-capitalize">
+                                <span className="is-capitalize">
                                     <strong>Video quality:</strong>
                                     {bootleg.isAudioOnly ?
                                         <i>N/A</i> :
                                         <Rating
                                             value={bootleg.videoQuality}
+                                            isReadonly={true}
                                         />
                                     }
-                                </p>
+                                </span>
 
+                                <br />
                                 <br />
                                 <br />
 
                                 <h2 className="title is-4 is-title-underline">
                                     Creator
                                 </h2>
-                                <p className="is-capitalize">
+                                <span className="is-capitalize">
                                     <strong>Submited by:</strong>
                                     <Link
                                         href={`/bootleg/search?authorId=${encodeURIComponent(bootleg.createdById)}`}
@@ -553,17 +574,20 @@ function BootlegDetail({ bootlegProps, bootlegManager, main: { token, me }, ...p
                                             {bootleg.createdBy?.username ?? <i>Deleted user</i>}
                                         </a>
                                     </Link>
-                                </p>
+                                </span>
+                                <br />
 
-                                <p className="is-capitalize">
+                                <span className="is-capitalize">
                                     <strong>Submited on:</strong>
                                     {new Date(bootleg.createdOn)?.toLocaleDateString('en-EN', { year: 'numeric', month: 'short', day: '2-digit' })}
-                                </p>
+                                </span>
+                                <br />
 
-                                <p className="is-capitalize">
+                                <span className="is-capitalize">
                                     <strong>Time listened:</strong>
                                     {bootleg.clickedCount}
-                                </p>
+                                </span>
+                                <br />
 
                                 <div className="is-hidden-tablet">
                                     <br />

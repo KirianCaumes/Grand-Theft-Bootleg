@@ -9,6 +9,10 @@ import { EBootlegStates } from "../types/enumerations/EBootlegStates.ts"
 import { EActions } from "../types/enumerations/EActions.ts"
 import { ReportValidatorType } from "../validators/report.validator.ts"
 import { ESearch } from "../types/enumerations/ESsearch.ts"
+import { FileValidatorType } from "../validators/file.validator.ts"
+import { v4 } from "https://deno.land/std@0.83.0/uuid/mod.ts"
+import ValidationException from "../types/exceptions/ValidationException.ts"
+import ImageHelper from "../helpers/image.ts"
 
 /**
  * Bootleg Controller
@@ -17,15 +21,19 @@ export default class BootlegController extends BaseController {
     private collection: BootlegsCollectionType
     private validateBootleg: BootlegValidatorType
     private validatorReport: ReportValidatorType
+    private validatorFile: FileValidatorType
+    private imageHelper: ImageHelper
 
     /** @inheritdoc */
     resultKey: string = "bootleg"
 
-    constructor(collection: BootlegsCollectionType, validateBootleg: BootlegValidatorType, validatorReport: ReportValidatorType) {
+    constructor(collection: BootlegsCollectionType, validateBootleg: BootlegValidatorType, validatorReport: ReportValidatorType, validatorFile: FileValidatorType, imageHelper: ImageHelper) {
         super()
         this.collection = collection
         this.validateBootleg = validateBootleg
         this.validatorReport = validatorReport
+        this.validatorFile = validatorFile
+        this.imageHelper = imageHelper
     }
 
     /**
@@ -128,13 +136,23 @@ export default class BootlegController extends BaseController {
         this.denyAccessUnlessGranted(EActions.CREATE, bootlegBody, user)
 
         //Insert new element and return id
-        const bootlegBddUpd = await this.collection.createOn({
+        let bootlegBddUpd = await this.collection.createOne({
             ...bootlegBody,
             createdById: user._id,
             createdOn: new Date(),
             modifiedById: user._id,
             modifiedOn: new Date(),
         })
+
+        //Get picture if YT
+        const picture = await this.imageHelper.extractYtThumbnail(bootlegBddUpd)
+
+        //Update element
+        if (picture)
+            bootlegBddUpd = await this.collection.updateOneById(
+                bootlegBddUpd._id?.$oid,
+                { $set: { picture } }
+            )
 
         response.body = this._render({
             message: 'Bootleg added',
@@ -161,10 +179,20 @@ export default class BootlegController extends BaseController {
         this.denyAccessUnlessGranted(EActions.UPDATE, bootlegBdd, user)
 
         //Update element
-        const bootlegBddUpd = await this.collection.updateOneById(
+        let bootlegBddUpd = await this.collection.updateOneById(
             params.id,
             { $set: { ...bootlegBody, modifiedById: user._id, modifiedOn: new Date() } }
         )
+
+        //Get picture if YT
+        const picture = await this.imageHelper.extractYtThumbnail(bootlegBddUpd)
+
+        //Update element
+        if (picture)
+            bootlegBddUpd = await this.collection.updateOneById(
+                bootlegBddUpd._id?.$oid,
+                { $set: { picture } }
+            )
 
         response.body = this._render({
             message: 'Bootleg edited',
@@ -294,6 +322,85 @@ export default class BootlegController extends BaseController {
 
         response.body = this._render({
             message: 'Bootleg clicked',
+            result: {
+                ...bootlegBddUpd
+            }
+        })
+    }
+
+    /**
+     * Upload an image
+     */
+    async uploadImage({ params, request, response }: { params: { id: string }; request: Request; response: Response }) {
+        //Get user
+        const user = await this._getUser(request)
+
+        //Get element by id
+        const bootlegBdd = await this.collection.findOneById(params.id, user)
+
+        //Check if has access
+        this.denyAccessUnlessGranted(EActions.UPDATE, bootlegBdd, user)
+
+        //Deny if already a picture
+        if (bootlegBdd?.picture)
+            throw new ValidationException(
+                'An image already exist',
+                { picture: 'An image already exist' }
+            )
+
+        //Get formdata
+        const formData = await request
+            .body({ type: "form-data" })
+            .value
+            .read({ maxSize: 3000000 }) //Max 3mb
+
+        //Setup file infos
+        const file = formData.files?.[0]!
+
+        //Validate data
+        await this.validatorFile({ picture: file })
+
+        //Save image on disk
+        const name = await this.imageHelper.saveFile(file)
+
+        //Update element
+        const bootlegBddUpd = await this.collection.updateOneById(
+            params.id,
+            { $set: { picture: name } }
+        )
+
+        response.body = this._render({
+            message: 'Image uploaded',
+            result: {
+                ...bootlegBddUpd
+            }
+        })
+    }
+
+    /**
+     * Remove an image
+     */
+    async removeImage({ params, request, response }: { params: { id: string }; request: Request; response: Response }) {
+        //Get user
+        const user = await this._getUser(request)
+
+        //Get element by id
+        const bootlegBdd = await this.collection.findOneById(params.id, user)
+
+        //Check if has access
+        this.denyAccessUnlessGranted(EActions.UPDATE, bootlegBdd, user)
+
+        //Remove image
+        await this.imageHelper.removeFile(bootlegBdd.picture)
+
+        //Update element
+        const bootlegBddUpd = await this.collection.updateOneById(
+            params.id,
+            { $set: { picture: null } }
+        )
+
+        response.body = this._render({
+            message: 'Image deleted',
             result: {
                 ...bootlegBddUpd
             }

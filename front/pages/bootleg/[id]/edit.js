@@ -1,8 +1,8 @@
-import React, { useCallback, ReactChild, useEffect } from "react"
+import React, { useCallback, useEffect, useMemo } from "react"
 import Head from "next/head"
 import { GetServerSidePropsContext } from 'next'
 // @ts-ignore
-import styles from "styles/pages/bootleg/create.module.scss"
+import styles from "styles/pages/bootleg/edit.module.scss"
 import BootlegManager from "request/managers/bootlegManager"
 // @ts-ignore
 import { Section, Columns, Container } from 'react-bulma-components'
@@ -24,10 +24,9 @@ import { NotFoundError } from "request/errors/notFoundError"
 import { useRouter } from "next/router"
 import { useDispatch } from "react-redux"
 import { Status } from "static/status"
-import classNames from 'classnames'
 import Input from "components/form/input"
-import { faCalendarAlt, faImage } from "@fortawesome/free-regular-svg-icons"
-import { faCheck, faCity, faGlobeEurope, faHeading, faLink, faMusic, faPencilRuler, faPlus, faTrash, faUsers } from "@fortawesome/free-solid-svg-icons"
+import { faCalendarAlt, faEye, faImage, faStar } from "@fortawesome/free-regular-svg-icons"
+import { faAlignLeft, faCheck, faCity, faGlobeEurope, faHeading, faLink, faMusic, faPencilRuler, faPlus, faToggleOff, faTrash, faUsers } from "@fortawesome/free-solid-svg-icons"
 import Button from "components/form/button"
 import Label from "components/form/addons/label"
 import Select from "components/form/select"
@@ -37,6 +36,8 @@ import { EStates } from "static/searchFilters/states"
 import Rating from "components/form/rating"
 import Song from 'request/objects/song'
 import Band from 'request/objects/band'
+import FileInput from "components/form/fileInput"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
 /**
  * @typedef {object} SuggestionsType
@@ -53,22 +54,107 @@ import Band from 'request/objects/band'
  * Bootleg page
  * @param {BootlegProps & ManagersProps} props 
  */
-function Edit({ bootlegProps, bootlegManager, songManager, bandManager, ...props }) {
+function Edit({ bootlegProps, bootlegManager, songManager, bandManager }) {
     /** @type {[Bootleg, function(Bootleg):any]} Bootlegs */
     const [bootleg, setBootleg] = React.useState(bootlegProps)
     /** @type {[string, function(string):any]} Status */
     const [status, setStatus] = React.useState(Status.RESOLVED)
     /** @type {[ErrorBootleg, function(ErrorBootleg):any]} Error message */
     const [errorField, setErrorField] = React.useState(new ErrorBootleg())
-    /** @type {[SuggestionsType, function(SuggestionsType):any]} test */
+    /** @type {[SuggestionsType, function(SuggestionsType):any]} SuggestionsType */
     const [suggestions, setSuggestions] = React.useState({ bands: {}, songs: {} })
-
-    const [test, setTest] = React.useState([])
-
 
     const { publicRuntimeConfig } = getConfig()
     const router = useRouter()
     const dispatch = useDispatch()
+
+    const helpInfos = useMemo(() => [
+        {
+            title: 'Title',
+            icon: faHeading,
+            desc: 'Bootleg title.'
+        },
+        {
+            title: 'Description',
+            icon: faAlignLeft,
+            desc: 'Bootleg description, allowing you to add general information.'
+        },
+        {
+            title: 'Release date',
+            icon: faCalendarAlt,
+            desc: 'Bootleg recording date. If several or partial dates, enter January 1 of the first year of the bootleg.'
+        },
+        {
+            title: 'Picture',
+            icon: faImage,
+            desc: 'Upload an image of your bootleg. Only possible after a first save (see "Draft"). Tip: If at least one of your link is a video from YouTube, it thumbnail will be set as default.'
+        },
+        {
+            title: bootleg.bands?.length > 1 ? 'Bands' : 'Band',
+            icon: faUsers,
+            desc: 'Band(s) that played on the bootleg.'
+        },
+        {
+            title: bootleg.links?.length > 1 ? 'Links' : 'Link',
+            icon: faLink,
+            desc: 'The link(s) to listen/view the bootleg. If different songs are separated into several videos, try putting them together into a playlist (if possible).'
+        },
+        {
+            title: bootleg.songs?.length > 1 ? 'Songs' : 'Song',
+            icon: faMusic,
+            desc: 'Bootleg song(s).'
+        },
+        {
+            title: bootleg.countries?.length > 1 ? 'Countries' : 'Country',
+            icon: faGlobeEurope,
+            desc: 'Bootleg countries/country.'
+        },
+        {
+            title: bootleg.cities?.length > 1 ? 'Cities' : 'City',
+            icon: faCity,
+            desc: 'Bootleg cities/city.'
+        },
+        {
+            title: 'Complete Show',
+            icon: faToggleOff,
+            desc: 'Does the bootleg contain the entire live?'
+        },
+        {
+            title: 'Audio Only',
+            icon: faToggleOff,
+            desc: 'Does the bootleg only contain sound and no video?'
+        },
+        {
+            title: 'Pro Record',
+            icon: faHeading,
+            desc: 'Is it a professional recording and not by a spectator?'
+        },
+        {
+            title: 'Sound Quality',
+            icon: faStar,
+            desc: 'Sound quality (1: poor, 5: perfect).'
+        },
+        {
+            title: 'Video Quality',
+            icon: faStar,
+            desc: 'Video quality (1: poor, 5: perfect).'
+        },
+        {
+            title: 'Draft',
+            icon: faPencilRuler,
+            desc: 'Save your bootleg as a draft that you can continue to edit later.'
+        },
+        {
+            title: 'Validate',
+            icon: faCheck,
+            desc: 'Save your bootleg as valid. A moderator will then be notified and will check the consistency of your information before making your bootleg public on the website.'
+        },
+        {
+            title: 'See',
+            icon: faEye,
+            desc: 'See what your bootleg page looks like after saving.'
+        },
+    ], [bootleg])
 
     /** Update bootleg API */
     const update = useCallback(
@@ -76,14 +162,14 @@ function Edit({ bootlegProps, bootlegManager, songManager, bandManager, ...props
             try {
                 setStatus(Status.PENDING)
                 const bootlegUptd = await bootlegManager.upsert(bootleg, bootleg._id)
-                // dispatch(setMessage({
-                //     message: {
-                //         isDisplay: true,
-                //         content: `Bootleg has been correctly ${bootleg._id ? 'updated' : 'created'}`,
-                //         type: 'success'
-                //     }
-                // }))
-                router.push(`/bootleg/${bootlegUptd._id}`)
+                setBootleg(bootlegUptd)
+                setStatus(Status.RESOLVED)
+                setErrorField(new ErrorBootleg())
+                if (!bootleg._id) {
+                    router.push(`/bootleg/${bootlegUptd._id}/edit`)
+                } else {
+                    dispatch(setMessage({ message: { isDisplay: true, content: `Bootleg has been correctly ${bootleg._id ? 'updated' : 'created'}`, type: 'success' } }))
+                }
             } catch (error) {
                 switch (error?.constructor) {
                     case CancelRequestError: break
@@ -91,35 +177,17 @@ function Edit({ bootlegProps, bootlegManager, songManager, bandManager, ...props
                     case AuthentificationError:
                         router.push('/login')
                         dispatch(removeToken(undefined))
-                        dispatch(setMessage({
-                            message: {
-                                isDisplay: true,
-                                content: /** @type {Error} */(error).message,
-                                type: 'warning'
-                            }
-                        }))
+                        dispatch(setMessage({ message: { isDisplay: true, content: /** @type {Error} */(error).message, type: 'warning' } }))
                         break
                     case InvalidEntityError:
                         setStatus(Status.REJECTED)
                         setErrorField(error.errorField)
-                        dispatch(setMessage({
-                            message: {
-                                isDisplay: true,
-                                content: 'Some fields are invalid',
-                                type: 'danger'
-                            }
-                        }))
+                        dispatch(setMessage({ message: { isDisplay: true, content: 'Some fields are invalid', type: 'danger' } }))
                         break
                     case NotFoundError:
                     case NotImplementedError:
                     default:
-                        dispatch(setMessage({
-                            message: {
-                                isDisplay: true,
-                                content: 'An error occured during the bootleg update',
-                                type: 'danger'
-                            }
-                        }))
+                        dispatch(setMessage({ message: { isDisplay: true, content: 'An error occured during the bootleg update', type: 'danger' } }))
                         setStatus(Status.REJECTED)
                         console.log(error)
                         break
@@ -129,11 +197,6 @@ function Edit({ bootlegProps, bootlegManager, songManager, bandManager, ...props
         },
         [bootleg]
     )
-
-    useEffect(() => {
-        if (bootleg.isAudioOnly)
-            setBootleg(new Bootleg({ ...bootleg, videoQuality: null }))
-    }, [bootleg.isAudioOnly])
 
     const updateSuggestions = useCallback(
         /**
@@ -194,17 +257,95 @@ function Edit({ bootlegProps, bootlegManager, songManager, bandManager, ...props
         [suggestions]
     )
 
+    const uploadFile = useCallback(
+        /**
+         * @param {File} file
+         */
+        async (file) => {
+            try {
+                const bootlegUptd = await bootlegManager.uploadImage(file, bootleg._id)
+                setBootleg(new Bootleg({ ...bootleg, picture: bootlegUptd?.picture }))
+                setErrorField(new ErrorBootleg())
+            } catch (error) {
+                switch (error?.constructor) {
+                    case CancelRequestError: break
+                    case UnauthorizedError:
+                    case AuthentificationError:
+                        router.push('/login')
+                        dispatch(removeToken(undefined))
+                        dispatch(setMessage({ message: { isDisplay: true, content: /** @type {Error} */(error).message, type: 'warning' } }))
+                        break
+                    case InvalidEntityError:
+                        setErrorField(error.errorField)
+                        dispatch(setMessage({ message: { isDisplay: true, content: 'Some fields are invalid', type: 'danger' } }))
+                        break
+                    case NotFoundError:
+                    case NotImplementedError:
+                    default:
+                        dispatch(setMessage({ message: { isDisplay: true, content: 'An error occured during the bootleg update', type: 'danger' } }))
+                        setStatus(Status.REJECTED)
+                        console.log(error)
+                        break
+                }
+                return error
+            }
+        },
+        [bootlegManager, bootleg]
+    )
+
+    const removeFile = useCallback(
+        async () => {
+            try {
+                const bootlegUptd = await bootlegManager.removeImage(bootleg._id)
+                setBootleg(new Bootleg({ ...bootleg, picture: bootlegUptd?.picture }))
+            } catch (error) {
+                switch (error?.constructor) {
+                    case CancelRequestError: break
+                    case UnauthorizedError:
+                    case AuthentificationError:
+                        router.push('/login')
+                        dispatch(removeToken(undefined))
+                        dispatch(setMessage({ message: { isDisplay: true, content: /** @type {Error} */(error).message, type: 'warning' } }))
+                        break
+                    case InvalidEntityError:
+                    case NotFoundError:
+                    case NotImplementedError:
+                    default:
+                        dispatch(setMessage({ message: { isDisplay: true, content: 'An error occured during the bootleg update', type: 'danger' } }))
+                        setStatus(Status.REJECTED)
+                        console.log(error)
+                        break
+                }
+                return error
+            }
+        },
+        [bootlegManager, bootleg]
+    )
+
+    //Update bootleg on update props
+    useEffect(
+        () => setBootleg(bootlegProps),
+        [bootlegProps]
+    )
+
+    //Update videoQuality on isAudioOnly change
+    useEffect(() => {
+        if (bootleg.isAudioOnly)
+            setBootleg(new Bootleg({ ...bootleg, videoQuality: null }))
+    }, [bootleg.isAudioOnly])
+
     return (
         <>
             <Head>
                 <title>{bootleg.title || 'New'} - {publicRuntimeConfig.appName}</title>
             </Head>
 
-            <main className={styles.create}>
+            <main className={styles.edit}>
                 <Section className="flex">
                     <Container className="flex-one">
                         <form
                             onSubmit={ev => {
+                                console.log("wtf", ev)
                                 ev.preventDefault()
                                 update()
                             }}
@@ -219,7 +360,7 @@ function Edit({ bootlegProps, bootlegManager, songManager, bandManager, ...props
                                     </h2>
                                     <Input
                                         label="Title"
-                                        placeholder="Bootleg's title"
+                                        placeholder="Bootleg title"
                                         isRequired={true}
                                         value={bootleg.title}
                                         iconLeft={faHeading}
@@ -231,7 +372,7 @@ function Edit({ bootlegProps, bootlegManager, songManager, bandManager, ...props
                                     />
                                     <Input
                                         label="Description"
-                                        placeholder="Bootleg's description"
+                                        placeholder="Bootleg description"
                                         isRequired={true}
                                         value={bootleg.description}
                                         errorMessage={errorField.description}
@@ -245,7 +386,7 @@ function Edit({ bootlegProps, bootlegManager, songManager, bandManager, ...props
                                         <Columns.Column size="one-third">
                                             <Input
                                                 label="Release date"
-                                                placeholder="Bootleg's release date"
+                                                placeholder="Bootleg release date"
                                                 isRequired={true}
                                                 value={!!bootleg.date ? new Date(bootleg.date)?.toISOString()?.split('T')?.[0] : ''}
                                                 type="date"
@@ -258,21 +399,23 @@ function Edit({ bootlegProps, bootlegManager, songManager, bandManager, ...props
                                             />
                                         </Columns.Column>
                                         <Columns.Column size="two-thirds">
-                                            <Input
+                                            <FileInput
                                                 label="Picture"
-                                                placeholder="Bootleg's picture"
-                                                isRequired={true}
+                                                isRequired={bootleg?._id}
                                                 value={bootleg.picture || ''}
-                                                type="url"
-                                                iconLeft={faImage}
                                                 errorMessage={errorField.picture}
-                                                onChange={ev => setBootleg(new Bootleg({ ...bootleg, picture: ev.target.value }))}
-                                                isDisabled={status === Status.PENDING}
+                                                infoMessage={!bootleg?._id ? "You need to save your bootleg as a draft before uploading a image" : null}
+                                                onUpload={async file => {
+                                                    await uploadFile(file)
+                                                }}
+                                                onDelete={async () => {
+                                                    await removeFile()
+                                                }}
+                                                isDisabled={status === Status.PENDING || !bootleg?._id}
                                             />
                                         </Columns.Column>
                                     </Columns>
                                     <br />
-
                                     <h2 className="subtitle is-5">
                                         Content
                                     </h2>
@@ -572,7 +715,7 @@ function Edit({ bootlegProps, bootlegManager, songManager, bandManager, ...props
                                     <br />
                                     <div className="buttons">
                                         <Button
-                                            label="Brouillon"
+                                            label="Draft"
                                             onClick={() => setBootleg(new Bootleg({ ...bootleg, state: EStates.DRAFT }))}
                                             iconLeft={faPencilRuler}
                                             type="submit"
@@ -584,13 +727,36 @@ function Edit({ bootlegProps, bootlegManager, songManager, bandManager, ...props
                                             onClick={() => setBootleg(new Bootleg({ ...bootleg, state: EStates.PENDING }))}
                                             iconLeft={faCheck}
                                             type="submit"
-                                            isDisabled={bootleg.state !== EStates.PENDING && status === Status.PENDING}
+                                            isDisabled={(bootleg.state !== EStates.PENDING && status === Status.PENDING) || !bootleg._id}
                                             isLoading={bootleg.state === EStates.PENDING && status === Status.PENDING}
                                         />
                                     </div>
+                                    <Button
+                                        label="See"
+                                        color='greyblue'
+                                        href={`/bootleg/${bootleg?._id}`}
+                                        iconRight={faEye}
+                                        isDisabled={status === Status.PENDING || !bootleg._id}
+                                    />
                                 </Columns.Column>
-                                <Columns.Column className="is-one-fifth-desktop" >
-                                    Help info...
+                                <Columns.Column className="is-one-fifth-desktop">
+                                    <br className="is-hidden-desktop" />
+                                    <div className={styles.infos}>
+                                        <h1 className="title is-4 is-title-underline">
+                                            Help infos
+                                        </h1>
+                                        <br className="is-hidden-mobile" />
+                                        {helpInfos?.map((help, i) => (
+                                            <details
+                                                key={i}
+                                            >
+                                                <summary>
+                                                    {help.title}
+                                                </summary>
+                                                <p><FontAwesomeIcon icon={help.icon} /> {help.desc}</p>
+                                            </details>
+                                        ))}
+                                    </div>
                                 </Columns.Column>
                             </Columns>
                         </form>
@@ -633,12 +799,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
                             countries: [null],
                             cities: [null],
                             links: [null],
-                            songs: [null],
-                            isAudioOnly: false,
-                            isCompleteShow: false,
-                            isProRecord: false,
-                            state: EStates.DRAFT,
-                            soundQuality: 0
+                            songs: [null]
                         }).toJson()
                     }
                 }

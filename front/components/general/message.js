@@ -14,20 +14,20 @@ import { setMessage } from "redux/slices/main"
 function Message({ main: { message } }) {
     const dispatch = useDispatch()
     const timer = useRef(null)
-    console.log(message)
 
-    // useEffect(() => {
-    //     clearTimeout(timer.current)
+    useEffect(() => {
+        clearTimeout(timer.current)
 
-    //     timer.current = setTimeout(
-    //         () => dispatch(setMessage({ message: { ...message, isDisplay: false } })),
-    //         7000
-    //     )
+        if (message.isDisplay)
+            timer.current = setTimeout(
+                () => dispatch(setMessage({ message: { ...message, isDisplay: false } })),
+                5000
+            )
 
-    //     return () => {
-    //         clearTimeout(timer.current)
-    //     }
-    // }, [message.content])
+        return () => {
+            clearTimeout(timer.current)
+        }
+    }, [message.isDisplay])
 
     if (!message.isDisplay)
         return null

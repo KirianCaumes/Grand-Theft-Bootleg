@@ -1,0 +1,24 @@
+@import "../../variables";
+
+.file {
+  .file-icon {
+    margin-right: 0 !important;
+  }
+  .file-name {
+    &:not([disabled]) {
+      background: white;
+    }
+    border-color: $greyblue !important;
+    border-bottom-left-radius: 4px !important;
+    border-top-left-radius: 4px !important;
+    border-bottom-right-radius: 0;
+    border-top-right-radius: 0;
+    border-width: 1px 0 1px 1px;
+  }
+  .file-cta {
+    border-bottom-right-radius: 4px !important;
+    border-top-right-radius: 4px !important;
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+  }
+}

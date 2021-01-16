@@ -21,6 +21,14 @@ export default async function errorsLoader(ctx: Context, next: Function) {
                     resultKey: (ctx as any)?.matched?.[0]?.path?.split('/')?.[2]
                 })
                 break
+            case Deno.errors.NotFound:
+                ctx.response.status = 404
+                ctx.response.body = render({
+                    message: error?.message || `Element not found`,
+                    result: null,
+                    resultKey: (ctx as any)?.matched?.[0]?.path?.split('/')?.[2]
+                })
+                break
             case ForbiddenException:
                 ctx.response.status = 403
                 ctx.response.body = render({

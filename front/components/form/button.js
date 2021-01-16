@@ -47,9 +47,10 @@ export default function Button({
 
     const element = <Btn
         type={type}
-        className={classNames(`button is-${color}`, { 'is-loading': isLoading }, styles.button, buttonStyles.button)}
+        className={classNames(`button`, { [`is-${color}`]: !!color }, { 'is-loading': isLoading }, styles.button, buttonStyles.button)}
         onClick={onClick}
         disabled={isDisabled}
+        name={encodeURIComponent(label)}
     >
         {iconLeft &&
             <span className="icon is-small">

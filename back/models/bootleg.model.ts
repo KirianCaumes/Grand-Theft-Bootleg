@@ -180,10 +180,26 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
     }
 
     /**
-     * Update one element by Id
+     * Find one by picture name
+     * @param name 
+     */
+    async findOneByPicture(name: string): Promise<BootlegSchema> {
+        const el = (await this.aggregate([
+            { $match: { picture: name } },
+            { $limit: 1 },
+        ]))?.[0]
+
+        if (!el)
+            throw new NotFoundException("No bootleg using this image was found")
+
+        return el as BootlegSchema
+    }
+
+    /**
+     * Create one
      * {@link https://github.com/manyuanrong/deno_mongo/issues/89}
      */
-    async createOn(insert: any): Promise<BootlegSchema> {
+    async createOne(insert: any): Promise<BootlegSchema> {
         return await this.findOneById(
             (await this.insertOne(insert))?.$oid
         )

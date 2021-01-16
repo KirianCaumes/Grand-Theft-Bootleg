@@ -88,4 +88,48 @@ export default class BootlegManager extends ApiManager {
                 this.errorType = ErrorBootleg
             })
     }
+
+    /**
+     * Upload image
+     * @param {File} file 
+     * @param {string} id 
+     * @returns {Promise<Bootleg>}
+     */
+    uploadImage(file, id = undefined) {
+        const data = new FormData()
+        data.append('file', file)
+
+        const request = this._getRequest({ url: [id, 'image'], method: "POST", data })
+
+        return request.req
+            .then(res => {
+                return new (this.type)(res.data[this.objectName])
+            })
+            .catch(err => {
+                throw this._handleError(err)
+            })
+            .finally(() => {
+                delete this.cancelTokens[request.cancelTokenId]
+            })
+    }
+
+    /**
+     * Remove image
+     * @param {string} id 
+     * @returns {Promise<Bootleg>}
+     */
+    removeImage(id = undefined) {
+        const request = this._getRequest({ url: [id, 'image'], method: "DELETE" })
+
+        return request.req
+            .then(res => {
+                return new (this.type)(res.data[this.objectName])
+            })
+            .catch(err => {
+                throw this._handleError(err)
+            })
+            .finally(() => {
+                delete this.cancelTokens[request.cancelTokenId]
+            })
+    }
 }

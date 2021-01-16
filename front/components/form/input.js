@@ -19,7 +19,7 @@ import Help from "components/form/addons/help"
  * @param {object} props
  * @param {string=} props.id
  * @param {string=} props.label
- * @param {string} props.placeholder
+ * @param {string=} props.placeholder
  * @param {string=} props.type
  * @param {boolean=} props.isDisabled
  * @param {number | string=} props.min
@@ -98,7 +98,7 @@ export default function Input({
                     }
                     <Ipt
                         id={id || encodeURIComponent(label)}
-                        className={classNames(`is-${color}`, { 'input': !multiline }, { 'textarea': multiline }, { 'is-danger': !!errorMessage }, styles.input, inputStyles.input)}
+                        className={classNames({ [`is-${color}`]: !!color }, { 'input': !multiline }, { 'textarea': multiline }, { 'is-danger': !!errorMessage }, styles.input, inputStyles.input)}
                         type={type}
                         placeholder={placeholder}
                         onChange={onChange}

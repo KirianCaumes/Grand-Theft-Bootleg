@@ -26,7 +26,7 @@ export default function Help({
 
     return (
         <p
-            className={classNames("help", `is-${color}`, helpStyles.help, styles.help)}
+            className={classNames("help", { [`is-${color}`]: !!color }, helpStyles.help, styles.help)}
         >
             {children}
         </p>

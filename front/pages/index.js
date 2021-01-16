@@ -29,6 +29,7 @@ import { UnauthorizedError } from "request/errors/unauthorizedError"
 import { InvalidEntityError } from "request/errors/invalidEntityError"
 import { NotFoundError } from "request/errors/notFoundError"
 import { NotImplementedError } from "request/errors/notImplementedError"
+import Button from "components/form/button"
 
 config({ ssrFadeout: true })
 
@@ -182,13 +183,11 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, ...props }) {
                                         <p className="subtitle is-6 has-text-white has-text-centered">
                                             Let's share them with the community!
                                         </p>
-                                        <Link href="/">
-                                            <a
-                                                className="button is-pink is-outlined is-fullwidth"
-                                            >
-                                                Share
-                                            </a>
-                                        </Link>
+                                        <Button
+                                            label="Share"
+                                            href="/bootleg/new/edit"
+                                            styles={{ button: 'is-outlined is-fullwidth' }}
+                                        />
                                     </div>
                                 </Fade>
                             </Columns.Column>
@@ -211,13 +210,11 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, ...props }) {
                                         <p className="subtitle is-6 has-text-white has-text-centered">
                                             Search, find and listen!
                                         </p>
-                                        <Link href="/">
-                                            <a
-                                                className="button is-pink is-outlined is-fullwidth"
-                                            >
-                                                Search
-                                            </a>
-                                        </Link>
+                                        <Button
+                                            label="Search"
+                                            href="/bootleg/search"
+                                            styles={{ button: 'is-outlined is-fullwidth' }}
+                                        />
                                     </div>
                                 </Fade>
                             </Columns.Column>
@@ -240,13 +237,11 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, ...props }) {
                                         <p className="subtitle is-6 has-text-white has-text-centered">
                                             You can message us directly!
                                         </p>
-                                        <Link href="/">
-                                            <a
-                                                className="button is-pink is-outlined is-fullwidth"
-                                            >
-                                                Contact us
-                                            </a>
-                                        </Link>
+                                        <Button
+                                            label="Contact us"
+                                            href="/bootleg/search" //TODO
+                                            styles={{ button: 'is-outlined is-fullwidth' }}
+                                        />
                                     </div>
                                 </Fade>
                             </Columns.Column>
@@ -302,13 +297,12 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, ...props }) {
                             </Columns.Column>
                             <Columns.Column size="one-third">
                                 <Fade right>
-                                    <Link
+                                    <Button
+                                        label="Register"
                                         href="/register"
-                                    >
-                                        <a className="button is-pink is-fullwidth">
-                                            Register&nbsp;<FontAwesomeIcon icon={faUserCheck} />
-                                        </a>
-                                    </Link>
+                                        iconRight={faUserCheck}
+                                        styles={{ button: 'is-fullwidth' }}
+                                    />
                                 </Fade>
                             </Columns.Column>
                         </Columns>

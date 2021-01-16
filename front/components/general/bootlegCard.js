@@ -9,6 +9,8 @@ import Bootleg from 'request/objects/bootleg'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faClock, faEye } from '@fortawesome/free-regular-svg-icons'
 import { ESearch } from "static/searchFilters/search"
+import getConfig from 'next/config'
+import Image from 'next/image'
 
 /**
  * BootlegCard
@@ -16,6 +18,8 @@ import { ESearch } from "static/searchFilters/search"
  * @param {Bootleg} props.bootleg
  */
 export default function BootlegCard({ bootleg }) {
+    const { publicRuntimeConfig } = getConfig()
+
     return (
         <article className={classNames(styles.bootlegcard, "card")}>
             <div className="card-image">
@@ -24,13 +28,14 @@ export default function BootlegCard({ bootleg }) {
                 >
                     <a>
                         <figure className="image">
-                            <img //TODO remplace later with IMAGE component from Next
-                                src={bootleg.picture}
+                            <Image
+                                src={`${publicRuntimeConfig.backUrl}/images/${bootleg.picture}`}
                                 alt={bootleg.title ?? "bootleg"}
-                                onError={ev => {
-                                    const target = /** @type {HTMLImageElement} */(ev.target)
-                                    target.src = "/logo.png"
-                                }}
+                                layout="fill"
+                            // onError={ev => {
+                            //     const target = /** @type {HTMLImageElement} */(ev.target)
+                            //     target.src = "/logo.png"
+                            // }}
                             />
                         </figure>
                     </a>

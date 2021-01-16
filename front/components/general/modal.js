@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
+import ReactDOM from "react-dom"
 // @ts-ignore
 import styles from "styles/components/modal.module.scss"
 import classNames from 'classnames'
@@ -13,29 +14,37 @@ import { Status } from 'static/status'
  * @property {React.ReactNode=} children Content
  * @property {function():any=} props.onClickYes On click
  * @property {function():any=} props.onClickNo On click
+ * @property {boolean=} props.isFormDisable Force disable form
  */
 
 /**
  * Modal
  * @param {ModalType} props
  */
-function Modal({ isDisplay, title, children, onClickYes, onClickNo }) {
+function Modal({ isDisplay, title, children, onClickYes, onClickNo, isFormDisable = false }) {
     /** @type {[string, function(string):any]} Status */
     const [status, setStatus] = useState(Status.RESOLVED)
+
+    const onSubmit = useCallback(
+        async () => {
+            setStatus(Status.PENDING)
+            await onClickYes?.()
+            setStatus(Status.RESOLVED)
+        },
+        [onClickYes]
+    )
 
     if (!isDisplay)
         return <></>
 
-    return (
+    return ReactDOM.createPortal(
         <div className={classNames("modal is-active", styles.modal)}>
             <div className="modal-background"></div>
             <div className="modal-card">
                 <form
-                    onSubmit={async ev => {
+                    onSubmit={ev => {
                         ev.preventDefault()
-                        setStatus(Status.PENDING)
-                        await onClickYes?.()
-                        setStatus(Status.RESOLVED)
+                        onSubmit()
                     }}
                 >
                     <header className={classNames("modal-card-head", styles.header)}>
@@ -55,8 +64,9 @@ function Modal({ isDisplay, title, children, onClickYes, onClickNo }) {
                     </section>
                     <footer className={classNames("modal-card-foot flex-end", styles.footer)}>
                         <button
-                            type="submit"
+                            type={isFormDisable ? 'button' : 'submit'}
                             className={classNames("button is-pink", { 'is-loading': status === Status.PENDING })}
+                            onClick={() => isFormDisable ? onSubmit() : null}
                         >
                             <span className="icon is-small">
                                 <FontAwesomeIcon icon={faCheck} />
@@ -79,7 +89,8 @@ function Modal({ isDisplay, title, children, onClickYes, onClickNo }) {
                     </footer>
                 </form>
             </div>
-        </div>
+        </div>,
+        document.getElementById('modal-portal')
     )
 }
 export default Modal

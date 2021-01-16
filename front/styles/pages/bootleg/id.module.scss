@@ -17,12 +17,12 @@
     }
   }
   figure {
+    @include flex-col;
+    height: 250px;
+    background: $greyblue;
     overflow: hidden;
+    position: relative;
     img {
-      width: 100%;
-      @include until($desktop) {
-        max-height: 250px;
-      }
       max-height: 100%;
       object-fit: contain;
     }
@@ -32,12 +32,23 @@
     display: inline-block;
   }
   ul {
-    li {
-      strong {
-        min-width: 30px;
+    &.flat-list {
+      display: inline;
+      li {
         display: inline-block;
+        &:not(:first-child)::before {
+          content: ", ";
+        }
       }
-      padding: 0.4em !important;
+    }
+    &[class*="block-list"] {
+      li {
+        strong {
+          min-width: 30px;
+          display: inline-block;
+        }
+        padding: 0.4em !important;
+      }
     }
   }
 }
