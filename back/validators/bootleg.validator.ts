@@ -27,7 +27,7 @@ const bootlegValidationSchemaBase = {
     isProRecord: unknown.boolean('Expected value to be "True" or "False"'),
     soundQuality: number.between(1, 5),
     videoQuality: number.between(1, 5).optional(),
-    state: unknown.enum(EBootlegStates, arg => `State ${EBootlegStates[arg as number]} is invalid`),
+    state: unknown.enum(EBootlegStates, arg => `State ${EBootlegStates[arg as number] ?? arg} is invalid`),
 
     // createdById: Schema({ $oid: string }).optional(),
     // createdOn: dateValidation,
@@ -36,7 +36,7 @@ const bootlegValidationSchemaBase = {
 }
 const bootlegValidationSchema = Schema(bootlegValidationSchemaBase)
 
-export type BootlegValidationType = Type<typeof bootlegValidationSchema>
+type BootlegValidationType = Type<typeof bootlegValidationSchema>
 
 export const bootlegValidator = async (bootleg: BootlegValidationType, action?: EActions, user?: UserSchema): Promise<BootlegValidationType> => {
     bootleg.date = new Date(bootleg.date)
@@ -67,7 +67,7 @@ export const bootlegValidator = async (bootleg: BootlegValidationType, action?: 
         Schema({
             ...bootlegValidationSchemaBase,
             picture: action === EActions.CREATE ? null : unknown.string('A file is required').trim().normalize().optional(),
-            state: unknown.enum(myEnum, arg => `State ${EBootlegStates[arg as number]} is invalid`)
+            state: unknown.enum(myEnum, arg => `State ${EBootlegStates[arg as number] ?? arg} is invalid`)
         }),
         bootleg,
         'Bootleg not modified or created'

@@ -1,11 +1,11 @@
 import React, { useCallback, useState } from 'react'
 import ReactDOM from "react-dom"
 // @ts-ignore
-import styles from "styles/components/modal.module.scss"
+import styles from "styles/components/general/modal.module.scss"
 import classNames from 'classnames'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCheck, faTimes } from '@fortawesome/free-solid-svg-icons'
-import { Status } from 'static/status'
+import { Status } from 'types/status'
 
 /**
  * @typedef {object} ModalType

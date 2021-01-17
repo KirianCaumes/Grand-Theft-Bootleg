@@ -5,9 +5,10 @@ import { Section, Columns, Container } from 'react-bulma-components'
 // @ts-ignore
 import styles from "styles/pages/login.module.scss"
 import { Logo } from "components/svg/icon"
-import { Status } from "static/status"
+import { Status } from "types/status"
 import User, { ErrorUser } from "request/objects/user"
 import { faEnvelope, faKey, faSignInAlt } from "@fortawesome/free-solid-svg-icons"
+import { faGoogle, faTwitter, faFacebookF } from "@fortawesome/free-brands-svg-icons"
 import { CancelRequestError } from "request/errors/cancelRequestError"
 import { UnauthorizedError } from "request/errors/unauthorizedError"
 import { InvalidEntityError } from "request/errors/invalidEntityError"
@@ -21,6 +22,9 @@ import { useRouter } from "next/router"
 import getConfig from 'next/config'
 import { AuthentificationError } from "request/errors/authentificationError"
 import { NotFoundError } from "request/errors/notFoundError"
+import GoogleLogin, { GoogleLoginResponse } from 'react-google-login'
+import Divider from "components/general/divider"
+import { EAuthStrategies } from "types/authStrategies"
 
 /**
  * @typedef {object} LoginProps
@@ -30,7 +34,7 @@ import { NotFoundError } from "request/errors/notFoundError"
  * Login page
  * @param {LoginProps & ManagersProps} props
  */
-function Login({ userManager, ...props }) {
+function Login({ userManager }) {
     /** @type {[string, function(string):any]} Status */
     const [status, setStatus] = React.useState(Status.IDLE)
     /** @type {[User, function(User):any]} User */
@@ -42,12 +46,19 @@ function Login({ userManager, ...props }) {
     const router = useRouter()
     const { publicRuntimeConfig } = getConfig()
 
-    const _upsert = useCallback(
-        async () => {
+    const login = useCallback(
+        /**
+         * @param {object} data
+         * @param {EAuthStrategies=} data.strategy
+         * @param {GoogleLoginResponse=} data.strategyData
+         */
+        async ({ strategy, strategyData } = {}) => {
             setStatus(Status.PENDING)
             try {
-                const token = (await userManager.login(user))?.token
-                dispatch(setToken({ token }))
+                const newUser = new User({ ...user, strategy: strategy ? strategy : user.strategy, strategyData })
+                setUser(newUser)
+                const userUptd = await userManager.login(newUser)
+                dispatch(setToken({ token: userUptd?.token }))
                 router.push('/')
             } catch (error) {
                 switch (error?.constructor) {
@@ -56,13 +67,7 @@ function Login({ userManager, ...props }) {
                     case AuthentificationError:
                         router.push('/login')
                         dispatch(removeToken(undefined))
-                        dispatch(setMessage({
-                            message: {
-                                isDisplay: true,
-                                content: /** @type {Error} */(error).message,
-                                type: 'warning'
-                            }
-                        }))
+                        dispatch(setMessage({ message: { isDisplay: true, content: error.message, type: 'warning' } }))
                         break
                     case InvalidEntityError:
                         setStatus(Status.REJECTED)
@@ -70,6 +75,7 @@ function Login({ userManager, ...props }) {
                     case NotFoundError:
                     case NotImplementedError:
                     default:
+                        dispatch(setMessage({ message: { isDisplay: true, content: error.message ?? 'An error occured during the login', type: 'danger' } }))
                         console.log(error)
                         break
                 }
@@ -100,7 +106,9 @@ function Login({ userManager, ...props }) {
                                 </p>
                                 <Logo width={85} fill="black" />
                             </Columns.Column>
-                            <div className="is-divider-vertical" />
+                            <Divider
+                                isVertical={true}
+                            />
                             <Columns.Column>
                                 <h1 className="title is-4 is-title-underline">
                                     Log In to Grand Theft Bootleg
@@ -108,7 +116,7 @@ function Login({ userManager, ...props }) {
                                 <form
                                     onSubmit={ev => {
                                         ev.preventDefault()
-                                        _upsert()
+                                        login()
                                     }}
                                 >
                                     <Input
@@ -131,14 +139,58 @@ function Login({ userManager, ...props }) {
                                         errorMessage={errorField.password}
                                         onChange={ev => setUser(new User({ ...user, password: ev.target.value }))}
                                     />
+                                    <br />
 
                                     <Button
                                         label="Login"
                                         type="submit"
-                                        isLoading={status === Status.PENDING}
+                                        isLoading={user.strategy === EAuthStrategies.CLASSIC && status === Status.PENDING}
+                                        isDisabled={user.strategy !== EAuthStrategies.CLASSIC && status === Status.PENDING}
                                         iconRight={faSignInAlt}
+                                        styles={{ button: 'is-fullwidth' }}
                                     />
                                 </form>
+                                <Divider
+                                    content="OR"
+                                />
+                                <div className="buttons is-centered">
+                                    <GoogleLogin
+                                        clientId={publicRuntimeConfig.googleKey}
+                                        render={renderProps => (
+                                            <Button
+                                                label="Google"
+                                                color="google"
+                                                iconLeft={faGoogle}
+                                                onClick={renderProps.onClick}
+                                                isDisabled={renderProps.disabled || (user.strategy !== EAuthStrategies.GOOGLE && status === Status.PENDING)}
+                                                isLoading={user.strategy === EAuthStrategies.GOOGLE && status === Status.PENDING}
+                                                styles={{ button: 'flex-one' }}
+                                            />
+                                        )}
+                                        onSuccess={res => login({ strategy: EAuthStrategies.GOOGLE, strategyData: /** @type {GoogleLoginResponse} */(res) })}
+                                        onFailure={err => console.error(err)}
+                                    />
+                                    <Button
+                                        label="Twitter"
+                                        color="twitter"
+                                        iconLeft={faTwitter}
+                                        onClick={() => login({ strategy: EAuthStrategies.TWITTER, strategyData: null })}
+                                        isLoading={user.strategy === EAuthStrategies.TWITTER && status === Status.PENDING}
+                                        isDisabled={true}
+                                        // isDisabled={user.strategy !== EAuthStrategies.TWITTER && status === Status.PENDING}
+                                        styles={{ button: 'flex-one' }}
+                                    />
+                                    <Button
+                                        label="Facebook"
+                                        color="facebook"
+                                        iconLeft={faFacebookF}
+                                        onClick={() => login({ strategy: EAuthStrategies.FACEBOOK, strategyData: null })}
+                                        isLoading={user.strategy === EAuthStrategies.FACEBOOK && status === Status.PENDING}
+                                        isDisabled={true}
+                                        // isDisabled={user.strategy !== EAuthStrategies.FACEBOOK && status === Status.PENDING}
+                                        styles={{ button: 'flex-one' }}
+                                    />
+                                </div>
                             </Columns.Column>
                         </Columns>
                     </Container>

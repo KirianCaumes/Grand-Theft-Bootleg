@@ -6,7 +6,7 @@ import { faUpload } from "@fortawesome/free-solid-svg-icons"
 import Label from "./addons/label"
 import Help from "./addons/help"
 import Button from "./button"
-import { Status } from "static/status"
+import { Status } from "types/status"
 import { faTrashAlt } from "@fortawesome/free-regular-svg-icons"
 import Modal, { ModalType } from "components/general/modal"
 

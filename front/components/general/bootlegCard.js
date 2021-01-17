@@ -1,14 +1,14 @@
-import React, { useCallback, useMemo } from 'react'
+import React from 'react'
 // @ts-ignore
 import { Card, Heading } from 'react-bulma-components'
 // @ts-ignore
-import styles from "styles/components/bootlegcard.module.scss"
+import styles from "styles/components/general/bootlegcard.module.scss"
 import classNames from 'classnames'
 import Link from 'next/link'
 import Bootleg from 'request/objects/bootleg'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faClock, faEye } from '@fortawesome/free-regular-svg-icons'
-import { ESearch } from "static/searchFilters/search"
+import { ESearch } from "types/searchFilters/search"
 import getConfig from 'next/config'
 import Image from 'next/image'
 

@@ -1,0 +1,13 @@
+@import "../../helpers";
+@import "../../variables";
+
+.is-divider-vertical {
+  align-self: normal;
+}
+.is-divider,
+.is-divider-vertical {
+  &:after {
+    background: $grey !important;
+    color: #363636 !important;
+  }
+}

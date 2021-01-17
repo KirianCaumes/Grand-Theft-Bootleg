@@ -3,11 +3,11 @@ import { UsersCollectionType } from "../models/user.model.ts"
 import { Response } from "https://deno.land/x/oak@v6.3.2/response.ts"
 import { Request } from "https://deno.land/x/oak@v6.3.2/request.ts"
 import * as bcrypt from "https://deno.land/x/bcrypt/mod.ts"
-import NotFoundException from "../types/exceptions/NotFoundException.ts"
-import Exception from "../types/exceptions/Exception.ts"
 import { UserValidatorType } from "../validators/user.validator.ts"
 import { EUserRoles } from "../types/enumerations/EUserRoles.ts"
 import ValidationException from "../types/exceptions/ValidationException.ts"
+import getGoogleUser from "../helpers/stragies/getGoogleUser.ts"
+import { EAuthStrategies } from "../types/enumerations/EAuthStrategies.ts"
 
 /**
  * User Controller
@@ -32,9 +32,11 @@ export default class UserController extends BaseController {
         //Validate data
         const userBody = await this.validate(await request.body().value)
 
+        delete userBody.strategyData
+
         const id = (await this.collection.insertOne({
             ...userBody,
-            password: await bcrypt.hash(userBody.password),
+            password: !!userBody.password ? await bcrypt.hash(userBody.password) : undefined,
             role: EUserRoles.USER
         })).$oid
 
@@ -44,7 +46,7 @@ export default class UserController extends BaseController {
                 token: await this.collection.getToken({
                     _id: { $oid: id },
                     role: EUserRoles.USER,
-                    ...userBody
+                    ...userBody,
                 })
             }
         })
@@ -57,20 +59,47 @@ export default class UserController extends BaseController {
         //User body
         const userBody = await request.body().value
 
-        //Check if user exist
-        const user = await this.collection.findOne({ mail: userBody.mail })
+        //Get mail with the correct strategy
+        const mail = await (async (): Promise<string> => {
+            switch (userBody.strategy) {
+                case EAuthStrategies.CLASSIC:
+                    return userBody.mail
+                case EAuthStrategies.GOOGLE:
+                    return (await getGoogleUser(userBody))?.email
+                case EAuthStrategies.TWITTER:
+                case EAuthStrategies.FACEBOOK:
+                default:
+                    throw new ValidationException(
+                        'Invalid authentification strategy',
+                        { strategy: 'Invalid authentification strategy' }
+                    )
+            }
+        })()
 
+        //Check if user exist
+        const user = await this.collection.findOne({ mail })
+
+        //If no user found
         if (!user)
             throw new ValidationException(
                 'User not found',
                 { 'mail': 'Email not found' }
             )
 
-        if (!await bcrypt.compare(userBody.password, user.password))
-            throw new ValidationException(
-                'Invalid password',
-                { 'password': 'Invalid password' }
-            )
+        //Validate password with the correct strategy
+        switch (userBody.strategy) {
+            case EAuthStrategies.CLASSIC:
+                if (!await bcrypt.compare(userBody.password, user.password!))
+                    throw new ValidationException(
+                        'Invalid password',
+                        { 'password': 'Invalid password' }
+                    )
+            case EAuthStrategies.GOOGLE:
+            case EAuthStrategies.TWITTER:
+            case EAuthStrategies.FACEBOOK:
+            default:
+                break
+        }
 
         response.body = this._render({
             message: 'User login succeed',

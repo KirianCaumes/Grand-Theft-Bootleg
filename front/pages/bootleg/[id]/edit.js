@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo } from "react"
 import Head from "next/head"
 import { GetServerSidePropsContext } from 'next'
 // @ts-ignore
-import styles from "styles/pages/bootleg/edit.module.scss"
+import styles from "styles/pages/bootleg/[id]/edit.module.scss"
 import BootlegManager from "request/managers/bootlegManager"
 // @ts-ignore
 import { Section, Columns, Container } from 'react-bulma-components'
@@ -23,16 +23,16 @@ import { NotImplementedError } from "request/errors/notImplementedError"
 import { NotFoundError } from "request/errors/notFoundError"
 import { useRouter } from "next/router"
 import { useDispatch } from "react-redux"
-import { Status } from "static/status"
+import { Status } from "types/status"
 import Input from "components/form/input"
 import { faCalendarAlt, faEye, faImage, faStar } from "@fortawesome/free-regular-svg-icons"
 import { faAlignLeft, faCheck, faCity, faGlobeEurope, faHeading, faLink, faMusic, faPencilRuler, faPlus, faToggleOff, faTrash, faUsers } from "@fortawesome/free-solid-svg-icons"
 import Button from "components/form/button"
 import Label from "components/form/addons/label"
 import Select from "components/form/select"
-import { ECountries } from "static/searchFilters/countries"
+import { ECountries } from "types/searchFilters/countries"
 import Toggle from "components/form/toggle"
-import { EStates } from "static/searchFilters/states"
+import { EStates } from "types/searchFilters/states"
 import Rating from "components/form/rating"
 import Song from 'request/objects/song'
 import Band from 'request/objects/band'
@@ -54,7 +54,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
  * Bootleg page
  * @param {BootlegProps & ManagersProps} props 
  */
-function Edit({ bootlegProps, bootlegManager, songManager, bandManager }) {
+function EditIdBootleg({ bootlegProps, bootlegManager, songManager, bandManager }) {
     /** @type {[Bootleg, function(Bootleg):any]} Bootlegs */
     const [bootleg, setBootleg] = React.useState(bootlegProps)
     /** @type {[string, function(string):any]} Status */
@@ -340,7 +340,7 @@ function Edit({ bootlegProps, bootlegManager, songManager, bandManager }) {
                 <title>{bootleg.title || 'New'} - {publicRuntimeConfig.appName}</title>
             </Head>
 
-            <main className={styles.edit}>
+            <main className={styles['edit-id-bootleg']}>
                 <Section className="flex">
                     <Container className="flex-one">
                         <form
@@ -824,4 +824,4 @@ export const getServerSideProps = wrapper.getServerSideProps(
     }
 )
 
-export default withManagers(Edit)
+export default withManagers(EditIdBootleg)

@@ -1,3 +1,4 @@
+import { EAuthStrategies } from "types/authStrategies"
 import Base from "./_base"
 
 /**
@@ -11,7 +12,11 @@ export default class User extends Base {
      * @param {string=} data.password
      * @param {string=} data.mail
      * @param {number=} data.role
+     * 
      * @param {string=} data.token 
+     * 
+     * @param {number=} data.strategy 
+     * @param {any=} data.strategyData 
      */
     constructor({
         _id = null,
@@ -19,7 +24,11 @@ export default class User extends Base {
         password = null,
         mail = null,
         role = null,
+
         token = null,
+
+        strategy = EAuthStrategies.CLASSIC,
+        strategyData = null,
     } = {}) {
         super()
         this._id = _id?.$oid || _id
@@ -27,7 +36,11 @@ export default class User extends Base {
         this.password = password
         this.mail = mail
         this.role = role
+
         this.token = token
+
+        this.strategy = strategy
+        this.strategyData = strategyData
     }
 }
 

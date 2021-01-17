@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useState } from "react"
 import Head from "next/head"
 import { GetServerSidePropsContext } from 'next'
 // @ts-ignore
-import styles from "styles/pages/bootleg/id.module.scss"
+import styles from "styles/pages/bootleg/[id]/index.module.scss"
 import BootlegManager from "request/managers/bootlegManager"
 // @ts-ignore
 import { Section, Columns, Container } from 'react-bulma-components'
@@ -30,7 +30,7 @@ import Report, { ErrorReport } from "request/objects/report"
 import { NotificationState, removeFromBootlegs, addToBootlegs } from 'redux/slices/notification'
 import { AuthentificationError } from "request/errors/authentificationError"
 import { NotFoundError } from "request/errors/notFoundError"
-import { ESearch } from "static/searchFilters/search"
+import { ESearch } from "types/searchFilters/search"
 import Rating from "components/form/rating"
 import Image from 'next/image'
 
@@ -43,7 +43,7 @@ import Image from 'next/image'
  * Bootleg page
  * @param {BootlegProps & ManagersProps & ReduxProps} props 
  */
-function BootlegDetail({ bootlegProps, bootlegManager, main: { token, me }, ...props }) {
+function IndexIdBootleg({ bootlegProps, bootlegManager, main: { token, me }, ...props }) {
     /** @type {[Bootleg, function(Bootleg):any]} Bootleg */
     const [bootleg, setBootleg] = useState(new Bootleg(bootlegProps))
     /** @type {[ModalType, function(ModalType):any]} Modal */
@@ -255,7 +255,7 @@ function BootlegDetail({ bootlegProps, bootlegManager, main: { token, me }, ...p
                 <title>{bootleg.title} - {publicRuntimeConfig.appName}</title>
             </Head>
 
-            <main className={styles.id}>
+            <main className={styles['index-id-bootleg']}>
                 <Section>
                     <Container>
                         <Columns className="is-variable is-8">
@@ -686,4 +686,4 @@ export const getServerSideProps = wrapper.getServerSideProps(
     }
 )
 
-export default connect((state) => state)(withManagers(BootlegDetail))
+export default connect((state) => state)(withManagers(IndexIdBootleg))

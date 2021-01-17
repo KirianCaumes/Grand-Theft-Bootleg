@@ -82,10 +82,6 @@
   text-transform: capitalize;
 }
 
-.is-divider-vertical {
-  align-self: normal;
-}
-
 .is-required:after {
   content: " *";
   color: $red;

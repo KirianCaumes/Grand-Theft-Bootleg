@@ -15,7 +15,7 @@ import Bootleg from 'request/objects/bootleg'
 import Link from "next/link"
 import config from 'react-reveal/globals'
 import Fade from 'react-reveal/Fade'
-import { ESort } from "static/searchFilters/sort"
+import { ESort } from "types/searchFilters/sort"
 import { wrapper } from "redux/store"
 import { connect } from "react-redux"
 import getConfig from 'next/config'

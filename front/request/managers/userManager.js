@@ -12,7 +12,7 @@ export default class UserManager extends ApiManager {
 
     /**
      * Authentificate User
-     * @param {object} data
+     * @param {User} data
      * @returns {Promise<User>}
      */
     login(data) {

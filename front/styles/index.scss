@@ -44,6 +44,18 @@ $colors: map-merge(
             $dark-greyblue,
             findColorInvert($dark-greyblue),
         ),
+        "google": (
+            $google,
+            findColorInvert($google),
+        ),
+        "twitter": (
+            $twitter,
+            findColorInvert($twitter),
+        ),
+        "facebook": (
+            $facebook,
+            findColorInvert($facebook),
+        ),
     )
 );
 

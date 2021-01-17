@@ -13,8 +13,8 @@ import { faBell, faClock } from '@fortawesome/free-regular-svg-icons'
 import { faPlus, faSearch, faBell as faBellSolid, faUser, faSignOutAlt, faTachometerAlt } from '@fortawesome/free-solid-svg-icons'
 import classNames from 'classnames'
 import { useRouter } from 'next/router'
-import { ESort } from 'static/searchFilters/sort'
-import { EStates } from 'static/searchFilters/states'
+import { ESort } from 'types/searchFilters/sort'
+import { EStates } from 'types/searchFilters/states'
 import Bootleg from 'request/objects/bootleg'
 import withManagers, { ManagersProps } from "helpers/hoc/withManagers"
 
@@ -208,13 +208,13 @@ function Layout({ children, main: { token, me }, notification: { bootlegs }, boo
                 <div className="content has-text-centered has-text-white">
                     <p>
                         <strong className="has-text-white">
-                            <Link href="/">
+                            <Link href="/general-conditions">
                                 <a>
                                     Grand Theft Bootleg
-                            </a>
+                                </a>
                             </Link>
-                        </strong> - Copyright 2020
-            </p>
+                        </strong> - Copyright {new Date().getFullYear()}
+                    </p>
                 </div>
             </footer>
         </>

@@ -1,7 +1,7 @@
-import { ECountries } from 'static/searchFilters/countries'
-import { ESort } from 'static/searchFilters/sort'
-import { ESearch } from 'static/searchFilters/search'
-import { EStates } from 'static/searchFilters/states'
+import { ECountries } from 'types/searchFilters/countries'
+import { ESort } from 'types/searchFilters/sort'
+import { ESearch } from 'types/searchFilters/search'
+import { EStates } from 'types/searchFilters/states'
 
 export default class SearchFilters {
     /**

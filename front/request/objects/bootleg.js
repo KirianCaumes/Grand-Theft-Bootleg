@@ -1,4 +1,4 @@
-import { EStates } from "static/searchFilters/states"
+import { EStates } from "types/searchFilters/states"
 import Report, { ErrorReport } from "./report"
 import Base from "./_base"
 

@@ -8,6 +8,12 @@ interface IEnv {
     MONGO_CONNEXION?: string
     MONGO_DB?: string
     JWT_KEY?: string
+    GOOGLE_PUBLIC_KEY?: string
+    GOOGLE_PRIVATE_KEY?: string
+    TWITTER_PUBLIC_KEY?: string
+    TWITTER_PRIVATE_KEY?: string
+    FACEBOOK_PUBLIC_KEY?: string
+    FACEBOOK_PRIVATE_KEY?: string
 }
 
 export const env: IEnv = (() => {

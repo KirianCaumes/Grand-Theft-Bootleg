@@ -9,6 +9,7 @@ import { useRouter } from "next/router"
 import getConfig from 'next/config'
 import { Logo } from "components/svg/icon"
 import Button from "components/form/button"
+import Divider from "components/general/divider"
 
 
 export default function My404() {
@@ -37,7 +38,9 @@ export default function My404() {
                                 </p>
                                 <Logo width={85} fill="black" />
                             </Columns.Column>
-                            <div className="is-divider-vertical" />
+                            <Divider
+                                isVertical={true}
+                            />
                             <Columns.Column>
                                 <h1 className="title is-4 is-title-underline">
                                     <b>404</b> - Not found on <b>G</b>rand <b>T</b>heft <b>B</b>ootleg database

@@ -5,9 +5,10 @@ import { Section, Columns, Container } from 'react-bulma-components'
 // @ts-ignore
 import styles from "styles/pages/register.module.scss"
 import { Logo } from "components/svg/icon"
-import { Status } from "static/status"
+import { Status } from "types/status"
 import User, { ErrorUser } from "request/objects/user"
 import { faEnvelope, faEye, faKey, faSignInAlt, faUser } from "@fortawesome/free-solid-svg-icons"
+import { faGoogle, faTwitter, faFacebookF } from "@fortawesome/free-brands-svg-icons"
 import { CancelRequestError } from "request/errors/cancelRequestError"
 import { UnauthorizedError } from "request/errors/unauthorizedError"
 import { InvalidEntityError } from "request/errors/invalidEntityError"
@@ -21,6 +22,9 @@ import { useDispatch } from "react-redux"
 import { removeToken, setMessage, setToken } from "redux/slices/main"
 import { AuthentificationError } from "request/errors/authentificationError"
 import { NotFoundError } from "request/errors/notFoundError"
+import GoogleLogin, { GoogleLoginResponse } from 'react-google-login'
+import Divider from "components/general/divider"
+import { EAuthStrategies } from "types/authStrategies"
 
 /**
  * @typedef {object} RegisterProps
@@ -30,7 +34,7 @@ import { NotFoundError } from "request/errors/notFoundError"
  * Register page
  * @param {RegisterProps & ManagersProps} props
  */
-function Register({ userManager, ...props }) {
+function Register({ userManager }) {
     /** @type {[string, function(string):any]} Status */
     const [status, setStatus] = React.useState(Status.IDLE)
     /** @type {[User, function(User):any]} User */
@@ -44,12 +48,19 @@ function Register({ userManager, ...props }) {
     const dispatch = useDispatch()
     const { publicRuntimeConfig } = getConfig()
 
-    const _upsert = useCallback(
-        async () => {
+    const upsert = useCallback(
+        /**
+         * @param {object} data
+         * @param {EAuthStrategies=} data.strategy
+         * @param {GoogleLoginResponse=} data.strategyData
+         */
+        async ({ strategy, strategyData } = {}) => {
             setStatus(Status.PENDING)
             try {
-                const token = (await userManager.create(user))?.token
-                dispatch(setToken({ token }))
+                const newUser = new User({ ...user, strategy: strategy ? strategy : user.strategy, strategyData })
+                setUser(newUser)
+                const userUptd = await userManager.create(newUser)
+                dispatch(setToken({ token: userUptd?.token }))
                 router.push('/')
             } catch (error) {
                 switch (error?.constructor) {
@@ -58,13 +69,7 @@ function Register({ userManager, ...props }) {
                     case AuthentificationError:
                         router.push('/login')
                         dispatch(removeToken(undefined))
-                        dispatch(setMessage({
-                            message: {
-                                isDisplay: true,
-                                content: /** @type {Error} */(error).message,
-                                type: 'warning'
-                            }
-                        }))
+                        dispatch(setMessage({ message: { isDisplay: true, content: error.message, type: 'warning' } }))
                         break
                     case InvalidEntityError:
                         setStatus(Status.REJECTED)
@@ -72,6 +77,7 @@ function Register({ userManager, ...props }) {
                     case NotFoundError:
                     case NotImplementedError:
                     default:
+                        dispatch(setMessage({ message: { isDisplay: true, content: error.message ?? 'An error occured during the login', type: 'danger' } }))
                         console.log(error)
                         break
                 }
@@ -102,7 +108,9 @@ function Register({ userManager, ...props }) {
                                 </p>
                                 <Logo width={85} fill="black" />
                             </Columns.Column>
-                            <div className="is-divider-vertical" />
+                            <Divider
+                                isVertical={true}
+                            />
                             <Columns.Column>
                                 <h1 className="title is-4 is-title-underline">
                                     Sign up to Grand Theft Bootleg
@@ -110,7 +118,7 @@ function Register({ userManager, ...props }) {
                                 <form
                                     onSubmit={ev => {
                                         ev.preventDefault()
-                                        _upsert()
+                                        upsert()
                                     }}
                                 >
                                     <Input
@@ -147,14 +155,56 @@ function Register({ userManager, ...props }) {
                                             iconLeft: faEye
                                         }}
                                     />
-
+                                    <br />
                                     <Button
                                         label="Register"
                                         type="submit"
                                         isLoading={status === Status.PENDING}
                                         iconRight={faSignInAlt}
+                                        styles={{ button: 'is-fullwidth' }}
                                     />
                                 </form>
+                                <Divider
+                                    content="OR"
+                                />
+                                <div className="buttons is-centered">
+                                    <GoogleLogin
+                                        clientId={publicRuntimeConfig.googleKey}
+                                        render={renderProps => (
+                                            <Button
+                                                label="Google"
+                                                color="google"
+                                                iconLeft={faGoogle}
+                                                onClick={renderProps.onClick}
+                                                isDisabled={renderProps.disabled || (user.strategy !== EAuthStrategies.GOOGLE && status === Status.PENDING)}
+                                                isLoading={user.strategy === EAuthStrategies.GOOGLE && status === Status.PENDING}
+                                                styles={{ button: 'flex-one' }}
+                                            />
+                                        )}
+                                        onSuccess={res => upsert({ strategy: EAuthStrategies.GOOGLE, strategyData: /** @type {GoogleLoginResponse} */(res) })}
+                                        onFailure={err => console.error(err)}
+                                    />
+                                    <Button
+                                        label="Twitter"
+                                        color="twitter"
+                                        iconLeft={faTwitter}
+                                        onClick={() => upsert({ strategy: EAuthStrategies.TWITTER, strategyData: null })}
+                                        isLoading={user.strategy === EAuthStrategies.TWITTER && status === Status.PENDING}
+                                        isDisabled={true}
+                                        // isDisabled={user.strategy !== EAuthStrategies.TWITTER && status === Status.PENDING}
+                                        styles={{ button: 'flex-one' }}
+                                    />
+                                    <Button
+                                        label="Facebook"
+                                        color="facebook"
+                                        iconLeft={faFacebookF}
+                                        onClick={() => upsert({ strategy: EAuthStrategies.FACEBOOK, strategyData: null })}
+                                        isLoading={user.strategy === EAuthStrategies.FACEBOOK && status === Status.PENDING}
+                                        isDisabled={true}
+                                        // isDisabled={user.strategy !== EAuthStrategies.FACEBOOK && status === Status.PENDING}
+                                        styles={{ button: 'flex-one' }}
+                                    />
+                                </div>
                             </Columns.Column>
                         </Columns>
                     </Container>

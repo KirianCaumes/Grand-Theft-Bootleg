@@ -7,8 +7,9 @@ export interface UserSchema {
     _id: { $oid: string }
     username: string
     mail: string
-    password: string
+    password: string | undefined
     role: number
+    strategy: number
 }
 
 export class UsersCollection extends Collection<UserSchema> {

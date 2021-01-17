@@ -8,10 +8,10 @@ import { Section, Columns, Container, Tabs } from 'react-bulma-components'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faCompactDisc, faFilter, faGlobe, faGlobeEurope, faHeadphonesAlt, faMapMarker, faMusic, faSearch, faSort, faUsers, faVolumeUp } from "@fortawesome/free-solid-svg-icons"
 import classNames from 'classnames'
-import SearchFilters from "static/searchFilters/serarchFilters"
-import { ECountries } from 'static/searchFilters/countries'
-import { ESort, ESortLabel } from 'static/searchFilters/sort'
-import { EStates } from 'static/searchFilters/states'
+import SearchFilters from "types/searchFilters/serarchFilters"
+import { ECountries } from 'types/searchFilters/countries'
+import { ESort, ESortLabel } from 'types/searchFilters/sort'
+import { EStates } from 'types/searchFilters/states'
 import { useRouter } from "next/router"
 import withManagers, { ManagersProps } from 'helpers/hoc/withManagers'
 import { CancelRequestError } from "request/errors/cancelRequestError"
@@ -21,7 +21,7 @@ import { NotImplementedError } from "request/errors/notImplementedError"
 import Bootleg from "request/objects/bootleg"
 import BootlegMeta from "request/objects/meta/bootlegMeta"
 import BootlegCard from "components/general/bootlegCard"
-import { Status } from "static/status"
+import { Status } from "types/status"
 import BootlegManager from "request/managers/bootlegManager"
 import Loader from "components/general/loader"
 import { faCalendarAlt } from "@fortawesome/free-regular-svg-icons"
@@ -38,7 +38,7 @@ import { NotificationState } from 'redux/slices/notification'
 import Pagination from "components/general/pagination"
 import { AuthentificationError } from "request/errors/authentificationError"
 import { NotFoundError } from "request/errors/notFoundError"
-import { ESearch } from "static/searchFilters/search"
+import { ESearch } from "types/searchFilters/search"
 import Button from "components/form/button"
 
 /**
@@ -51,7 +51,7 @@ import Button from "components/form/button"
  * Search page
  * @param {SearchProps & ManagersProps & ReduxProps} props 
  */
-function Search({ bootlegManager, bootlegsProps, metaProps, main: { me }, ...props }) {
+function SearchBootleg({ bootlegManager, bootlegsProps, metaProps, main: { me }, ...props }) {
     /** @type {[SearchFilters, function(SearchFilters):any]} Status */
     const [searchFilters, setSearchFilters] = React.useState(new SearchFilters())
     /** @type {[Bootleg[], function(Bootleg[]):any]} Bootlegs */
@@ -159,7 +159,7 @@ function Search({ bootlegManager, bootlegsProps, metaProps, main: { me }, ...pro
                 <title>Search - {publicRuntimeConfig.appName}</title>
             </Head>
 
-            <main className={styles.search}>
+            <main className={styles['search-bootleg']}>
                 <Section className="flex">
                     <Container className="flex-one">
                         <form
@@ -477,4 +477,4 @@ export const getServerSideProps = wrapper.getServerSideProps(
     }
 )
 
-export default connect((state) => state)(withManagers(Search))
+export default connect((state) => state)(withManagers(SearchBootleg))
