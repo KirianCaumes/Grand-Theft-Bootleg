@@ -6,7 +6,7 @@ import * as bcrypt from "https://deno.land/x/bcrypt/mod.ts"
 import { UserValidatorType } from "../validators/user.validator.ts"
 import { EUserRoles } from "../types/enumerations/EUserRoles.ts"
 import ValidationException from "../types/exceptions/ValidationException.ts"
-import getGoogleUser from "../helpers/stragies/getGoogleUser.ts"
+import getGoogleUser from "../helpers/strategies/getGoogleUser.ts"
 import { EAuthStrategies } from "../types/enumerations/EAuthStrategies.ts"
 
 /**

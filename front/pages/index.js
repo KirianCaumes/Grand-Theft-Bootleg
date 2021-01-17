@@ -239,7 +239,7 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, ...props }) {
                                         </p>
                                         <Button
                                             label="Contact us"
-                                            href="/bootleg/search" //TODO
+                                            href="/general-conditions"
                                             styles={{ button: 'is-outlined is-fullwidth' }}
                                         />
                                     </div>

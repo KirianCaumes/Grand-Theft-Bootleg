@@ -263,17 +263,10 @@ function IndexIdBootleg({ bootlegProps, bootlegManager, main: { token, me }, ...
                                 <Columns className="is-variable is-3">
                                     <Columns.Column size="one-third">
                                         <figure className="image">
-                                            <Image //TODO remplace later with IMAGE component from Next
-                                                src={`${publicRuntimeConfig.backUrl}/images/${bootleg.picture}`}
+                                            <Image
+                                                src={bootleg.picture ? `${publicRuntimeConfig.backUrl}/images/${bootleg.picture}` : '/logo.png'}
                                                 alt={bootleg.title ?? "bootleg"}
                                                 layout="fill"
-                                            // onError={ev => {
-                                            //     const target = /** @type {HTMLImageElement} */(ev.target)
-                                            //     target.src = "/logo.png"
-                                            // }}
-                                            // layout="responsive"
-                                            // width={250}
-                                            // height={250}
                                             />
                                         </figure>
                                     </Columns.Column>

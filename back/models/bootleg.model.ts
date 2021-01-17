@@ -50,7 +50,7 @@ export interface BootlegSchema {
 
 export class BootlegsCollection extends Collection<BootlegSchema> {
     /** Limit to searchin db */
-    limit: number = 50
+    limit: number = 48
 
     constructor() {
         super(client, env?.MONGO_DB!, "bootlegs")

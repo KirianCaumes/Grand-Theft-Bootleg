@@ -5,6 +5,7 @@ import { IconProp } from '@fortawesome/fontawesome-svg-core'
 // @ts-ignore
 import buttonStyles from 'styles/components/form/button.module.scss'
 import Link from "next/link"
+import { UrlObject } from 'url'
 
 /**
  * Button styles
@@ -24,7 +25,7 @@ import Link from "next/link"
  * @property {IconProp=} iconRight
  * @property {Styles=} styles
  * @property {string=} color
- * @property {string=} href
+ * @property {string | UrlObject=} href
  */
 
 /**
@@ -43,7 +44,7 @@ export default function Button({
     color = 'pink',
     href = null
 }) {
-    const Btn = href ? 'a' : 'button'
+    const Btn = href && !isDisabled ? 'a' : 'button'
 
     const element = <Btn
         type={type}

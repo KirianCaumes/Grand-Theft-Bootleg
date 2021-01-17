@@ -29,13 +29,10 @@ export default function BootlegCard({ bootleg }) {
                     <a>
                         <figure className="image">
                             <Image
-                                src={`${publicRuntimeConfig.backUrl}/images/${bootleg.picture}`}
+                                src={bootleg.picture ? `${publicRuntimeConfig.backUrl}/images/${bootleg.picture}` : '/logo.png'}
                                 alt={bootleg.title ?? "bootleg"}
                                 layout="fill"
-                            // onError={ev => {
-                            //     const target = /** @type {HTMLImageElement} */(ev.target)
-                            //     target.src = "/logo.png"
-                            // }}
+                                title={bootleg.title}
                             />
                         </figure>
                     </a>
@@ -63,7 +60,11 @@ export default function BootlegCard({ bootleg }) {
                             <Link
                                 href={`/bootleg/${encodeURIComponent(bootleg.title)}-${encodeURIComponent(bootleg._id)}`}
                             >
-                                {bootleg.title}
+                                <a
+                                    title={bootleg.title}
+                                >
+                                    {bootleg.title}
+                                </a>
                             </Link>
                         </Heading>
                         <Heading
@@ -77,7 +78,11 @@ export default function BootlegCard({ bootleg }) {
                                     <Link
                                         href={`/bootleg/search?string=${encodeURIComponent(band?.toLowerCase())}&searchBy=${ESearch.BAND}`}
                                     >
-                                        {band}
+                                        <a
+                                            title={band}
+                                        >
+                                            {band}
+                                        </a>
                                     </Link>
                                     {i < bootleg.bands.length - 1 && ', '}
                                 </React.Fragment>

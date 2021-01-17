@@ -40,6 +40,8 @@ import { AuthentificationError } from "request/errors/authentificationError"
 import { NotFoundError } from "request/errors/notFoundError"
 import { ESearch } from "types/searchFilters/search"
 import Button from "components/form/button"
+import usePrevious from "helpers/hooks/usePrevious"
+import Link from "next/link"
 
 /**
  * @typedef {object} SearchProps
@@ -63,6 +65,9 @@ function SearchBootleg({ bootlegManager, bootlegsProps, metaProps, main: { me },
     /** @type {[boolean, function(boolean):any]} Is filter display */
     const [isFilterDisplay, setIsFilterDisplay] = React.useState(!!false)
 
+    /** @type {SearchFilters} Previous state searchFilters */
+    const prevSearchFilters = usePrevious(searchFilters)
+
     const router = useRouter()
     const dispatch = useDispatch()
     const { publicRuntimeConfig } = getConfig()
@@ -78,7 +83,9 @@ function SearchBootleg({ bootlegManager, bootlegsProps, metaProps, main: { me },
             setSearchFilters({
                 ...searchFilters,
                 ...router.query,
-                orderBy: /** @type {string=} */ (router.query?.orderBy) || ESort.DATE_ASC
+                orderBy: /** @type {string=} */ (router.query?.orderBy) || ESort.DATE_ASC,
+                page: parseInt(/** @type {string=} */(router.query?.page)) || 1,
+                searchBy: /** @type {string=} */ (router.query?.searchBy) || ESearch.GLOBAL,
             })
         },
         [router]
@@ -89,6 +96,7 @@ function SearchBootleg({ bootlegManager, bootlegsProps, metaProps, main: { me },
             history.replaceState(null, null, "?")
 
             const queryParams = new URLSearchParams(window.location.search)
+            console.log(searchFilters)
             for (const key in searchFilters) {
                 if (searchFilters[key] !== null)
                     queryParams.set(key, searchFilters[key])
@@ -114,13 +122,7 @@ function SearchBootleg({ bootlegManager, bootlegsProps, metaProps, main: { me },
                     case AuthentificationError:
                         router.push('/login')
                         dispatch(removeToken(undefined))
-                        dispatch(setMessage({
-                            message: {
-                                isDisplay: true,
-                                content: /** @type {Error} */(error).message,
-                                type: 'warning'
-                            }
-                        }))
+                        dispatch(setMessage({ message: { isDisplay: true, content: /** @type {Error} */(error).message, type: 'warning' } }))
                         break
                     case InvalidEntityError:
                     case NotFoundError:
@@ -139,18 +141,13 @@ function SearchBootleg({ bootlegManager, bootlegsProps, metaProps, main: { me },
 
     useEffect(
         () => {
-            if (searchFilters.page)
+            if (
+                (!!searchFilters.page && !!prevSearchFilters?.page && prevSearchFilters?.page !== searchFilters.page) ||
+                (!!searchFilters.searchBy && !!prevSearchFilters?.searchBy && prevSearchFilters?.searchBy !== searchFilters.searchBy)
+            )
                 getBootlegs()
         },
-        [searchFilters.page]
-    )
-
-    useEffect(
-        () => {
-            if (searchFilters.searchBy)
-                getBootlegs()
-        },
-        [searchFilters.searchBy]
+        [searchFilters.page, prevSearchFilters?.page, searchFilters.searchBy, prevSearchFilters?.searchBy]
     )
 
     return (
@@ -190,12 +187,12 @@ function SearchBootleg({ bootlegManager, bootlegsProps, metaProps, main: { me },
                                                     Bootlegs found for {searchFilters.string || 'your search'} ({(() => {
                                                         switch (searchFilters.searchBy) {
                                                             case ESearch.BAND:
-                                                                return meta?.total?.band
+                                                                return meta?.total?.band || 0
                                                             case ESearch.SONG:
-                                                                return meta?.total?.song
+                                                                return meta?.total?.song || 0
                                                             case ESearch.GLOBAL:
                                                             default:
-                                                                return meta?.total?.global
+                                                                return meta?.total?.global || 0
                                                         }
                                                     })()})
                                                 </i>
@@ -352,53 +349,73 @@ function SearchBootleg({ bootlegManager, bootlegsProps, metaProps, main: { me },
                                     />
                                 </Columns.Column>
                                 <Columns.Column className="is-four-fifths-desktop">
-                                    <Tabs>
-                                        <Tabs.Tab
-                                            active={searchFilters.searchBy === ESearch.GLOBAL || !searchFilters.searchBy}
-                                            onClick={() => {
-                                                setSearchFilters({
-                                                    ...searchFilters,
-                                                    searchBy: ESearch.GLOBAL,
-                                                    page: null
-                                                })
-                                            }}
-                                        >
-                                            <span className="icon is-small">
-                                                <FontAwesomeIcon icon={faGlobe} />
-                                            </span>
-                                            <span>Global ({meta?.total?.global || 0})</span>
-                                        </Tabs.Tab>
-                                        <Tabs.Tab
-                                            active={searchFilters.searchBy === ESearch.BAND}
-                                            onClick={() => {
-                                                setSearchFilters({
-                                                    ...searchFilters,
-                                                    searchBy: ESearch.BAND,
-                                                    page: null
-                                                })
-                                            }}
-                                        >
-                                            <span className="icon is-small">
-                                                <FontAwesomeIcon icon={faUsers} />
-                                            </span>
-                                            <span>Band ({meta?.total?.band || 0})</span>
-                                        </Tabs.Tab>
-                                        <Tabs.Tab
-                                            active={searchFilters.searchBy === ESearch.SONG}
-                                            onClick={() => {
-                                                setSearchFilters({
-                                                    ...searchFilters,
-                                                    searchBy: ESearch.SONG,
-                                                    page: null
-                                                })
-                                            }}
-                                        >
-                                            <span className="icon is-small">
-                                                <FontAwesomeIcon icon={faMusic} />
-                                            </span>
-                                            <span>Song ({meta?.total?.song || 0})</span>
-                                        </Tabs.Tab>
-                                    </Tabs>
+                                    <div className="tabs">
+                                        <ul>
+                                            <li
+                                                className={classNames({ "is-active": searchFilters.searchBy === ESearch.GLOBAL || !searchFilters.searchBy })}
+                                            >
+                                                <Link
+                                                    href={{
+                                                        pathname: router.pathname,
+                                                        query: {
+                                                            ...router.query,
+                                                            searchBy: ESearch.GLOBAL,
+                                                            page: 1
+                                                        }
+                                                    }}
+                                                >
+                                                    <a>
+                                                        <span className="icon is-small">
+                                                            <FontAwesomeIcon icon={faGlobe} />
+                                                        </span>
+                                                        <span>Global ({meta?.total?.global || 0})</span>
+                                                    </a>
+                                                </Link>
+                                            </li>
+                                            <li
+                                                className={classNames({ "is-active": searchFilters.searchBy === ESearch.BAND || !searchFilters.searchBy })}
+                                            >
+                                                <Link
+                                                    href={{
+                                                        pathname: router.pathname,
+                                                        query: {
+                                                            ...router.query,
+                                                            searchBy: ESearch.BAND,
+                                                            page: 1
+                                                        }
+                                                    }}
+                                                >
+                                                    <a>
+                                                        <span className="icon is-small">
+                                                            <FontAwesomeIcon icon={faUsers} />
+                                                        </span>
+                                                        <span>Band ({meta?.total?.band || 0})</span>
+                                                    </a>
+                                                </Link>
+                                            </li>
+                                            <li
+                                                className={classNames({ "is-active": searchFilters.searchBy === ESearch.SONG || !searchFilters.searchBy })}
+                                            >
+                                                <Link
+                                                    href={{
+                                                        pathname: router.pathname,
+                                                        query: {
+                                                            ...router.query,
+                                                            searchBy: ESearch.SONG,
+                                                            page: 1
+                                                        }
+                                                    }}
+                                                >
+                                                    <a>
+                                                        <span className="icon is-small">
+                                                            <FontAwesomeIcon icon={faMusic} />
+                                                        </span>
+                                                        <span>Song ({meta?.total?.song || 0})</span>
+                                                    </a>
+                                                </Link>
+                                            </li>
+                                        </ul>
+                                    </div>
                                     {[Status.IDLE, Status.RESOLVED, Status.REJECTED].includes(status) ?
                                         <>
                                             {bootlegs?.length ?
@@ -428,12 +445,6 @@ function SearchBootleg({ bootlegManager, bootlegsProps, metaProps, main: { me },
                                         <Pagination
                                             current={meta?.page?.current}
                                             total={meta?.page?.last}
-                                            onClick={(ev, newPage) => {
-                                                setSearchFilters({
-                                                    ...searchFilters,
-                                                    page: newPage
-                                                })
-                                            }}
                                         />
                                     }
                                 </Columns.Column>
@@ -457,7 +468,9 @@ export const getServerSideProps = wrapper.getServerSideProps(
             const bootlegManager = new BootlegManager({ req })
             const [bootlegs, meta] = await bootlegManager.getAll({
                 ...query,
-                orderBy: /** @type {string=} */ (query?.orderBy) || ESort.DATE_ASC
+                orderBy: /** @type {string=} */ (query?.orderBy) || ESort.DATE_ASC,
+                page: parseInt(/** @type {string=} */(query?.page)) || 1,
+                searchBy: /** @type {string=} */ (query?.searchBy) || ESearch.GLOBAL,
             })
 
             return { props: { bootlegsProps: bootlegs.map(x => x.toJson()), metaProps: meta.toJson() } }

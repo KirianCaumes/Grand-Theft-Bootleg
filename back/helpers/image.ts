@@ -1,9 +1,11 @@
 import { FormDataFile } from "https://deno.land/x/oak@v6.3.2/multipart.ts"
 import { v4 } from "https://deno.land/std@0.83.0/uuid/mod.ts"
 import { BootlegSchema } from "../models/bootleg.model.ts"
+import { env } from "./config.ts"
 
 export default class ImageHelper {
-    path: string = `${Deno.cwd()}/public/images/`
+    private path: string = `${Deno.cwd()}/public/images/`
+    private baseUrlYt: string = "https://www.googleapis.com/youtube/v3"
 
     private generateName(ext: string): string {
         return `${v4.generate()}.${ext}`
@@ -31,14 +33,26 @@ export default class ImageHelper {
         for (const link of bootlegBody?.links) {
             const url = new URL(link)
             if (['youtube.com', 'www.youtube.com', 'www.youtu.be', 'youtu.be'].includes(url.host)) {
-                //Get video id
-                const id = url.searchParams.get('v') ?? url.pathname?.replace('/', '')
+                //Get video/playlist id
+                const id = url.href.includes('/playlist') ? url.searchParams.get('list') : (url.searchParams.get('v') ?? url.pathname?.replace('/', ''))
 
                 if (!id)
                     return null
 
+                //Get res
+                const json = await (await fetch(`${this.baseUrlYt}/${url.href.includes('/playlist') ? 'playlists' : 'videos'}?${new URLSearchParams({
+                    part: 'snippet',
+                    id,
+                    key: env.YOUTUBE_API_KEY!
+                })}`)).json()
+
+                const imgUrl = json?.items?.[0]?.snippet?.thumbnails?.high?.url
+
+                if (!imgUrl)
+                    return null
+
                 //Get image
-                const data = await (await fetch(`https://img.youtube.com/vi/${id}/hqdefault.jpg`)).arrayBuffer()
+                const data = await (await fetch(imgUrl)).arrayBuffer()
 
                 if (!data)
                     return null

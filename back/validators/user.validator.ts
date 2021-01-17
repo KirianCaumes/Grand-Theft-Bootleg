@@ -5,7 +5,7 @@ import passwordValidation from "../helpers/validations/password.validation.ts"
 import { validator } from "./_base.validator.ts"
 import { EAuthStrategies } from "../types/enumerations/EAuthStrategies.ts"
 import ValidationException from "../types/exceptions/ValidationException.ts"
-import getGoogleUser from "../helpers/stragies/getGoogleUser.ts"
+import getGoogleUser from "../helpers/strategies/getGoogleUser.ts"
 
 
 /**

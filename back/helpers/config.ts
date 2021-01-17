@@ -8,6 +8,7 @@ interface IEnv {
     MONGO_CONNEXION?: string
     MONGO_DB?: string
     JWT_KEY?: string
+    YOUTUBE_API_KEY?: string
     GOOGLE_PUBLIC_KEY?: string
     GOOGLE_PRIVATE_KEY?: string
     TWITTER_PUBLIC_KEY?: string
