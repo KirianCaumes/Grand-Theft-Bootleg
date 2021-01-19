@@ -2,7 +2,7 @@ import React from "react"
 import Head from "next/head"
 // @ts-ignore
 import styles from "styles/pages/index.module.scss"
-import BootlegManager from "request/managers/bootlegManager"
+import BootlegHandler from "request/handlers/bootlegHandler"
 // @ts-ignore
 import { Section, Columns, Container } from 'react-bulma-components'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -35,16 +35,16 @@ config({ ssrFadeout: true })
 
 /**
  * @typedef {object} IndexProps
- * @property {Bootleg[]} bootlegsPopular Bootlegs from API
- * @property {Bootleg[]} bootlesgNew Bootlegs from API
- * @property {Bootleg[]} bootlegsRandom Bootlegs from API
+ * @property {Bootleg[]} bootlegsPopularProps Bootlegs from API
+ * @property {Bootleg[]} bootlegsNewProps Bootlegs from API
+ * @property {Bootleg[]} bootlegsRandomProps Bootlegs from API
  */
 
 /**
  * Index page
  * @param {IndexProps} props 
  */
-function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, ...props }) {
+function Index({ bootlegsPopularProps, bootlegsNewProps, bootlegsRandomProps, ...props }) {
     /** @type {[string, function(string):any]} Search text */
     const [searchText, setSearchText] = React.useState(null)
 
@@ -123,7 +123,7 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, ...props }) {
                         </h2>
                         <br />
                         <Columns>
-                            {bootlegsPopular?.map((bootleg, i) => (
+                            {bootlegsPopularProps?.map((bootleg, i) => (
                                 <Columns.Column
                                     size="one-fifth"
                                     key={`popular-${i}`}
@@ -138,7 +138,12 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, ...props }) {
                             className="has-text-right"
                         >
                             <Link
-                                href="/bootleg/search?orderBy=CLICKED_DESC"
+                                href={{
+                                    pathname: '/bootleg/search',
+                                    query: {
+                                        orderBy: ESort.CLICKED_DESC
+                                    }
+                                }}
                             >
                                 <a>
                                     See more &gt;
@@ -257,7 +262,7 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, ...props }) {
                         </h2>
                         <br />
                         <Columns>
-                            {bootlesgNew?.map((bootleg, i) => (
+                            {bootlegsNewProps?.map((bootleg, i) => (
                                 <Columns.Column
                                     size="one-fifth"
                                     key={`new-${i}`}
@@ -272,7 +277,12 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, ...props }) {
                             className="has-text-right"
                         >
                             <Link
-                                href="/bootleg/search?orderBy=DATE_CREATION_DESC"
+                                href={{
+                                    pathname: '/bootleg/search',
+                                    query: {
+                                        orderBy: ESort.DATE_CREATION_DESC
+                                    }
+                                }}
                             >
                                 <a>
                                     See more &gt;
@@ -317,7 +327,7 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, ...props }) {
                         </h2>
                         <br />
                         <Columns>
-                            {bootlegsRandom?.map((bootleg, i) => (
+                            {bootlegsRandomProps?.map((bootleg, i) => (
                                 <Columns.Column
                                     size="one-fifth"
                                     key={`random-${i}`}
@@ -332,7 +342,12 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, ...props }) {
                             className="has-text-right"
                         >
                             <Link
-                                href="/bootleg/search?isRandom=1"
+                                href={{
+                                    pathname: '/bootleg/search',
+                                    query: {
+                                        isRandom: 1
+                                    }
+                                }}
                             >
                                 <a>
                                     See more &gt;
@@ -355,27 +370,27 @@ export const getServerSideProps = wrapper.getServerSideProps(
      */
     async ({ req, store }) => {
         try {
-            const bootlegManager = new BootlegManager({ req })
-            const [[bootlegsPopular], [bootlesgNew], [bootlegsRandom]] = await Promise.all([
-                bootlegManager.getAll({
+            const bootlegHandler = new BootlegHandler({ req })
+            const [[bootlegsPopular], [bootlegsNew], [bootlegsRandom]] = await Promise.all([
+                bootlegHandler.getAll({
                     limit: 5,
                     orderBy: ESort.CLICKED_DESC
-                }),
-                bootlegManager.getAll({
+                }).fetch(),
+                bootlegHandler.getAll({
                     limit: 5,
                     orderBy: ESort.DATE_CREATION_DESC
-                }),
-                bootlegManager.getAll({
+                }).fetch(),
+                bootlegHandler.getAll({
                     limit: 5,
                     isRandom: 1
-                })
+                }).fetch()
             ])
 
             return {
                 props: {
-                    bootlegsPopular: bootlegsPopular.map(x => x.toJson()),
-                    bootlesgNew: bootlesgNew.map(x => x.toJson()),
-                    bootlegsRandom: bootlegsRandom.map(x => x.toJson())
+                    bootlegsPopularProps: bootlegsPopular.map(x => x.toJson()),
+                    bootlegsNewProps: bootlegsNew.map(x => x.toJson()),
+                    bootlegsRandomProps: bootlegsRandom.map(x => x.toJson())
                 }
             }
         } catch (error) {
@@ -391,7 +406,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
                     return {
                         props: {
                             bootlegsPopular: [],
-                            bootlesgNew: [],
+                            bootlegsNew: [],
                             bootlegsRandom: []
                         }
                     }

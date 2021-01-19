@@ -1,25 +1,25 @@
 import axios, { CancelTokenSource, AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios' // eslint-disable-line
 import { InvalidEntityError } from 'request/errors/invalidEntityError'
 import { CancelRequestError } from 'request/errors/cancelRequestError'
-// import { signOut } from 'redux/slices/user'
-// import { setMessageBar } from 'redux/slices/common'
-import { MessageBarType } from 'office-ui-fabric-react'
-// import store from 'redux/store'
 import { UnauthorizedError } from './errors/unauthorizedError'
 import Cookie from 'helpers/cookie'
 import { IncomingMessage } from 'http'
 import getConfig from 'next/config'
-import { store } from 'react-notifications-component'
 import { AuthentificationError } from './errors/authentificationError'
 import { NotFoundError } from './errors/notFoundError'
 
 const { publicRuntimeConfig } = getConfig()
 
 /**
+ * @template R
+ * @typedef {{ fetch: () => Promise<R>; cancel: () => void; }} RequestApi
+ */
+
+/**
  * @template T, E, M
  * @abstract
  */
-export default class ApiManager {
+export default class ApiHandler {
     /**
      * @param {object} settings 
      * @param {object} settings.type Class to use
@@ -66,44 +66,6 @@ export default class ApiManager {
          * @type {IncomingMessage} 
          */
         this.req = settings.req
-
-        /** 
-         * List of cancel tokens that can be canceled
-         * @protected
-         * @type {Object.<string, CancelTokenSource>}
-         */
-        this.cancelTokens = {}
-    }
-
-    /**
-     * Cancel requests pending
-     */
-    cancel() {
-        for (const index in this.cancelTokens) {
-            this.cancelTokens[index].cancel('Operation canceled by the user.')
-        }
-    }
-
-    /**
-     * @protected
-     * 
-     * @typedef {object} ManagerCancelToken
-     * @property {CancelTokenSource['token']} token
-     * @property {string} cancelId
-     * 
-     * @returns {ManagerCancelToken}
-     */
-    _getCancelToken() {
-        /** @type {CancelTokenSource} */
-        const source = axios.CancelToken.source()
-
-        const cancelId = new Date().getTime().toString()
-        this.cancelTokens[cancelId] = source
-
-        return {
-            token: source.token,
-            cancelId
-        }
     }
 
     /**
@@ -146,7 +108,7 @@ export default class ApiManager {
     }
 
     /**
-     * Get a new request
+     * Init a new request
      * @protected
      * @param {object} params
      * @param {(string | number)[]=} params.url
@@ -155,17 +117,18 @@ export default class ApiManager {
      * @param {AxiosRequestConfig['params']=} params.params
      * @param {AxiosRequestConfig['responseType']=} params.responseType
      * 
-     * @typedef {object} ManagerRequest
-     * @property {Promise<AxiosResponse>} req
-     * @property {string} cancelTokenId
+     * @typedef {object} HandlerRequest
+     * @property {Promise<AxiosResponse>} fetchRequest
+     * @property {CancelTokenSource} cancelToken
      * 
-     * @returns {ManagerRequest}
+     * @returns {HandlerRequest}
      */
-    _getRequest({ url = [], method = "GET", data = {}, params = {}, responseType = "json" }) {
-        const cancelToken = this._getCancelToken()
+    initFetchRequest({ url = [], method = "GET", data = {}, params = {}, responseType = "json" }) {
+        /** @type {CancelTokenSource} */
+        const cancelToken = axios.CancelToken.source()
 
         return {
-            req: axios.request({
+            fetchRequest: axios.request({
                 baseURL: this.baseUrl,
                 url: `${this.objectName}${url.length ? `/${url.join('/')}` : ''}`,
                 method: method,
@@ -177,98 +140,110 @@ export default class ApiManager {
                 },
                 responseType: responseType
             }),
-            cancelTokenId: cancelToken.cancelId
+            cancelToken
+        }
+    }
+
+    /**
+     * @param {() => Promise<any>} req 
+     * @param {CancelTokenSource} cancelToken 
+     * @returns {RequestApi<any>}
+    */
+    getRequestApi(req, cancelToken) {
+        return {
+            fetch: () => req(),
+            cancel: () => cancelToken.cancel('Operation canceled by the user.')
         }
     }
 
     /**
      * Get one by ID
      * @param id 
-     * @returns {Promise<T>}
+     * @returns {RequestApi<T>}
      */
     getById(id = undefined) {
-        const request = this._getRequest({ url: [id] })
+        const request = this.initFetchRequest({ url: [id] })
 
-        return request.req
-            .then(res => {
-                return new (this.type)(res.data[this.objectName])
-            })
-            .catch(err => {
-                throw this._handleError(err)
-            })
-            .finally(() => {
-                delete this.cancelTokens[request.cancelTokenId]
-            })
+        return this.getRequestApi(
+            () => request.fetchRequest
+                .then(res => {
+                    return new (this.type)(res.data[this.objectName])
+                })
+                .catch(err => {
+                    throw this._handleError(err)
+                }),
+            request.cancelToken
+        )
     }
 
     /**
      * Get all
      * @param {AxiosRequestConfig['params']=} params
-     * @returns {Promise<[T[], M]>}
+     * @returns {RequestApi<[T[], M]>}
      */
     getAll(params = {}) {
-        const request = this._getRequest({ params })
+        const request = this.initFetchRequest({ params })
 
-        return request.req
-            .then(res => {
-                return /** @type {[T[], M]} */ ([
-                    res.data[this.objectName]?.map(x => new (this.type)(x)) ?? [],
-                    this.metaType ? new (this.metaType)(res.data.meta) : null
-                ])
-            })
-            .catch(err => {
-                throw this._handleError(err)
-            })
-            .finally(() => {
-                delete this.cancelTokens[request.cancelTokenId]
-            })
+        return this.getRequestApi(
+            () => request.fetchRequest
+                .then(res => {
+                    return /** @type {[T[], M]} */ ([
+                        res.data[this.objectName]?.map(x => new (this.type)(x)) ?? [],
+                        this.metaType ? new (this.metaType)(res.data.meta) : null
+                    ])
+                })
+                .catch(err => {
+                    throw this._handleError(err)
+                }),
+            request.cancelToken
+        )
     }
 
     /**
      * Create
      * @param {T} obj 
-     * @returns {Promise<T>}
+     * @returns {RequestApi<T>}
      */
     create(obj = new (this.type)()) {
-        const request = this._getRequest({ method: "POST", data: obj })
+        const request = this.initFetchRequest({ method: "POST", data: obj })
 
-        return request.req
-            .then(res => {
-                return new (this.type)(res.data[this.objectName])
-            })
-            .catch(err => {
-                throw this._handleError(err)
-            })
-            .finally(() => {
-                delete this.cancelTokens[request.cancelTokenId]
-            })
+        return this.getRequestApi(
+            () => request.fetchRequest
+                .then(res => {
+                    return new (this.type)(res.data[this.objectName])
+                })
+                .catch(err => {
+                    throw this._handleError(err)
+                }),
+            request.cancelToken
+        )
     }
 
     /**
      * Update
      * @param {T} obj 
-     * @returns {Promise<T>}
+     * @returns {RequestApi<T>}
      */
     updateById(obj = new (this.type)(), id = undefined) {
-        const request = this._getRequest({ url: [id], method: "PUT", data: obj })
+        const request = this.initFetchRequest({ url: [id], method: "PUT", data: obj })
 
-        return request.req
-            .then(res => {
-                return new (this.type)(res.data[this.objectName])
-            })
-            .catch(err => {
-                throw this._handleError(err)
-            })
-            .finally(() => {
-                delete this.cancelTokens[request.cancelTokenId]
-            })
+        return this.getRequestApi(
+            () => request.fetchRequest
+                .then(res => {
+                    return new (this.type)(res.data[this.objectName])
+                })
+                .catch(err => {
+                    throw this._handleError(err)
+                }),
+            request.cancelToken
+        )
     }
 
     /**
      * Upsert
      * @param {T} obj 
      * @param {number=} id 
-     * @returns {Promise<T>}
+     * @returns {RequestApi<T>}
      */
     upsert(obj = new (this.type)(), id = undefined) {
         if (id) {
@@ -280,20 +255,20 @@ export default class ApiManager {
 
     /**
      * Delete
-     * @returns {Promise<T>}
+     * @returns {RequestApi<T>}
      */
     removeById(id = undefined) {
-        const request = this._getRequest({ url: [id], method: "DELETE" })
+        const request = this.initFetchRequest({ url: [id], method: "DELETE" })
 
-        return request.req
-            .then(res => {
-                return new (this.type)(res.data[this.objectName])
-            })
-            .catch(err => {
-                throw this._handleError(err)
-            })
-            .finally(() => {
-                delete this.cancelTokens[request.cancelTokenId]
-            })
+        return this.getRequestApi(
+            () => request.fetchRequest
+                .then(res => {
+                    return new (this.type)(res.data[this.objectName])
+                })
+                .catch(err => {
+                    throw this._handleError(err)
+                }),
+            request.cancelToken
+        )
     }
 }

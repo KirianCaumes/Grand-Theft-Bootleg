@@ -4,14 +4,14 @@ import Head from "next/head"
 import styles from "styles/pages/bootleg/index-bootleg.module.scss"
 // @ts-ignore
 import { Section, Container } from 'react-bulma-components'
-import withManagers, { ManagersProps } from 'helpers/hoc/withManagers'
+import withHandlers, { HandlersProps } from 'helpers/hoc/withHandlers'
 import getConfig from 'next/config'
 import { connect } from "react-redux"
 import { ReduxProps } from 'redux/store'
 
 /**
  * Index page
- * @param {ManagersProps & ReduxProps} props 
+ * @param {HandlersProps & ReduxProps} props 
  */
 function IndexBootleg({ ...props }) {
     const { publicRuntimeConfig } = getConfig()
@@ -33,4 +33,4 @@ function IndexBootleg({ ...props }) {
     )
 }
 
-export default connect((state) => state)(withManagers(IndexBootleg))
+export default connect((state) => state)(withHandlers(IndexBootleg))

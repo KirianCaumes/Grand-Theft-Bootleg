@@ -24,7 +24,9 @@ export default function BootlegCard({ bootleg }) {
         <article className={classNames(styles.bootlegcard, "card")}>
             <div className="card-image">
                 <Link
-                    href={`/bootleg/${encodeURIComponent(bootleg.title)}-${encodeURIComponent(bootleg._id)}`}
+                    href={{
+                        pathname: `/bootleg/${bootleg.title}-${bootleg._id}`
+                    }}
                 >
                     <a>
                         <figure className="image">
@@ -42,7 +44,12 @@ export default function BootlegCard({ bootleg }) {
                         dateTime={new Date(bootleg.date)?.toISOString().slice(0, 10)}
                     >
                         <Link
-                            href={`/bootleg/search?year=${encodeURIComponent(new Date(bootleg.date)?.getFullYear())}`}
+                            href={{
+                                pathname: `/bootleg/search`,
+                                query: {
+                                    year: new Date(bootleg.date)?.getFullYear()
+                                }
+                            }}
                         >
                             {new Date(bootleg.date)?.toLocaleDateString('en-EN', { year: 'numeric', month: 'short', day: '2-digit' })}
                         </Link>
@@ -58,7 +65,9 @@ export default function BootlegCard({ bootleg }) {
                             className="is-capitalize"
                         >
                             <Link
-                                href={`/bootleg/${encodeURIComponent(bootleg.title)}-${encodeURIComponent(bootleg._id)}`}
+                                href={{
+                                    pathname: `/bootleg/${bootleg.title}-${bootleg._id}`
+                                }}
                             >
                                 <a
                                     title={bootleg.title}
@@ -76,7 +85,13 @@ export default function BootlegCard({ bootleg }) {
                             {bootleg.bands?.map((band, i) => (
                                 <React.Fragment key={i}>
                                     <Link
-                                        href={`/bootleg/search?string=${encodeURIComponent(band?.toLowerCase())}&searchBy=${ESearch.BAND}`}
+                                        href={{
+                                            pathname: `/bootleg/search`,
+                                            query: {
+                                                string: band?.toLowerCase(),
+                                                searchBy: ESearch.BAND
+                                            }
+                                        }}
                                     >
                                         <a
                                             title={band}
@@ -93,7 +108,7 @@ export default function BootlegCard({ bootleg }) {
                                 <FontAwesomeIcon icon={faClock} /> {bootleg.timeAgo}
                             </span>
                             <span className="flex-one has-text-right">
-                                <FontAwesomeIcon icon={faEye} /> {bootleg.clickedCount} times
+                                <FontAwesomeIcon icon={faEye} /> {bootleg.clickedCountAbr} times
                             </span>
                         </p>
                     </div>

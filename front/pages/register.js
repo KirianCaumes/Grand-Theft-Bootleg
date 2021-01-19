@@ -1,4 +1,4 @@
-import React, { useCallback } from "react"
+import React, { useCallback, useEffect, useRef, MutableRefObject } from "react"
 import Head from "next/head"
 // @ts-ignore
 import { Section, Columns, Container } from 'react-bulma-components'
@@ -14,7 +14,7 @@ import { UnauthorizedError } from "request/errors/unauthorizedError"
 import { InvalidEntityError } from "request/errors/invalidEntityError"
 import { NotImplementedError } from "request/errors/notImplementedError"
 import { useRouter } from 'next/router'
-import withManagers, { ManagersProps } from "helpers/hoc/withManagers"
+import withHandlers, { HandlersProps } from "helpers/hoc/withHandlers"
 import Input from "components/form/input"
 import Button from "components/form/button"
 import getConfig from 'next/config'
@@ -25,16 +25,18 @@ import { NotFoundError } from "request/errors/notFoundError"
 import GoogleLogin, { GoogleLoginResponse } from 'react-google-login'
 import Divider from "components/general/divider"
 import { EAuthStrategies } from "types/authStrategies"
+import { RequestApi } from 'request/apiHandler'
 
 /**
  * @typedef {object} RegisterProps
+ * @property {any} _
  */
 
 /**
  * Register page
- * @param {RegisterProps & ManagersProps} props
+ * @param {RegisterProps & HandlersProps} props
  */
-function Register({ userManager }) {
+function Register({ userHandler }) {
     /** @type {[string, function(string):any]} Status */
     const [status, setStatus] = React.useState(Status.IDLE)
     /** @type {[User, function(User):any]} User */
@@ -43,6 +45,9 @@ function Register({ userManager }) {
     const [errorField, setErrorField] = React.useState(new ErrorUser())
     /** @type {[boolean, function(boolean):any]} Is password visible */
     const [isPwdVisible, setIsPwdVisible] = React.useState(!!false)
+
+    /** @type {MutableRefObject<RequestApi<User>>} */
+    const userHandlerCreate = useRef()
 
     const router = useRouter()
     const dispatch = useDispatch()
@@ -59,7 +64,8 @@ function Register({ userManager }) {
             try {
                 const newUser = new User({ ...user, strategy: strategy ? strategy : user.strategy, strategyData })
                 setUser(newUser)
-                const userUptd = await userManager.create(newUser)
+                userHandlerCreate.current = userHandler.create(newUser)
+                const userUptd = await userHandlerCreate.current.fetch()
                 dispatch(setToken({ token: userUptd?.token }))
                 router.push('/')
             } catch (error) {
@@ -85,6 +91,10 @@ function Register({ userManager }) {
         },
         [status, user]
     )
+
+    useEffect(() => () => {
+        userHandlerCreate.current?.cancel()
+    }, [])
 
     return (
         <>
@@ -214,4 +224,4 @@ function Register({ userManager }) {
     )
 }
 
-export default withManagers(Register)
+export default withHandlers(Register)

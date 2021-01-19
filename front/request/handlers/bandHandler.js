@@ -1,13 +1,13 @@
-import Song from 'request/objects/song'
-import ApiManager from 'request/apiManager'
+import Band from 'request/objects/band'
+import ApiHandler from 'request/apiHandler'
 import { IncomingMessage } from 'http'
 import { NotImplementedError } from 'request/errors/notImplementedError'
 
 /**
- * SongManager
- * @extends {ApiManager<Song, null>}
+ * BandHandler
+ * @extends {ApiHandler<Band, null>}
  */
-export default class SongManager extends ApiManager {
+export default class BandHandler extends ApiHandler {
     /**
      * 
      * @param {object} param
@@ -15,16 +15,16 @@ export default class SongManager extends ApiManager {
      */
     constructor({ req } = {}) {
         super({
-            type: Song,
+            type: Band,
             errorType: null,
-            key: 'song',
+            key: 'band',
             req
         })
     }
 
     /**
      * @override
-     * @returns {Promise<any>}
+     * @returns {null}
      */
     getById() {
         throw new NotImplementedError()
@@ -32,7 +32,7 @@ export default class SongManager extends ApiManager {
 
     /**
      * @override
-     * @returns {Promise<any>}
+     * @returns {null}
      */
     create() {
         throw new NotImplementedError()
@@ -40,7 +40,7 @@ export default class SongManager extends ApiManager {
 
     /**
      * @override
-     * @returns {Promise<any>}
+     * @returns {null}
      */
     updateById() {
         throw new NotImplementedError()
@@ -48,7 +48,7 @@ export default class SongManager extends ApiManager {
 
     /**
      * @override
-     * @returns {Promise<any>}
+     * @returns {null}
      */
     upsert() {
         throw new NotImplementedError()
@@ -56,7 +56,7 @@ export default class SongManager extends ApiManager {
 
     /**
      * @override
-     * @returns {Promise<any>}
+     * @returns {null}
      */
     removeById() {
         throw new NotImplementedError()

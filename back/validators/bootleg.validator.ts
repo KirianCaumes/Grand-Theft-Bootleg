@@ -66,7 +66,7 @@ export const bootlegValidator = async (bootleg: BootlegValidationType, action?: 
     const item = await validator<typeof bootlegValidationSchema, BootlegValidationType>(
         Schema({
             ...bootlegValidationSchemaBase,
-            picture: action === EActions.CREATE ? null : unknown.string('A file is required').trim().normalize().optional(),
+            picture: action === EActions.CREATE ? null : unknown.string('A file is required').trim().normalize(),
             state: unknown.enum(myEnum, arg => `State ${EBootlegStates[arg as number] ?? arg} is invalid`)
         }),
         bootleg,

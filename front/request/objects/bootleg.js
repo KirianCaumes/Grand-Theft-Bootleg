@@ -104,10 +104,10 @@ export default class Bootleg extends Base {
 
             if (elapsed < msPerMinute) {
                 const res = Math.round(elapsed / 1000)
-                return `${res} second${res > 1 ? 's' : ''} ago`
+                return `${res} sec${res > 1 ? 's' : ''} ago`
             } else if (elapsed < msPerHour) {
                 const res = Math.round(elapsed / msPerMinute)
-                return `${res} minute${res > 1 ? 's' : ''} ago`
+                return `${res} min${res > 1 ? 's' : ''} ago`
             } else if (elapsed < msPerDay) {
                 const res = Math.round(elapsed / msPerHour)
                 return `${res} hour${res > 1 ? 's' : ''} ago`
@@ -121,6 +121,17 @@ export default class Bootleg extends Base {
                 const res = Math.round(elapsed / msPerYear)
                 return `${res} year${res > 1 ? 's' : ''} ago`
             }
+        })()
+
+        this.clickedCountAbr = (() => {
+            if (clickedCount < 1000)
+                return `${clickedCount}`
+            else if (clickedCount < 1000000)
+                return `${Math.round(clickedCount / 1000)}k`
+            else if (clickedCount < 1000000000)
+                return `${Math.round(clickedCount / 1000000)}M`
+            else
+                return `${Math.round(clickedCount / 1000000000)}G`
         })()
     }
 }

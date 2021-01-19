@@ -40,10 +40,10 @@ const axios = require('axios').default
                     isProRecord: item.ProShot === 'Yes',
                     soundQuality: 5,
                     videoQuality: 5,
-                    state: 1,
+                    state: 2,
                 },
                 headers: {
-                    Authorization: `Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ7XCJfaWRcIjp7XCIkb2lkXCI6XCI2MDA0Mjg3ZTAwOTU5YjAyMDBkMzFkYjBcIn0sXCJzdHJhdGVneVwiOjAsXCJtYWlsXCI6XCJ0ZXN0QG1haWwuY29tXCIsXCJ1c2VybmFtZVwiOlwidGVzdEBtYWlsLmNvbVwiLFwicm9sZVwiOjF9IiwiZXhwIjoxNjEwOTcxNjU4LjY1OX0.FCuqQtg36SXwSr19RY1R6EDkdek01MInYRSd7kPSLPD4SkuGxBOTdTBqNSd6-QSV9gJ4zQ74rgSnpFZB7_1xEg`
+                    Authorization: `Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ7XCJfaWRcIjp7XCIkb2lkXCI6XCI2MDA0Mjg3ZTAwOTU5YjAyMDBkMzFkYjBcIn0sXCJzdHJhdGVneVwiOjAsXCJtYWlsXCI6XCJ0ZXN0QG1haWwuY29tXCIsXCJ1c2VybmFtZVwiOlwidGVzdEBtYWlsLmNvbVwiLFwicm9sZVwiOjJ9IiwiZXhwIjoxNjExMDc1NTMzLjU4M30.9e6QWAFwrlL9Y-HG2uF9RGjlV3vaP_pfJwD_FyYjTgE6E2PZOCJCbn5odqedssEknREGCS5b62Tlx0FxIsmxxg`
                 }
             })
         } catch (error) {

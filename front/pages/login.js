@@ -1,4 +1,4 @@
-import React, { useCallback } from "react"
+import React, { useCallback, useEffect, MutableRefObject, useRef } from "react"
 import Head from "next/head"
 // @ts-ignore
 import { Section, Columns, Container } from 'react-bulma-components'
@@ -13,7 +13,7 @@ import { CancelRequestError } from "request/errors/cancelRequestError"
 import { UnauthorizedError } from "request/errors/unauthorizedError"
 import { InvalidEntityError } from "request/errors/invalidEntityError"
 import { NotImplementedError } from "request/errors/notImplementedError"
-import withManagers, { ManagersProps } from "helpers/hoc/withManagers"
+import withHandlers, { HandlersProps } from "helpers/hoc/withHandlers"
 import Input from "components/form/input"
 import Button from "components/form/button"
 import { useDispatch } from "react-redux"
@@ -25,6 +25,7 @@ import { NotFoundError } from "request/errors/notFoundError"
 import GoogleLogin, { GoogleLoginResponse } from 'react-google-login'
 import Divider from "components/general/divider"
 import { EAuthStrategies } from "types/authStrategies"
+import { RequestApi } from 'request/apiHandler'
 
 /**
  * @typedef {object} LoginProps
@@ -32,15 +33,18 @@ import { EAuthStrategies } from "types/authStrategies"
 
 /**
  * Login page
- * @param {LoginProps & ManagersProps} props
+ * @param {LoginProps & HandlersProps} props
  */
-function Login({ userManager }) {
+function Login({ userHandler }) {
     /** @type {[string, function(string):any]} Status */
     const [status, setStatus] = React.useState(Status.IDLE)
     /** @type {[User, function(User):any]} User */
     const [user, setUser] = React.useState(new User())
     /** @type {[ErrorUser, function(ErrorUser):any]} Error message */
     const [errorField, setErrorField] = React.useState(new ErrorUser())
+
+    /** @type {MutableRefObject<RequestApi<User>>} */
+    const userHandlerLogin = useRef()
 
     const dispatch = useDispatch()
     const router = useRouter()
@@ -57,7 +61,8 @@ function Login({ userManager }) {
             try {
                 const newUser = new User({ ...user, strategy: strategy ? strategy : user.strategy, strategyData })
                 setUser(newUser)
-                const userUptd = await userManager.login(newUser)
+                userHandlerLogin.current = userHandler.login(newUser)
+                const userUptd = await userHandlerLogin.current.fetch()
                 dispatch(setToken({ token: userUptd?.token }))
                 router.push('/')
             } catch (error) {
@@ -83,6 +88,10 @@ function Login({ userManager }) {
         },
         [status, user]
     )
+
+    useEffect(() => () => {
+        userHandlerLogin.current?.cancel()
+    }, [])
 
     return (
         <>
@@ -200,4 +209,4 @@ function Login({ userManager }) {
     )
 }
 
-export default withManagers(Login)
+export default withHandlers(Login)

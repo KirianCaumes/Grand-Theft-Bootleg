@@ -11,43 +11,55 @@
   //   text-overflow: ellipsis;
   //   overflow: hidden;
   // }
-  .buttons {
-    .button {
-      border-radius: 4px;
+
+  div[class*="is-two-thirds-desktop"] {
+    figure {
+      @include flex-col;
+      height: 250px;
+      background: $greyblue;
+      overflow: hidden;
+      position: relative;
+      img {
+        max-height: 100%;
+        object-fit: contain;
+      }
     }
-  }
-  figure {
-    @include flex-col;
-    height: 250px;
-    background: $greyblue;
-    overflow: hidden;
-    position: relative;
-    img {
-      max-height: 100%;
-      object-fit: contain;
-    }
-  }
-  strong {
-    min-width: 130px;
-    display: inline-block;
-  }
-  ul {
-    &.flat-list {
-      display: inline;
-      li {
-        display: inline-block;
-        &:not(:first-child)::before {
-          content: ", ";
+    ul {
+      &[class*="block-list"] {
+        li {
+          strong {
+            min-width: 30px;
+            display: inline-block;
+          }
+          padding: 0.4em !important;
         }
       }
     }
-    &[class*="block-list"] {
-      li {
-        strong {
-          min-width: 30px;
-          display: inline-block;
+  }
+  div[class*="is-one-third"] {
+    position: relative;
+    .sticky {
+      position: sticky;
+      top: 3em;
+      .buttons {
+        .button {
+          border-radius: 4px;
         }
-        padding: 0.4em !important;
+      }
+      strong {
+        min-width: 130px;
+        display: inline-block;
+      }
+      ul {
+        &.flat-list {
+          display: inline;
+          li {
+            display: inline-block;
+            &:not(:first-child)::before {
+              content: ", ";
+            }
+          }
+        }
       }
     }
   }

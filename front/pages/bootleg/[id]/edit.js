@@ -1,13 +1,13 @@
-import React, { useCallback, useEffect, useMemo } from "react"
+import React, { useCallback, useEffect, useMemo, MutableRefObject, useRef } from "react"
 import Head from "next/head"
 import { GetServerSidePropsContext } from 'next'
 // @ts-ignore
 import styles from "styles/pages/bootleg/[id]/edit.module.scss"
-import BootlegManager from "request/managers/bootlegManager"
+import BootlegHandler from "request/handlers/bootlegHandler"
 // @ts-ignore
 import { Section, Columns, Container } from 'react-bulma-components'
 import Bootleg, { ErrorBootleg } from 'request/objects/bootleg'
-import withManagers, { ManagersProps } from "helpers/hoc/withManagers"
+import withHandlers, { HandlersProps } from "helpers/hoc/withHandlers"
 import getConfig from 'next/config'
 import { wrapper } from "redux/store"
 import { AnyAction, Store } from 'redux'
@@ -38,6 +38,7 @@ import Song from 'request/objects/song'
 import Band from 'request/objects/band'
 import FileInput from "components/form/fileInput"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { RequestApi } from 'request/apiHandler'
 
 /**
  * @typedef {object} SuggestionsType
@@ -52,9 +53,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
 /**
  * Bootleg page
- * @param {BootlegProps & ManagersProps} props 
+ * @param {BootlegProps & HandlersProps} props 
  */
-function EditIdBootleg({ bootlegProps, bootlegManager, songManager, bandManager }) {
+function EditIdBootleg({ bootlegProps, bootlegHandler, songHandler, bandHandler }) {
     /** @type {[Bootleg, function(Bootleg):any]} Bootlegs */
     const [bootleg, setBootleg] = React.useState(bootlegProps)
     /** @type {[string, function(string):any]} Status */
@@ -63,6 +64,17 @@ function EditIdBootleg({ bootlegProps, bootlegManager, songManager, bandManager 
     const [errorField, setErrorField] = React.useState(new ErrorBootleg())
     /** @type {[SuggestionsType, function(SuggestionsType):any]} SuggestionsType */
     const [suggestions, setSuggestions] = React.useState({ bands: {}, songs: {} })
+
+    /** @type {MutableRefObject<RequestApi<Bootleg>>} */
+    const bootlegHandlerUpsert = useRef()
+    /** @type {MutableRefObject<RequestApi<Bootleg>>} */
+    const bootlegHandlerUploadImage = useRef()
+    /** @type {MutableRefObject<RequestApi<Bootleg>>} */
+    const bootlegHandlerRemoveImage = useRef()
+    /** @type {MutableRefObject<RequestApi<[Band[], any]>>} */
+    const bandHandlerGetAll = useRef()
+    /** @type {MutableRefObject<RequestApi<[Song[], any]>>} */
+    const songHandlerGetAll = useRef()
 
     const { publicRuntimeConfig } = getConfig()
     const router = useRouter()
@@ -161,7 +173,8 @@ function EditIdBootleg({ bootlegProps, bootlegManager, songManager, bandManager 
         async () => {
             try {
                 setStatus(Status.PENDING)
-                const bootlegUptd = await bootlegManager.upsert(bootleg, bootleg._id)
+                bootlegHandlerUpsert.current = bootlegHandler.upsert(bootleg, bootleg._id)
+                const bootlegUptd = await bootlegHandlerUpsert.current.fetch()
                 setBootleg(bootlegUptd)
                 setStatus(Status.RESOLVED)
                 setErrorField(new ErrorBootleg())
@@ -231,9 +244,10 @@ function EditIdBootleg({ bootlegProps, bootlegManager, songManager, bandManager 
 
             switch (object) {
                 case Band:
-                    bandManager.cancel()
+                    bandHandlerGetAll.current?.cancel()
                     try {
-                        const [bands] = await bandManager.getAll({ string: value })
+                        bandHandlerGetAll.current = bandHandler.getAll({ string: value })
+                        const [bands] = await bandHandlerGetAll.current.fetch()
                         newSugts[index] = bands
                         setSuggestions({ ...suggestions, [key]: newSugts })
                     } catch (error) {
@@ -241,9 +255,10 @@ function EditIdBootleg({ bootlegProps, bootlegManager, songManager, bandManager 
                     }
                     break
                 case Song:
-                    songManager.cancel()
+                    songHandlerGetAll.current?.cancel()
                     try {
-                        const [songs] = await songManager.getAll({ string: value })
+                        songHandlerGetAll.current = songHandler.getAll({ string: value })
+                        const [songs] = await songHandlerGetAll.current.fetch()
                         newSugts[index] = songs
                         setSuggestions({ ...suggestions, [key]: newSugts })
                     } catch (error) {
@@ -263,7 +278,8 @@ function EditIdBootleg({ bootlegProps, bootlegManager, songManager, bandManager 
          */
         async (file) => {
             try {
-                const bootlegUptd = await bootlegManager.uploadImage(file, bootleg._id)
+                bootlegHandlerUploadImage.current = bootlegHandler.uploadImage(file, bootleg._id)
+                const bootlegUptd = await bootlegHandlerUploadImage.current.fetch()
                 setBootleg(new Bootleg({ ...bootleg, picture: bootlegUptd?.picture }))
                 setErrorField(new ErrorBootleg())
             } catch (error) {
@@ -290,13 +306,14 @@ function EditIdBootleg({ bootlegProps, bootlegManager, songManager, bandManager 
                 return error
             }
         },
-        [bootlegManager, bootleg]
+        [bootlegHandler, bootleg]
     )
 
     const removeFile = useCallback(
         async () => {
             try {
-                const bootlegUptd = await bootlegManager.removeImage(bootleg._id)
+                bootlegHandlerRemoveImage.current = bootlegHandler.removeImage(bootleg._id)
+                const bootlegUptd = await bootlegHandlerRemoveImage.current.fetch()
                 setBootleg(new Bootleg({ ...bootleg, picture: bootlegUptd?.picture }))
             } catch (error) {
                 switch (error?.constructor) {
@@ -319,7 +336,7 @@ function EditIdBootleg({ bootlegProps, bootlegManager, songManager, bandManager 
                 return error
             }
         },
-        [bootlegManager, bootleg]
+        [bootlegHandler, bootleg]
     )
 
     //Update bootleg on update props
@@ -333,6 +350,14 @@ function EditIdBootleg({ bootlegProps, bootlegManager, songManager, bandManager 
         if (bootleg.isAudioOnly)
             setBootleg(new Bootleg({ ...bootleg, videoQuality: null }))
     }, [bootleg.isAudioOnly])
+
+    useEffect(() => () => {
+        bootlegHandlerUpsert.current?.cancel()
+        bootlegHandlerUploadImage.current?.cancel()
+        bootlegHandlerRemoveImage.current?.cancel()
+        bandHandlerGetAll.current?.cancel()
+        songHandlerGetAll.current?.cancel()
+    }, [])
 
     return (
         <>
@@ -560,7 +585,7 @@ function EditIdBootleg({ bootlegProps, bootlegManager, songManager, bandManager 
                                         onClick={() => setBootleg(new Bootleg({ ...bootleg, songs: [...bootleg.songs, ''] }))}
                                         iconLeft={faPlus}
                                         styles={{ button: 'is-small is-greyblue' }}
-                                        isDisabled={bootleg.songs?.length >= 10 || status === Status.PENDING}
+                                        isDisabled={bootleg.songs?.length >= 30 || status === Status.PENDING}
                                     />
                                     <br />
                                     <br />
@@ -734,14 +759,16 @@ function EditIdBootleg({ bootlegProps, bootlegManager, songManager, bandManager 
                                     <Button
                                         label="See"
                                         color='greyblue'
-                                        href={`/bootleg/${bootleg?._id}`}
+                                        href={{
+                                            pathname: `/bootleg/${bootleg?._id}`
+                                        }}
                                         iconRight={faEye}
                                         isDisabled={status === Status.PENDING || !bootleg._id}
                                     />
                                 </Columns.Column>
                                 <Columns.Column className="is-one-fifth-desktop">
                                     <br className="is-hidden-desktop" />
-                                    <div className={styles.infos}>
+                                    <div className={styles.sticky}>
                                         <h1 className="title is-4 is-title-underline">
                                             Help infos
                                         </h1>
@@ -788,7 +815,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
             }
 
         try {
-            const bootlegManager = new BootlegManager({ req })
+            const bootlegHandler = new BootlegHandler({ req })
             const id = /** @type {string} */ (query.id)
 
             if (id === "new")
@@ -804,7 +831,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
                     }
                 }
 
-            const bootleg = await bootlegManager.getById(id?.substring(id?.lastIndexOf("-") + 1))
+            const bootleg = await bootlegHandler.getById(id?.substring(id?.lastIndexOf("-") + 1)).fetch()
 
             return { props: { bootlegProps: bootleg.toJson() } }
         } catch (error) {
@@ -824,4 +851,4 @@ export const getServerSideProps = wrapper.getServerSideProps(
     }
 )
 
-export default withManagers(EditIdBootleg)
+export default withHandlers(EditIdBootleg)

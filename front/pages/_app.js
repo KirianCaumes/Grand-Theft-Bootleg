@@ -5,13 +5,13 @@ import { setToken } from 'redux/slices/main'
 import Cookie from 'helpers/cookie'
 import { useDispatch } from 'react-redux'
 import Layout from 'components/layout'
-import withManagers, { ManagersProps } from 'helpers/hoc/withManagers'
+import withHandlers, { HandlersProps } from 'helpers/hoc/withHandlers'
 import { wrapper } from 'redux/store'
 import Message from 'components/general/message'
 
 /**
  * Base layout
- * @param {AppProps & ManagersProps} props 
+ * @param {AppProps & HandlersProps} props 
  * {@link https://nextjs.org/docs/advanced-features/custom-app}
  */
 function MyApp({ Component, pageProps }) {
@@ -48,4 +48,4 @@ function MyApp({ Component, pageProps }) {
 //     }
 // }
 
-export default wrapper.withRedux(withManagers(MyApp))
+export default wrapper.withRedux(withHandlers(MyApp))

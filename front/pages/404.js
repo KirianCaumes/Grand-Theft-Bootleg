@@ -43,7 +43,7 @@ export default function My404() {
                             />
                             <Columns.Column>
                                 <h1 className="title is-4 is-title-underline">
-                                    <b>404</b> - Not found on <b>G</b>rand <b>T</b>heft <b>B</b>ootleg database
+                                    <b>404</b> - Not found on Grand Theft Bootleg database
                                 </h1>
                                 <br />
                                 <div className="field is-grouped">

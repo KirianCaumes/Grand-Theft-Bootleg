@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, MutableRefObject, useRef } from 'react'
 // @ts-ignore
 import { Navbar } from 'react-bulma-components'
 import Link from 'next/link'
@@ -16,7 +16,10 @@ import { useRouter } from 'next/router'
 import { ESort } from 'types/searchFilters/sort'
 import { EStates } from 'types/searchFilters/states'
 import Bootleg from 'request/objects/bootleg'
-import withManagers, { ManagersProps } from "helpers/hoc/withManagers"
+import withHandlers, { HandlersProps } from "helpers/hoc/withHandlers"
+import { RequestApi } from 'request/apiHandler'
+import BootlegMeta from 'request/objects/meta/bootlegMeta'
+import User from 'request/objects/user'
 
 /**
  * @typedef {object} LayoutProps
@@ -25,11 +28,16 @@ import withManagers, { ManagersProps } from "helpers/hoc/withManagers"
 
 /**
  * Login page
- * @param {LayoutProps & ReduxProps & ManagersProps} props 
+ * @param {LayoutProps & ReduxProps & HandlersProps} props 
  */
-function Layout({ children, main: { token, me }, notification: { bootlegs }, bootlegManager, userManager }) {
+function Layout({ children, main: { token, me }, notification: { bootlegs }, bootlegHandler, userHandler }) {
     /** @type {[boolean, function(boolean):any]} Is burger active */
     const [isActive, setIsActive] = React.useState(!!false)
+
+    /** @type {MutableRefObject<RequestApi<[Bootleg[], BootlegMeta]>>} */
+    const bootlegHandlerGetAll = useRef()
+    /** @type {MutableRefObject<RequestApi<User>>} */
+    const userHandlerGetMe = useRef()
 
     // @ts-ignore
     Layout.handleClickOutside = () => setIsActive(false)
@@ -42,11 +50,12 @@ function Layout({ children, main: { token, me }, notification: { bootlegs }, boo
             if (token)
                 (async () => {
                     try {
-                        const [bootlegs] = await bootlegManager.getAll({
+                        bootlegHandlerGetAll.current = bootlegHandler.getAll({
                             orderBy: ESort.DATE_CREATION_ASC,
                             state: EStates.PENDING,
                             limit: 5
                         })
+                        const [bootlegs] = await bootlegHandlerGetAll.current.fetch()
                         dispatch(setBootlegs({ bootlegs: bootlegs.map(x => x.toJson()) }))
                     } catch (error) {
                         console.error(error)
@@ -64,7 +73,8 @@ function Layout({ children, main: { token, me }, notification: { bootlegs }, boo
             if (token)
                 (async () => {
                     try {
-                        const user = await userManager.getMe()
+                        userHandlerGetMe.current = userHandler.getMe()
+                        const user = await userHandlerGetMe.current.fetch()
                         dispatch(setUser({ user: user.toJson() }))
 
                         if (!user?._id)
@@ -76,6 +86,11 @@ function Layout({ children, main: { token, me }, notification: { bootlegs }, boo
         },
         [token]
     )
+
+    useEffect(() => {
+        bootlegHandlerGetAll.current?.fetch()
+        userHandlerGetMe.current?.fetch()
+    }, [])
 
     return (
         <>
@@ -172,7 +187,7 @@ function Layout({ children, main: { token, me }, notification: { bootlegs }, boo
                                         <Navbar.Dropdown
                                             className="is-right"
                                         >
-                                            <Link href="/register">
+                                            <Link href="/user">
                                                 <a
                                                     className="navbar-item"
                                                     onClick={() => setIsActive(false)}
@@ -222,7 +237,7 @@ function Layout({ children, main: { token, me }, notification: { bootlegs }, boo
 }
 
 
-export default connect((state) => state)(onClickOutside(withManagers(Layout), {
+export default connect((state) => state)(onClickOutside(withHandlers(Layout), {
     // @ts-ignore
     handleClickOutside: () => Layout.handleClickOutside
 }))
@@ -262,7 +277,9 @@ function Notification({ bootlegs, onClick, className }) {
                             {bootlegs?.map((bootleg, i) =>
                                 <Link
                                     key={i}
-                                    href={`/bootleg/${encodeURIComponent(bootleg.title)}-${encodeURIComponent(bootleg._id)}`}
+                                    href={{
+                                        pathname: `/bootleg/${bootleg.title}-${bootleg._id}`
+                                    }}
                                 >
                                     <a
                                         className="dropdown-item"
@@ -277,7 +294,13 @@ function Notification({ bootlegs, onClick, className }) {
                                 </Link>
                             )}
                             <Link
-                                href={`/bootleg/search?orderBy=${ESort.DATE_CREATION_ASC}&state=${EStates.PENDING}`}
+                                href={{
+                                    pathname: '/bootleg/search',
+                                    query: {
+                                        orderBy: ESort.DATE_CREATION_ASC,
+                                        state: EStates.PENDING
+                                    }
+                                }}
                             >
                                 <a
                                     onClick={onClick}

@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useMemo, useRef } from "react"
+import React, { useEffect, useCallback, useMemo, useRef, MutableRefObject } from "react"
 import Head from "next/head"
 import { GetServerSidePropsContext } from 'next'
 // @ts-ignore
@@ -13,7 +13,7 @@ import { ECountries } from 'types/searchFilters/countries'
 import { ESort, ESortLabel } from 'types/searchFilters/sort'
 import { EStates } from 'types/searchFilters/states'
 import { useRouter } from "next/router"
-import withManagers, { ManagersProps } from 'helpers/hoc/withManagers'
+import withHandlers, { HandlersProps } from 'helpers/hoc/withHandlers'
 import { CancelRequestError } from "request/errors/cancelRequestError"
 import { UnauthorizedError } from "request/errors/unauthorizedError"
 import { InvalidEntityError } from "request/errors/invalidEntityError"
@@ -22,7 +22,7 @@ import Bootleg from "request/objects/bootleg"
 import BootlegMeta from "request/objects/meta/bootlegMeta"
 import BootlegCard from "components/general/bootlegCard"
 import { Status } from "types/status"
-import BootlegManager from "request/managers/bootlegManager"
+import BootlegHandler from "request/handlers/bootlegHandler"
 import Loader from "components/general/loader"
 import { faCalendarAlt } from "@fortawesome/free-regular-svg-icons"
 import Select from "components/form/select"
@@ -42,6 +42,7 @@ import { ESearch } from "types/searchFilters/search"
 import Button from "components/form/button"
 import usePrevious from "helpers/hooks/usePrevious"
 import Link from "next/link"
+import { RequestApi } from 'request/apiHandler'
 
 /**
  * @typedef {object} SearchProps
@@ -51,9 +52,9 @@ import Link from "next/link"
 
 /**
  * Search page
- * @param {SearchProps & ManagersProps & ReduxProps} props 
+ * @param {SearchProps & HandlersProps & ReduxProps} props 
  */
-function SearchBootleg({ bootlegManager, bootlegsProps, metaProps, main: { me }, ...props }) {
+function SearchBootleg({ bootlegHandler, bootlegsProps, metaProps, main: { me }, ...props }) {
     /** @type {[SearchFilters, function(SearchFilters):any]} Status */
     const [searchFilters, setSearchFilters] = React.useState(new SearchFilters())
     /** @type {[Bootleg[], function(Bootleg[]):any]} Bootlegs */
@@ -64,6 +65,9 @@ function SearchBootleg({ bootlegManager, bootlegsProps, metaProps, main: { me },
     const [status, setStatus] = React.useState(Status.RESOLVED)
     /** @type {[boolean, function(boolean):any]} Is filter display */
     const [isFilterDisplay, setIsFilterDisplay] = React.useState(!!false)
+
+    /** @type {MutableRefObject<RequestApi<[Bootleg[], BootlegMeta]>>} */
+    const bootlegHandlerGetAll = useRef()
 
     /** @type {SearchFilters} Previous state searchFilters */
     const prevSearchFilters = usePrevious(searchFilters)
@@ -77,6 +81,24 @@ function SearchBootleg({ bootlegManager, bootlegsProps, metaProps, main: { me },
         { key: 1, text: 'Yes' },
         { key: 0, text: 'No' }
     ], [])
+
+    const tabs = useMemo(() => [
+        {
+            search: ESearch.GLOBAL,
+            title: `Global (${meta?.total?.global || 0})`,
+            icon: faGlobe,
+        },
+        {
+            search: ESearch.BAND,
+            title: `Band (${meta?.total?.band || 0})`,
+            icon: faUsers,
+        },
+        {
+            search: ESearch.SONG,
+            title: `Song (${meta?.total?.song || 0})`,
+            icon: faMusic,
+        },
+    ], [meta?.total])
 
     useEffect(
         () => {
@@ -111,7 +133,8 @@ function SearchBootleg({ bootlegManager, bootlegsProps, metaProps, main: { me },
         async () => {
             try {
                 setStatus(Status.PENDING)
-                const [bootlegs, meta] = await bootlegManager.getAll(searchFilters)
+                bootlegHandlerGetAll.current = bootlegHandler.getAll(searchFilters)
+                const [bootlegs, meta] = await bootlegHandlerGetAll.current.fetch()
                 setBootlegs(bootlegs)
                 setMeta(meta)
                 setStatus(Status.RESOLVED)
@@ -149,6 +172,10 @@ function SearchBootleg({ bootlegManager, bootlegsProps, metaProps, main: { me },
         },
         [searchFilters.page, prevSearchFilters?.page, searchFilters.searchBy, prevSearchFilters?.searchBy]
     )
+
+    useEffect(() => () => {
+        bootlegHandlerGetAll.current?.cancel()
+    }, [])
 
     return (
         <>
@@ -220,200 +247,163 @@ function SearchBootleg({ bootlegManager, bootlegsProps, metaProps, main: { me },
                             </div>
                             <Columns className={classNames("is-variable is-8-widescreen is-desktop", styles.contentrow)}>
                                 <Columns.Column className={classNames("is-one-fifth-desktop", { 'is-hidden-touch': !isFilterDisplay })}>
-                                    <Select
-                                        label="Order by"
-                                        isDisabled={status === Status.PENDING}
-                                        iconLeft={faSort}
-                                        onChange={(ev, option) => setSearchFilters({
-                                            ...searchFilters,
-                                            orderBy: /** @type {string} */(option.key)
-                                        })}
-                                        value={searchFilters.orderBy}
-                                        options={Object.keys(ESort).map(sort => ({
-                                            key: sort, text: ESortLabel[sort]
-                                        }))}
-                                        styles={{
-                                            control: styles.select
-                                        }}
-                                    />
-                                    <Select
-                                        label="Country"
-                                        isDisabled={status === Status.PENDING}
-                                        iconLeft={faGlobeEurope}
-                                        onChange={(ev, option) => setSearchFilters({
-                                            ...searchFilters,
-                                            country: /** @type {string} */(option.key)
-                                        })}
-                                        value={searchFilters.country}
-                                        options={[
-                                            { key: null, text: 'Any' },
-                                            ...Object.keys(ECountries).map(country => ({
-                                                key: country, text: ECountries[country]
-                                            }))
-                                        ]}
-                                        styles={{
-                                            control: styles.select
-                                        }}
-                                    />
-                                    {me?.role > 1 &&
+                                    <div className={styles.sticky}>
                                         <Select
-                                            label="State"
+                                            label="Order by"
                                             isDisabled={status === Status.PENDING}
-                                            iconLeft={faMapMarker}
+                                            iconLeft={faSort}
                                             onChange={(ev, option) => setSearchFilters({
                                                 ...searchFilters,
-                                                state: /** @type {number} */(option.key)
+                                                orderBy: /** @type {string} */(option.key)
                                             })}
-                                            value={searchFilters.state?.toString()}
+                                            value={searchFilters.orderBy}
+                                            options={Object.keys(ESort).map(sort => ({
+                                                key: sort, text: ESortLabel[sort]
+                                            }))}
+                                            styles={{
+                                                control: styles.select
+                                            }}
+                                        />
+                                        <Select
+                                            label="Country"
+                                            isDisabled={status === Status.PENDING}
+                                            iconLeft={faGlobeEurope}
+                                            onChange={(ev, option) => setSearchFilters({
+                                                ...searchFilters,
+                                                country: /** @type {string} */(option.key)
+                                            })}
+                                            value={searchFilters.country}
                                             options={[
                                                 { key: null, text: 'Any' },
-                                                ...Object.keys(EStates).map(state => ({
-                                                    key: EStates[state], text: `${state.charAt(0).toUpperCase()}${state.toLowerCase().slice(1)}`
+                                                ...Object.keys(ECountries).map(country => ({
+                                                    key: country, text: ECountries[country]
                                                 }))
                                             ]}
                                             styles={{
                                                 control: styles.select
                                             }}
                                         />
-                                    }
-                                    <Select
-                                        label="Complete show"
-                                        isDisabled={status === Status.PENDING}
-                                        iconLeft={faHeadphonesAlt}
-                                        onChange={(ev, option) => setSearchFilters({
-                                            ...searchFilters,
-                                            isCompleteShow: /** @type {Number} */(option.key)
-                                        })}
-                                        value={searchFilters.isCompleteShow?.toString()}
-                                        options={boolOpts}
-                                        styles={{
-                                            control: styles.select
-                                        }}
-                                    />
-                                    <Select
-                                        label="Audio only"
-                                        isDisabled={status === Status.PENDING}
-                                        iconLeft={faVolumeUp}
-                                        onChange={(ev, option) => setSearchFilters({
-                                            ...searchFilters,
-                                            isAudioOnly: /** @type {Number} */(option.key)
-                                        })}
-                                        value={searchFilters.isAudioOnly?.toString()}
-                                        options={boolOpts}
-                                        styles={{
-                                            control: styles.select
-                                        }}
-                                    />
-                                    <Select
-                                        label="Pro record"
-                                        isDisabled={status === Status.PENDING}
-                                        iconLeft={faCompactDisc}
-                                        onChange={(ev, option) => setSearchFilters({
-                                            ...searchFilters,
-                                            isProRecord: /** @type {Number} */(option.key)
-                                        })}
-                                        value={searchFilters.isProRecord?.toString()}
-                                        options={boolOpts}
-                                        styles={{
-                                            control: styles.select
-                                        }}
-                                    />
-                                    <Input
-                                        label="Year"
-                                        placeholder="Year"
-                                        type="number"
-                                        min={1900}
-                                        max={2050}
-                                        step={1}
-                                        iconLeft={faCalendarAlt}
-                                        onChange={ev => {
-                                            const val = parseInt(ev.target.value)
-                                            setSearchFilters({
+                                        {me?.role > 0 &&
+                                            <Select
+                                                label="State"
+                                                isDisabled={status === Status.PENDING}
+                                                iconLeft={faMapMarker}
+                                                onChange={(ev, option) => setSearchFilters({
+                                                    ...searchFilters,
+                                                    state: /** @type {number} */(option.key)
+                                                })}
+                                                value={searchFilters.state?.toString()}
+                                                options={[
+                                                    { key: null, text: 'Any' },
+                                                    ...Object.keys(EStates).map(state => ({
+                                                        key: EStates[state], text: `${state.charAt(0).toUpperCase()}${state.toLowerCase().slice(1)}`
+                                                    }))
+                                                ]}
+                                                styles={{
+                                                    control: styles.select
+                                                }}
+                                            />
+                                        }
+                                        <Select
+                                            label="Complete show"
+                                            isDisabled={status === Status.PENDING}
+                                            iconLeft={faHeadphonesAlt}
+                                            onChange={(ev, option) => setSearchFilters({
                                                 ...searchFilters,
-                                                year: !isNaN(val) ? val : null
-                                            })
-                                        }}
-                                        value={searchFilters.year?.toString()}
-                                        styles={{
-                                            control: styles.input
-                                        }}
-                                    />
-                                    <Toggle
-                                        label="Random"
-                                        checked={!!searchFilters.isRandom}
-                                        isDisabled={status === Status.PENDING}
-                                        onChange={ev => setSearchFilters({
-                                            ...searchFilters,
-                                            isRandom: ev.target.checked ? 1 : null
-                                        })}
-                                    />
+                                                isCompleteShow: /** @type {Number} */(option.key)
+                                            })}
+                                            value={searchFilters.isCompleteShow?.toString()}
+                                            options={boolOpts}
+                                            styles={{
+                                                control: styles.select
+                                            }}
+                                        />
+                                        <Select
+                                            label="Audio only"
+                                            isDisabled={status === Status.PENDING}
+                                            iconLeft={faVolumeUp}
+                                            onChange={(ev, option) => setSearchFilters({
+                                                ...searchFilters,
+                                                isAudioOnly: /** @type {Number} */(option.key)
+                                            })}
+                                            value={searchFilters.isAudioOnly?.toString()}
+                                            options={boolOpts}
+                                            styles={{
+                                                control: styles.select
+                                            }}
+                                        />
+                                        <Select
+                                            label="Pro record"
+                                            isDisabled={status === Status.PENDING}
+                                            iconLeft={faCompactDisc}
+                                            onChange={(ev, option) => setSearchFilters({
+                                                ...searchFilters,
+                                                isProRecord: /** @type {Number} */(option.key)
+                                            })}
+                                            value={searchFilters.isProRecord?.toString()}
+                                            options={boolOpts}
+                                            styles={{
+                                                control: styles.select
+                                            }}
+                                        />
+                                        <Input
+                                            label="Year"
+                                            placeholder="Year"
+                                            type="number"
+                                            min={1900}
+                                            max={2050}
+                                            step={1}
+                                            iconLeft={faCalendarAlt}
+                                            onChange={ev => {
+                                                const val = parseInt(ev.target.value)
+                                                setSearchFilters({
+                                                    ...searchFilters,
+                                                    year: !isNaN(val) ? val : null
+                                                })
+                                            }}
+                                            value={searchFilters.year?.toString()}
+                                            styles={{
+                                                control: styles.input
+                                            }}
+                                        />
+                                        <Toggle
+                                            label="Random"
+                                            checked={!!searchFilters.isRandom}
+                                            isDisabled={status === Status.PENDING}
+                                            onChange={ev => setSearchFilters({
+                                                ...searchFilters,
+                                                isRandom: ev.target.checked ? 1 : null
+                                            })}
+                                        />
+                                    </div>
                                 </Columns.Column>
                                 <Columns.Column className="is-four-fifths-desktop">
                                     <div className="tabs">
                                         <ul>
-                                            <li
-                                                className={classNames({ "is-active": searchFilters.searchBy === ESearch.GLOBAL || !searchFilters.searchBy })}
-                                            >
-                                                <Link
-                                                    href={{
-                                                        pathname: router.pathname,
-                                                        query: {
-                                                            ...router.query,
-                                                            searchBy: ESearch.GLOBAL,
-                                                            page: 1
-                                                        }
-                                                    }}
+                                            {tabs?.map((tab, i) => (
+                                                <li
+                                                    key={i}
+                                                    className={classNames({ "is-active": searchFilters.searchBy === tab.search || !searchFilters.searchBy })}
                                                 >
-                                                    <a>
-                                                        <span className="icon is-small">
-                                                            <FontAwesomeIcon icon={faGlobe} />
-                                                        </span>
-                                                        <span>Global ({meta?.total?.global || 0})</span>
-                                                    </a>
-                                                </Link>
-                                            </li>
-                                            <li
-                                                className={classNames({ "is-active": searchFilters.searchBy === ESearch.BAND || !searchFilters.searchBy })}
-                                            >
-                                                <Link
-                                                    href={{
-                                                        pathname: router.pathname,
-                                                        query: {
-                                                            ...router.query,
-                                                            searchBy: ESearch.BAND,
-                                                            page: 1
-                                                        }
-                                                    }}
-                                                >
-                                                    <a>
-                                                        <span className="icon is-small">
-                                                            <FontAwesomeIcon icon={faUsers} />
-                                                        </span>
-                                                        <span>Band ({meta?.total?.band || 0})</span>
-                                                    </a>
-                                                </Link>
-                                            </li>
-                                            <li
-                                                className={classNames({ "is-active": searchFilters.searchBy === ESearch.SONG || !searchFilters.searchBy })}
-                                            >
-                                                <Link
-                                                    href={{
-                                                        pathname: router.pathname,
-                                                        query: {
-                                                            ...router.query,
-                                                            searchBy: ESearch.SONG,
-                                                            page: 1
-                                                        }
-                                                    }}
-                                                >
-                                                    <a>
-                                                        <span className="icon is-small">
-                                                            <FontAwesomeIcon icon={faMusic} />
-                                                        </span>
-                                                        <span>Song ({meta?.total?.song || 0})</span>
-                                                    </a>
-                                                </Link>
-                                            </li>
+                                                    <Link
+                                                        href={{
+                                                            pathname: router.pathname,
+                                                            query: {
+                                                                ...router.query,
+                                                                searchBy: tab.search,
+                                                                page: 1
+                                                            }
+                                                        }}
+                                                    >
+                                                        <a>
+                                                            <span className="icon is-small">
+                                                                <FontAwesomeIcon icon={tab.icon} />
+                                                            </span>
+                                                            <span>{tab.title}</span>
+                                                        </a>
+                                                    </Link>
+                                                </li>
+                                            ))}
                                         </ul>
                                     </div>
                                     {[Status.IDLE, Status.RESOLVED, Status.REJECTED].includes(status) ?
@@ -465,13 +455,13 @@ export const getServerSideProps = wrapper.getServerSideProps(
      */
     async ({ req, query }) => {
         try {
-            const bootlegManager = new BootlegManager({ req })
-            const [bootlegs, meta] = await bootlegManager.getAll({
+            const bootlegHandler = new BootlegHandler({ req })
+            const [bootlegs, meta] = await bootlegHandler.getAll({
                 ...query,
                 orderBy: /** @type {string=} */ (query?.orderBy) || ESort.DATE_ASC,
                 page: parseInt(/** @type {string=} */(query?.page)) || 1,
                 searchBy: /** @type {string=} */ (query?.searchBy) || ESearch.GLOBAL,
-            })
+            }).fetch()
 
             return { props: { bootlegsProps: bootlegs.map(x => x.toJson()), metaProps: meta.toJson() } }
         } catch (error) {
@@ -490,4 +480,4 @@ export const getServerSideProps = wrapper.getServerSideProps(
     }
 )
 
-export default connect((state) => state)(withManagers(SearchBootleg))
+export default connect((state) => state)(withHandlers(SearchBootleg))
