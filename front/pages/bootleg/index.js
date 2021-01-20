@@ -1,7 +1,7 @@
 import React from "react"
 import Head from "next/head"
 // @ts-ignore
-import styles from "styles/pages/bootleg/index-bootleg.module.scss"
+import styles from "styles/pages/bootleg/index.module.scss"
 // @ts-ignore
 import { Section, Container } from 'react-bulma-components'
 import withHandlers, { HandlersProps } from 'helpers/hoc/withHandlers'

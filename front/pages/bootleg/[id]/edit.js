@@ -375,7 +375,7 @@ function EditIdBootleg({ bootlegProps, bootlegHandler, songHandler, bandHandler 
                                 update()
                             }}
                         >
-                            <Columns className="is-variable is-8-widescreen is-desktop">
+                            <Columns className="is-desktop">
                                 <Columns.Column className="is-four-fifths-desktop" >
                                     <h1 className="title is-4 is-title-underline">
                                         {bootleg?._id ? `Edit ${bootleg.title}` : 'Create a new bootleg'}
@@ -407,7 +407,7 @@ function EditIdBootleg({ bootlegProps, bootlegHandler, songHandler, bandHandler 
                                         minLength={5}
                                         maxLength={500}
                                     />
-                                    <Columns className="is-variable">
+                                    <Columns>
                                         <Columns.Column size="one-third">
                                             <Input
                                                 label="Release date"
@@ -593,7 +593,7 @@ function EditIdBootleg({ bootlegProps, bootlegHandler, songHandler, bandHandler 
                                     <h2 className="subtitle is-5">
                                         Location(s)
                                     </h2>
-                                    <Columns className="is-variable">
+                                    <Columns>
                                         <Columns.Column>
                                             <Label
                                                 isRequired
@@ -676,7 +676,7 @@ function EditIdBootleg({ bootlegProps, bootlegHandler, songHandler, bandHandler 
                                     <h2 className="subtitle is-5">
                                         Other
                                     </h2>
-                                    <Columns className="is-variable">
+                                    <Columns>
                                         <Columns.Column>
                                             <Toggle
                                                 label="Complete Show"
@@ -708,7 +708,7 @@ function EditIdBootleg({ bootlegProps, bootlegHandler, songHandler, bandHandler 
                                             />
                                         </Columns.Column>
                                     </Columns>
-                                    <Columns className="is-variable">
+                                    <Columns>
                                         <Columns.Column>
                                             <Rating
                                                 label="Sound Quality"

@@ -4,7 +4,7 @@ import Head from "next/head"
 // @ts-ignore
 import styles from "styles/pages/user/index-user.module.scss"
 // @ts-ignore
-import { Section, Container, Columns } from 'react-bulma-components'
+import { Section, Container, Columns, Table } from 'react-bulma-components'
 import withHandlers, { HandlersProps } from 'helpers/hoc/withHandlers'
 import getConfig from 'next/config'
 import { connect } from "react-redux"
@@ -23,6 +23,10 @@ import BootlegHandler from "request/handlers/bootlegHandler"
 import Bootleg from "request/objects/bootleg"
 import { ESort } from "types/searchFilters/sort"
 import { EStates } from "types/searchFilters/states"
+import Button from "components/form/button"
+import { faPlus } from "@fortawesome/free-solid-svg-icons"
+import Image from "next/image"
+import classNames from 'classnames'
 
 /**
  * @typedef {object} IndexUserProps
@@ -47,70 +51,35 @@ function IndexUser({ main: { me }, bootlegsPublishedProps, bootlegsPendingProps,
             <main className={styles['index-user']}>
                 <Section>
                     <Container>
-                        <Columns className="is-variable is-8">
+                        <Columns>
                             <Columns.Column className="is-two-thirds">
-                                <h1 className="title is-4 is-title-underline">
+                                <h1 className="title is-3 is-title-underline">
                                     <span className="is-capitalized">{me?.username}</span>'s dashboard
                                 </h1>
                                 <br />
-                                <h2 className="title is-5 is-title-underline">
-                                    Your last bootlegs published
-                                </h2>
-                                <Link
-                                    href={{
-                                        pathname: '/bootleg/search',
-                                        query: {
-                                            orderBy: ESort.DATE_CREATION_DESC,
-                                            state: EStates.PUBLISHED,
-                                            authorId: me?._id
-                                        }
-                                    }}
-                                >
-                                    <a>
-                                        See more &gt;
-                                    </a>
-                                </Link>
+                                <TableBootleg
+                                    title="Your last bootlegs published"
+                                    bootlegs={bootlegsPublishedProps}
+                                    state={EStates.PUBLISHED}
+                                    authorId={me?._id}
+                                />
                                 <br />
+                                <TableBootleg
+                                    title="Your last bootlegs pending"
+                                    bootlegs={bootlegsPendingProps}
+                                    state={EStates.PENDING}
+                                    authorId={me?._id}
+                                />
                                 <br />
-                                <h2 className="title is-5 is-title-underline">
-                                    Your last bootlegs pending
-                                </h2>
-                                <Link
-                                    href={{
-                                        pathname: '/bootleg/search',
-                                        query: {
-                                            orderBy: ESort.DATE_CREATION_DESC,
-                                            state: EStates.PENDING,
-                                            authorId: me?._id
-                                        }
-                                    }}
-                                >
-                                    <a>
-                                        See more &gt;
-                                    </a>
-                                </Link>
-                                <br />
-                                <br />
-                                <h2 className="title is-5 is-title-underline">
-                                    Your last bootlegs draft
-                                </h2>
-                                <Link
-                                    href={{
-                                        pathname: '/bootleg/search',
-                                        query: {
-                                            orderBy: ESort.DATE_CREATION_DESC,
-                                            state: EStates.DRAFT,
-                                            authorId: me?._id
-                                        }
-                                    }}
-                                >
-                                    <a>
-                                        See more &gt;
-                                    </a>
-                                </Link>
+                                <TableBootleg
+                                    title="Your last bootlegs draft"
+                                    bootlegs={bootlegsDraftProps}
+                                    state={EStates.DRAFT}
+                                    authorId={me?._id}
+                                />
                             </Columns.Column>
                             <Columns.Column className="is-one-third">
-                                <h2 className="title is-5 is-title-underline">
+                                <h2 className="title is-4 is-title-underline">
                                     Your informations
                                 </h2>
                                 <p style={{ wordBreak: "break-word" }}>{JSON.stringify(me)}</p>
@@ -119,6 +88,81 @@ function IndexUser({ main: { me }, bootlegsPublishedProps, bootlegsPendingProps,
                     </Container>
                 </Section>
             </main>
+        </>
+    )
+}
+
+/**
+ * @param {object} props 
+ * @param {string} props.title
+ * @param {Bootleg[]} props.bootlegs
+ * @param {EStates} props.state
+ * @param {any} props.authorId
+ */
+function TableBootleg({ title, bootlegs, state, authorId }) {
+    const { publicRuntimeConfig } = getConfig()
+
+    return (
+        <>
+            <h2 className="title is-4 is-title-underline">
+                {title}&nbsp;
+                <Button
+                    iconLeft={faPlus}
+                    href="/bootleg/new/edit"
+                    styles={{ button: 'is-small' }}
+                />
+            </h2>
+            {bootlegs?.length <= 0 ?
+                <p>
+                    <i>No result found</i>
+                    <br />
+                    <br />
+                </p>
+                :
+                <>
+                    {bootlegs?.map((bootleg, i) => (
+                        <React.Fragment key={i}>
+                            <div className={classNames("boxed", styles.bootlegRow)}>
+                                <Link href={`/bootleg/${bootleg._id}`}>
+                                    <a>
+                                        <Image
+                                            src={bootleg.picture ? `${publicRuntimeConfig.backUrl}/images/${bootleg.picture}` : '/logo.png'}
+                                            alt={bootleg.title ?? "bootleg"}
+                                            title={bootleg.title}
+                                            width={40}
+                                            height={40}
+                                        />
+                                    </a>
+                                </Link>
+                                <div>
+                                    <Link href={`/bootleg/${bootleg._id}`}>
+                                        <a>{bootleg?.title ?? <i>Unknown</i>}</a>
+                                    </Link>
+                                    <span>
+                                        Added {new Date(bootleg.createdOn)?.toLocaleDateString('en-EN', { year: 'numeric', month: 'short', day: '2-digit' }) ?? <i>Unknown</i>}
+                                    </span>
+                                </div>
+                            </div>
+                        </React.Fragment>
+                    ))}
+                    <p className="has-text-right">
+                        <Link
+                            href={{
+                                pathname: '/bootleg/search',
+                                query: {
+                                    orderBy: ESort.DATE_CREATION_DESC,
+                                    state: state,
+                                    authorId: authorId
+                                }
+                            }}
+                        >
+                            <a>
+                                See more &gt;
+                        </a>
+                        </Link>
+                    </p>
+                </>
+            }
         </>
     )
 }

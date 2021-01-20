@@ -42,5 +42,16 @@ html {
       color: $pink;
       font-weight: bold;
     }
+    *[disabled] {
+      background-color: whitesmoke;
+    }
+    .boxed {
+      background-color: white;
+      padding: 1rem;
+      border-radius: 0.25rem;
+      box-shadow: 0 0.5em 1em -0.125em rgba(10, 10, 10, 0.1), 0 0 0 1px rgba(10, 10, 10, 0.02);
+      max-width: 100%;
+      position: relative;
+    }
   }
 }

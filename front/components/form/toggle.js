@@ -29,7 +29,7 @@ export default function Toggle({
     isDisabled = false,
     onChange = () => null,
     styles = {},
-    color = 'greyblue',
+    color = 'light-greyblue',
     errorMessage = undefined,
     isRequired = false,
 }) {

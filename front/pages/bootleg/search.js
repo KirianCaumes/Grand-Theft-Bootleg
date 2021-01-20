@@ -184,6 +184,7 @@ function SearchBootleg({ bootlegHandler, bootlegsProps, metaProps, main: { me },
             </Head>
 
             <main className={styles['search-bootleg']}>
+                <div></div>
                 <Section className="flex">
                     <Container className="flex-one">
                         <form
@@ -192,9 +193,21 @@ function SearchBootleg({ bootlegHandler, bootlegsProps, metaProps, main: { me },
                                 getBootlegs()
                             }}
                         >
-                            <Columns className={classNames("is-variable is-8-widescreen is-desktop", styles.searchrow)}>
-                                <Columns.Column className="is-one-fifth-desktop" />
+                            <Columns className={classNames("is-desktop", styles.searchrow)}>
                                 <Columns.Column className="is-four-fifths-desktop">
+                                    <h1 className="title is-4 is-title-underline" >
+                                        Bootlegs found for {searchFilters.string || 'your search'} ({(() => {
+                                            switch (searchFilters.searchBy) {
+                                                case ESearch.BAND:
+                                                    return meta?.total?.band || 0
+                                                case ESearch.SONG:
+                                                    return meta?.total?.song || 0
+                                                case ESearch.GLOBAL:
+                                                default:
+                                                    return meta?.total?.global || 0
+                                            }
+                                        })()})
+                                    </h1>
                                     <div className="field has-addons">
                                         <div className="control is-expanded">
                                             <input
@@ -209,21 +222,6 @@ function SearchBootleg({ bootlegHandler, bootlegsProps, metaProps, main: { me },
                                                 })}
                                                 minLength={3}
                                             />
-                                            <h1 className="help" >
-                                                <i>
-                                                    Bootlegs found for {searchFilters.string || 'your search'} ({(() => {
-                                                        switch (searchFilters.searchBy) {
-                                                            case ESearch.BAND:
-                                                                return meta?.total?.band || 0
-                                                            case ESearch.SONG:
-                                                                return meta?.total?.song || 0
-                                                            case ESearch.GLOBAL:
-                                                            default:
-                                                                return meta?.total?.global || 0
-                                                        }
-                                                    })()})
-                                                </i>
-                                            </h1>
                                         </div>
                                         <p className="control">
                                             <button
@@ -235,7 +233,9 @@ function SearchBootleg({ bootlegHandler, bootlegsProps, metaProps, main: { me },
                                         </p>
                                     </div>
                                 </Columns.Column>
+                                <Columns.Column className="is-one-fifth-desktop" />
                             </Columns>
+                            <br />
                             <div className="is-hidden-desktop">
                                 <Button
                                     onClick={() => setIsFilterDisplay(!isFilterDisplay)}
@@ -245,9 +245,72 @@ function SearchBootleg({ bootlegHandler, bootlegsProps, metaProps, main: { me },
                                 <br />
                                 <br />
                             </div>
-                            <Columns className={classNames("is-variable is-8-widescreen is-desktop", styles.contentrow)}>
+                            <div className="tabs">
+                                <ul>
+                                    {tabs?.map((tab, i) => (
+                                        <li
+                                            key={i}
+                                            className={classNames({ "is-active": searchFilters.searchBy === tab.search || !searchFilters.searchBy })}
+                                        >
+                                            <Link
+                                                href={{
+                                                    pathname: router.pathname,
+                                                    query: {
+                                                        ...router.query,
+                                                        searchBy: tab.search,
+                                                        page: 1
+                                                    }
+                                                }}
+                                            >
+                                                <a>
+                                                    <span className="icon is-small">
+                                                        <FontAwesomeIcon icon={tab.icon} />
+                                                    </span>
+                                                    <span>{tab.title}</span>
+                                                </a>
+                                            </Link>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <Columns className={classNames("is-desktop", styles.contentrow)}>
+                                <Columns.Column className="is-four-fifths-desktop">
+                                    {[Status.IDLE, Status.RESOLVED, Status.REJECTED].includes(status) ?
+                                        <>
+                                            {bootlegs?.length ?
+                                                <Columns>
+                                                    {bootlegs?.map((bootleg, i) => (
+                                                        <Columns.Column
+                                                            size="one-quarter"
+                                                            key={`random-${i}`}
+                                                        >
+                                                            <BootlegCard
+                                                                bootleg={bootleg}
+                                                            />
+                                                        </Columns.Column>
+                                                    ))}
+                                                </Columns>
+                                                :
+                                                <p>No result</p>
+                                            }
+                                        </> :
+                                        <Loader />
+                                    }
+                                    <br />
+
+                                    {[Status.IDLE, Status.RESOLVED, Status.REJECTED].includes(status) &&
+                                        <Pagination
+                                            current={meta?.page?.current}
+                                            total={meta?.page?.last}
+                                        />
+                                    }
+                                </Columns.Column>
+
                                 <Columns.Column className={classNames("is-one-fifth-desktop", { 'is-hidden-touch': !isFilterDisplay })}>
-                                    <div className={styles.sticky}>
+                                    <div className={classNames("boxed", styles.sticky)}>
+                                        <h2 className="title is-4 is-title-underline">
+                                            Filters
+                                        </h2>
                                         <Select
                                             label="Order by"
                                             isDisabled={status === Status.PENDING}
@@ -376,67 +439,6 @@ function SearchBootleg({ bootlegHandler, bootlegsProps, metaProps, main: { me },
                                             })}
                                         />
                                     </div>
-                                </Columns.Column>
-                                <Columns.Column className="is-four-fifths-desktop">
-                                    <div className="tabs">
-                                        <ul>
-                                            {tabs?.map((tab, i) => (
-                                                <li
-                                                    key={i}
-                                                    className={classNames({ "is-active": searchFilters.searchBy === tab.search || !searchFilters.searchBy })}
-                                                >
-                                                    <Link
-                                                        href={{
-                                                            pathname: router.pathname,
-                                                            query: {
-                                                                ...router.query,
-                                                                searchBy: tab.search,
-                                                                page: 1
-                                                            }
-                                                        }}
-                                                    >
-                                                        <a>
-                                                            <span className="icon is-small">
-                                                                <FontAwesomeIcon icon={tab.icon} />
-                                                            </span>
-                                                            <span>{tab.title}</span>
-                                                        </a>
-                                                    </Link>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                    {[Status.IDLE, Status.RESOLVED, Status.REJECTED].includes(status) ?
-                                        <>
-                                            {bootlegs?.length ?
-                                                <Columns
-                                                    className="is-variable is-3"
-                                                >
-                                                    {bootlegs?.map((bootleg, i) => (
-                                                        <Columns.Column
-                                                            size="one-quarter"
-                                                            key={`random-${i}`}
-                                                        >
-                                                            <BootlegCard
-                                                                bootleg={bootleg}
-                                                            />
-                                                        </Columns.Column>
-                                                    ))}
-                                                </Columns>
-                                                :
-                                                <p>No result</p>
-                                            }
-                                        </> :
-                                        <Loader />
-                                    }
-                                    <br />
-
-                                    {[Status.IDLE, Status.RESOLVED, Status.REJECTED].includes(status) &&
-                                        <Pagination
-                                            current={meta?.page?.current}
-                                            total={meta?.page?.last}
-                                        />
-                                    }
                                 </Columns.Column>
                             </Columns>
                         </form>

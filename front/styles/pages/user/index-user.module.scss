@@ -1,2 +1,27 @@
+@import "../../helpers";
+@import "../../variables";
+
 .index-user {
+  .bootlegRow {
+    display: flex;
+    justify-content: flex-start;
+    padding: 0.5em;
+    > * {
+      &:first-child {
+        margin-right: 1em !important;
+        height: 40px;
+      }
+      &:last-child {
+        display: flex;
+        flex-direction: column;
+        span {
+          font-size: 0.75em;
+          color: gray;
+        }
+      }
+    }
+    &:not(:last-child) {
+      margin-bottom: 0.5em;
+    }
+  }
 }

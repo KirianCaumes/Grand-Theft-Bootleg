@@ -10,17 +10,17 @@
           color: $greyblue;
         }
       }
+      div[class="tabs"] {
+        a:hover {
+          text-decoration: unset;
+        }
+      }
       .contentrow {
         div[class*="is-one-fifth-desktop"] {
           position: relative;
           .sticky {
             position: sticky;
-            top: 3em;
-          }
-        }
-        div[class="tabs"] {
-          a:hover {
-            text-decoration: unset;
+            top: 1em;
           }
         }
         .select {

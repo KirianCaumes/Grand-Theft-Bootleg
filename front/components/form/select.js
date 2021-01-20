@@ -47,7 +47,7 @@ export default function Select({
     value = null,
     onChange = () => null,
     styles = {},
-    color = 'greyblue',
+    color = 'light-greyblue',
     options = [],
     button = {},
     errorMessage = undefined,

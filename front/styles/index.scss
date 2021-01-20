@@ -19,6 +19,7 @@ $tabs-link-active-color: $pink;
 $pagination-focus-border-color: $pink;
 $pagination-current-background-color: $pink;
 $pagination-current-border-color: $pink;
+// $tabs-border-bottom-color: $light-greyblue;
 // $input-disabled-background-color: rgba(
 //     $color: $grey,
 //     $alpha: 0,
@@ -35,6 +36,10 @@ $colors: map-merge(
         "dark-pink": (
             $dark-pink,
             findColorInvert($dark-pink),
+        ),
+        "light-greyblue": (
+            $light-greyblue,
+            findColorInvert($light-greyblue),
         ),
         "greyblue": (
             $greyblue,
@@ -72,7 +77,7 @@ $colors: map-merge(
 // @import "bulma/sass/elements/image.sass";
 @import "bulma/sass/elements/notification.sass";
 // @import "bulma/sass/elements/progress.sass";
-// @import "bulma/sass/elements/table.sass";
+@import "bulma/sass/elements/table.sass";
 @import "bulma/sass/elements/tag.sass";
 @import "bulma/sass/elements/title.sass";
 @import "bulma/sass/elements/other.sass";

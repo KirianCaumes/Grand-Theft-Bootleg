@@ -60,7 +60,7 @@ export default function Input({
     onBlur = () => null,
     onInput = () => null,
     styles = {},
-    color = 'greyblue',
+    color = 'light-greyblue',
     minLength = null,
     maxLength = null,
     options = [],
