@@ -43,11 +43,11 @@ export default function Toggle({
                     {label}
                 </Label>
             }
-            <div className={classNames("field", styles.field, toggleStyles.field)}>
+            <div className={classNames(styles.field, toggleStyles.field)}>
                 <input
                     id={encodeURIComponent(label)}
                     type="checkbox"
-                    className={classNames(`switch is-rounded`, { [`is-${color}`]: !!color })}
+                    className={classNames(toggleStyles.switch, toggleStyles['is-rounded'], { [toggleStyles[`is-${color}`]]: !!color })}
                     checked={checked}
                     onChange={onChange}
                     disabled={isDisabled}

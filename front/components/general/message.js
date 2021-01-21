@@ -1,11 +1,10 @@
 import React, { useEffect, useRef } from 'react'
 // @ts-ignore
-import styles from 'styles/components/general/message.module.scss'
-// @ts-ignore
-import { Notification as BulmaNotification, Button } from 'react-bulma-components'
+import stylesMessage from 'styles/components/general/message.module.scss'
 import { connect, useDispatch } from 'react-redux'
 import { ReduxProps } from 'redux/store'
 import { setMessage } from "redux/slices/main"
+import classNames from 'classnames'
 
 /**
  * Notification
@@ -33,23 +32,22 @@ function Message({ main: { message } }) {
         return null
 
     return (
-        <BulmaNotification
-            color={message.type || 'primary'}
-            className={styles.message}
+        <div
+            className={classNames(stylesMessage.notification, stylesMessage.message, { [stylesMessage[`is-${message.type}`]]: !!message.type })}
         >
-            <p
-                className={styles.content}
-            >
-                {message.content}
-            </p>
-            <Button
-                remove
+            <button
+                className={classNames(stylesMessage.delete)}
                 onClick={() => {
                     clearTimeout(timer.current)
                     dispatch(setMessage({ message: { ...message, isDisplay: false } }))
                 }}
             />
-        </BulmaNotification>
+            <p
+                className={stylesMessage.content}
+            >
+                {message.content}
+            </p>
+        </div>
     )
 }
 

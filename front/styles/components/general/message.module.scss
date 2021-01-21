@@ -1,4 +1,6 @@
-// @import "bulma/sass/elements/notification.sass";
+@import "../../colors.scss";
+@import "../../mixins";
+@import "bulma/sass/elements/notification.sass";
 
 .message {
     box-shadow: 0 8px 8px rgba(10, 10, 10, 0.1);
@@ -8,6 +10,10 @@
     left: 1em;
     width: 350px;
     max-width: 75%;
+    .delete {
+        @include delete;
+        position: absolute !important;
+    }
     .content {
         overflow: hidden;
         text-overflow: ellipsis;

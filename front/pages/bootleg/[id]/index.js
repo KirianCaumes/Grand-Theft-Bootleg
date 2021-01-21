@@ -212,7 +212,7 @@ function IndexIdBootleg({ bootlegProps, bootlegHandler, main: { token, me }, ...
                                 </Columns>
 
                                 <h2 className="title is-4 is-title-underline">Setlist</h2>
-                                <ul className="block-list is-small has-radius is-greyblue is-highlighted ">
+                                <ul className={classNames(styles['block-list'], styles['is-small'], styles['has-radiust'], styles['is-greyblue'], styles['is-highlighted'])}>
                                     {bootleg.songs?.map((song, i) => (
                                         <li
                                             key={i}

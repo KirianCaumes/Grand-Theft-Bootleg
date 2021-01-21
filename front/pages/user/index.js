@@ -4,7 +4,7 @@ import Head from "next/head"
 // @ts-ignore
 import styles from "styles/pages/user/index-user.module.scss"
 // @ts-ignore
-import { Section, Container, Columns, Table } from 'react-bulma-components'
+import { Section, Container, Columns } from 'react-bulma-components'
 import withHandlers, { HandlersProps } from 'helpers/hoc/withHandlers'
 import getConfig from 'next/config'
 import { connect } from "react-redux"
@@ -24,9 +24,10 @@ import Bootleg from "request/objects/bootleg"
 import { ESort } from "types/searchFilters/sort"
 import { EStates } from "types/searchFilters/states"
 import Button from "components/form/button"
-import { faPlus } from "@fortawesome/free-solid-svg-icons"
+import { faPlus, faUserEdit, faUserMinus } from "@fortawesome/free-solid-svg-icons"
 import Image from "next/image"
 import classNames from 'classnames'
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
 /**
  * @typedef {object} IndexUserProps
@@ -82,7 +83,77 @@ function IndexUser({ main: { me }, bootlegsPublishedProps, bootlegsPendingProps,
                                 <h2 className="title is-4 is-title-underline">
                                     Your informations
                                 </h2>
-                                <p style={{ wordBreak: "break-word" }}>{JSON.stringify(me)}</p>
+
+                                <span>
+                                    <strong>Username:</strong>
+                                    {me?.username ?? <i>Unknown</i>}
+                                </span>
+                                <br />
+                                <span>
+                                    <strong>Email:</strong>
+                                    {me?.mail ?? <i>Unknown</i>}
+                                </span>
+                                {/* <br />
+                                <span>
+                                    <strong>Role:</strong>
+                                    {me?.role ?? <i>Unknown</i>}
+                                </span>
+                                <br />
+                                <span>
+                                    <strong>Authentification:</strong>
+                                    {me?.strategy ?? <i>Unknown</i>}
+                                </span>*/}
+
+                                <br />
+                                <br />
+                                <br />
+
+                                <h2 className="title is-4 is-title-underline">
+                                    Your bootlegs statistics
+                                </h2>
+                                <span>
+                                    <strong>Created:</strong>
+                                    {undefined ?? <i>Unknown</i>}
+                                </span>
+                                <br />
+                                <span>
+                                    <strong>Last:</strong>
+                                    {undefined ?? <i>Unknown</i>}
+                                </span>
+                                <br />
+                                <span>
+                                    <strong>First:</strong>
+                                    {undefined ?? <i>Unknown</i>}
+                                </span>
+                                <br />
+                                <span>
+                                    <strong>Favorite bands:</strong>
+                                    {undefined ?? <i>Unknown</i>}
+                                </span>
+                                <br />
+                                <span>
+                                    <strong>Favorite year:</strong>
+                                    {undefined ?? <i>Unknown</i>}
+                                </span>
+
+                                <br />
+                                <br />
+                                <br />
+
+                                <h2 className="title is-4 is-title-underline">
+                                    Actions
+                                </h2>
+                                <a>
+                                    Change your username
+                                </a>&nbsp;<FontAwesomeIcon icon={faUserEdit} className="has-text-pink" />
+                                <br />
+                                <a>
+                                    Reset your password
+                                </a>&nbsp;<FontAwesomeIcon icon={faUserEdit} className="has-text-pink" />
+                                <br />
+                                <a>
+                                    Delete your account
+                                </a>&nbsp;<FontAwesomeIcon icon={faUserMinus} className="has-text-pink" />
                             </Columns.Column>
                         </Columns>
                     </Container>

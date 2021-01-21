@@ -1,9 +1,11 @@
+@import "../../../colors";
+@import "../../../mixins";
 @import "../../../helpers";
-@import "../../../variables";
-@import "bulma/sass/utilities/initial-variables.sass";
-@import "bulma/sass/utilities/functions.sass";
-@import "bulma/sass/utilities/derived-variables.sass";
-@import "bulma/sass/utilities/mixins.sass";
+
+$small-font-size: 0.875em !default;
+$body-font-size: 1em !default;
+
+@import "node_modules/bulma-block-list/src/block-list";
 
 .index-id-bootleg {
   // h1 {
