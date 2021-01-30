@@ -52,6 +52,7 @@ function Modal({ isDisplay, title, children, onClickYes, onClickNo, isFormDisabl
                         <button
                             className="delete"
                             aria-label="close"
+                            type="button"
                             onClick={() => {
                                 onClickNo?.()
                             }}

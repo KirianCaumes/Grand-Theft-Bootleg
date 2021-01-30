@@ -1,0 +1,3 @@
+<%- await include( 'templates/_base.mail.ejs' , { subject, year, appName, url, userName, action: 'Delete your account' ,
+    textBefore:'You are receiving this email because we received an account deletion request for your account.',
+    textAfter:'If you did not request an account deletion, no further action is required.', } ) %>

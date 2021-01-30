@@ -40,6 +40,7 @@
     "sibiraj-s.vscode-scss-formatter",
     "firefox-devtools.vscode-firefox-debug",
     "msjsdiag.debugger-for-chrome",
-    "denoland.vscode-deno"
+    "denoland.vscode-deno",
+    "digitalbrainstem.javascript-ejs-support"
   ]
 }

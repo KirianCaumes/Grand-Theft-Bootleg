@@ -362,7 +362,12 @@ function EditIdBootleg({ bootlegProps, bootlegHandler, songHandler, bandHandler 
     return (
         <>
             <Head>
-                <title>{bootleg.title || 'New'} - {publicRuntimeConfig.appName}</title>
+                <title>Edit {bootleg.title || 'new'} - {publicRuntimeConfig.appName}</title>
+                <meta
+                    name="description"
+                    content={`Edit live bootleg from ${bootleg?.bands?.join(', ')} played on ${new Date(bootleg.date)?.getFullYear()} in ${bootleg?.countries?.join(', ')}`}
+                />
+                <meta name="robots" content="noindex" />
             </Head>
 
             <main className={styles['edit-id-bootleg']}>

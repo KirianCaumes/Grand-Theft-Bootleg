@@ -10,9 +10,8 @@ import { EActions } from "../types/enumerations/EActions.ts"
 import { ReportValidatorType } from "../validators/report.validator.ts"
 import { ESearch } from "../types/enumerations/ESsearch.ts"
 import { FileValidatorType } from "../validators/file.validator.ts"
-import { v4 } from "https://deno.land/std@0.83.0/uuid/mod.ts"
 import ValidationException from "../types/exceptions/ValidationException.ts"
-import ImageHelper from "../helpers/image.ts"
+import ImageService from "../services/image.service.ts"
 
 /**
  * Bootleg Controller
@@ -22,18 +21,18 @@ export default class BootlegController extends BaseController {
     private validateBootleg: BootlegValidatorType
     private validatorReport: ReportValidatorType
     private validatorFile: FileValidatorType
-    private imageHelper: ImageHelper
+    private imageService: ImageService
 
     /** @inheritdoc */
     resultKey: string = "bootleg"
 
-    constructor(collection: BootlegsCollectionType, validateBootleg: BootlegValidatorType, validatorReport: ReportValidatorType, validatorFile: FileValidatorType, imageHelper: ImageHelper) {
+    constructor(collection: BootlegsCollectionType, validateBootleg: BootlegValidatorType, validatorReport: ReportValidatorType, validatorFile: FileValidatorType, imageService: ImageService) {
         super()
         this.collection = collection
         this.validateBootleg = validateBootleg
         this.validatorReport = validatorReport
         this.validatorFile = validatorFile
-        this.imageHelper = imageHelper
+        this.imageService = imageService
     }
 
     /**
@@ -145,7 +144,7 @@ export default class BootlegController extends BaseController {
         })
 
         //Get picture if YT
-        const picture = await this.imageHelper.extractYtThumbnail(bootlegBddUpd)
+        const picture = await this.imageService.extractYtThumbnail(bootlegBddUpd)
 
         //Update element
         if (picture)
@@ -185,7 +184,7 @@ export default class BootlegController extends BaseController {
         )
 
         //Get picture if YT
-        const picture = await this.imageHelper.extractYtThumbnail(bootlegBddUpd)
+        const picture = await this.imageService.extractYtThumbnail(bootlegBddUpd)
 
         //Update element
         if (picture)
@@ -361,7 +360,7 @@ export default class BootlegController extends BaseController {
         await this.validatorFile({ picture: file })
 
         //Save image on disk
-        const name = await this.imageHelper.saveFile(file)
+        const name = await this.imageService.saveFile(file)
 
         //Update element
         const bootlegBddUpd = await this.collection.updateOneById(
@@ -391,7 +390,7 @@ export default class BootlegController extends BaseController {
         this.denyAccessUnlessGranted(EActions.UPDATE, bootlegBdd, user)
 
         //Remove image
-        await this.imageHelper.removeFile(bootlegBdd.picture)
+        await this.imageService.removeFile(bootlegBdd.picture)
 
         //Update element
         const bootlegBddUpd = await this.collection.updateOneById(

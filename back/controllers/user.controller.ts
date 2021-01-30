@@ -8,21 +8,30 @@ import { EUserRoles } from "../types/enumerations/EUserRoles.ts"
 import ValidationException from "../types/exceptions/ValidationException.ts"
 import getGoogleUser from "../helpers/strategies/getGoogleUser.ts"
 import { EAuthStrategies } from "../types/enumerations/EAuthStrategies.ts"
-
+import MailService from "../services/mail.service.ts"
+import NotFoundException from "../types/exceptions/NotFoundException.ts"
+import { randomBytes } from "https://deno.land/std@0.83.0/node/crypto.ts"
+import { env } from "../helpers/config.ts"
+import ForbiddenException from "../types/exceptions/ForbiddenException.ts"
+import { userPasswordValidatorType } from "../validators/userPassword.validator.ts"
 /**
  * User Controller
  */
 export default class UserController extends BaseController {
     private collection: UsersCollectionType
-    private validate: UserValidatorType
+    private validateUser: UserValidatorType
+    private validatePassword: userPasswordValidatorType
+    private mailService: MailService
 
     /** @inheritdoc */
     resultKey: string = "user"
 
-    constructor(collection: UsersCollectionType, validate: UserValidatorType) {
+    constructor(collection: UsersCollectionType, validateUser: UserValidatorType, validatePassword: userPasswordValidatorType, mailService: MailService) {
         super()
         this.collection = collection
-        this.validate = validate
+        this.validateUser = validateUser
+        this.validatePassword = validatePassword
+        this.mailService = mailService
     }
 
     /**
@@ -30,7 +39,7 @@ export default class UserController extends BaseController {
      */
     async register({ request, response }: { request: Request; response: Response }) {
         //Validate data
-        const userBody = await this.validate(await request.body().value)
+        const userBody = await this.validateUser(await request.body().value)
 
         delete userBody.strategyData
 
@@ -110,7 +119,7 @@ export default class UserController extends BaseController {
     }
 
     /**
-     * getMe
+     * Get me
      */
     async getMe({ request, response }: { request: Request; response: Response }) {
         //Get user
@@ -122,5 +131,118 @@ export default class UserController extends BaseController {
                 ...user
             }
         })
+    }
+
+    /**
+     * Send mail
+     */
+    async sendMail({ params, request, response }: { params: { type: string }; request: Request; response: Response }) {
+        //Get user
+        const user = await this._getUser(request)
+
+        //Rest token
+        const token = randomBytes(20).toString('hex')
+
+        //Send mail by type
+        switch (params.type) {
+            case 'password':
+                if (user.strategy !== EAuthStrategies.CLASSIC)
+                    throw new ForbiddenException('Invalid strategy')
+
+                this.collection.updateOneById(
+                    user._id?.$oid,
+                    { $set: { resetPassword: { token, expirationDate: new Date() } } }
+                )
+                await this.mailService.send(
+                    user.mail,
+                    'Reset your password',
+                    'reset-account-pwd',
+                    {
+                        token,
+                        url: `${env.APP_URL}/reset-password/${token}`,
+                        userName: user.username
+                    }
+                )
+                break
+            case 'delete':
+                this.collection.updateOneById(
+                    user._id?.$oid,
+                    { $set: { deleteAccount: { token, expirationDate: new Date() } } }
+                )
+                await this.mailService.send(
+                    user.mail,
+                    'Delete your account',
+                    'delete-account',
+                    {
+                        token,
+                        url: `${env.APP_URL}/delete-account/${token}`,
+                        userName: user.username
+                    }
+                )
+                break
+            default:
+                throw new NotFoundException()
+        }
+
+        response.body = this._render({
+            message: 'Mail sended'
+        })
+    }
+
+    /**
+     * Reset password
+     */
+    async resetPwd({ params, request, response }: { params: { token: string }; request: Request; response: Response }) {
+        //User body
+        const userBody = await request.body().value
+
+        //User db
+        const userDb = await this.collection.findOne({ 'resetPassword.token': { $eq: params.token } } as any)
+
+        if (!userDb)
+            throw new NotFoundException()
+
+        if (userDb?.resetPassword?.expirationDate?.getTime()! < Date.now() / 1000 + 60 * 60 * 24)
+            throw new ForbiddenException('Token expired')
+
+        if (userDb.strategy !== EAuthStrategies.CLASSIC)
+            throw new ForbiddenException('Invalid strategy')
+
+        //Validate password
+        await this.validatePassword({ password: userBody.password })
+
+        //Update password
+        this.collection.updateOneById(userDb?._id?.$oid,
+            {
+                $set: { password: await bcrypt.hash(userBody.password) },
+                $unset: { resetPassword: 1 }
+            }
+        )
+
+        response.body = this._render({
+            message: 'Password reseted'
+        })
+    }
+
+    /**
+     * Delete account
+     */
+    async deleteAccount({ params, request, response }: { params: { token: string }; request: Request; response: Response }) {
+        //User db
+        const userDb = await this.collection.findOne({ 'resetPassword.token': { $eq: params.token } } as any)
+
+        if (!userDb)
+            throw new NotFoundException()
+
+        if (userDb?.resetPassword?.expirationDate?.getTime()! < Date.now() / 1000 + 60 * 60 * 24)
+            throw new ForbiddenException('Token expired')
+
+        //Delete user
+        this.collection.deleteOneById(userDb?._id?.$oid)
+
+        response.body = this._render({
+            message: 'User deleted'
+        })
+
     }
 }

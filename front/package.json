@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "sitemap": "node sitemap-generator.js"
   },
   "dependencies": {
     "@creativebulma/bulma-divider": "^1.1.0",
@@ -15,13 +16,16 @@
     "@fortawesome/free-solid-svg-icons": "^5.15.1",
     "@fortawesome/react-fontawesome": "^0.1.12",
     "@reduxjs/toolkit": "^1.5.0",
+    "@sergeymyssak/nextjs-sitemap": "^1.1.1",
     "axios": "^0.21.1",
     "bulma": "^0.9.1",
     "bulma-block-list": "^0.4.0",
     "bulma-extensions": "^6.2.7",
     "classnames": "^2.2.6",
+    "dotenv": "^8.2.0",
     "http-proxy-middleware": "^1.0.5",
     "js-cookie": "^2.2.1",
+    "mongodb": "^3.6.3",
     "next": "^10.0.1",
     "next-redux-wrapper": "^6.0.2",
     "office-ui-fabric-react": "^7.145.0",

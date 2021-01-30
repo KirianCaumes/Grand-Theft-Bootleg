@@ -100,6 +100,11 @@ function Register({ userHandler }) {
         <>
             <Head>
                 <title>Register - {publicRuntimeConfig.appName}</title>
+                <meta
+                    name="description"
+                    content="Create a new account on Grand Theft Bootleg and join the community."
+                />
+                <meta name="robots" content="noindex" />
             </Head>
 
             <main className={styles.register}>

@@ -20,6 +20,10 @@ function IndexBootleg({ ...props }) {
         <>
             <Head>
                 <title>What is a bootleg? - {publicRuntimeConfig.appName}</title>
+                <meta
+                    name="description"
+                    content="Get to know the story of the bootlegs and understand how these underground shows a precious for Grand Theft Bootleg."
+                />
             </Head>
 
             <main className={styles['index-bootleg']}>

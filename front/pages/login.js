@@ -97,6 +97,11 @@ function Login({ userHandler }) {
         <>
             <Head>
                 <title>Login - {publicRuntimeConfig.appName}</title>
+                <meta
+                    name="description"
+                    content="Login in your Grand Theft Bootleg account."
+                />
+                <meta name="robots" content="noindex" />
             </Head>
 
             <main className={styles.login}>

@@ -13,7 +13,12 @@ export default function GeneralConditions() {
     return (
         <>
             <Head>
-                <title>General Conditions - {publicRuntimeConfig.appName}</title>
+                <title>General conditions - {publicRuntimeConfig.appName}</title>
+                <meta
+                    name="description"
+                    content="General conditions of Grand Theft Bootleg."
+                />
+                <meta name="robots" content="noindex" />
             </Head>
 
             <main className={styles['general-conditions']}>

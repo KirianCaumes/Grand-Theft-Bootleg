@@ -181,6 +181,10 @@ function IndexIdBootleg({ bootlegProps, bootlegHandler, main: { token, me }, ...
         <>
             <Head>
                 <title>{bootleg.title} - {publicRuntimeConfig.appName}</title>
+                <meta
+                    name="description"
+                    content={`Live bootleg from ${bootleg?.bands?.join(', ')} played on ${new Date(bootleg.date)?.getFullYear()} in ${bootleg?.countries?.join(', ')}`}
+                />
             </Head>
 
             <main className={styles['index-id-bootleg']}>

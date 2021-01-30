@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useCallback, useState, MutableRefObject, useRef, useEffect } from "react"
 import { GetServerSidePropsContext } from 'next'
 import Head from "next/head"
 // @ts-ignore
@@ -7,11 +7,11 @@ import styles from "styles/pages/user/index-user.module.scss"
 import { Section, Container, Columns } from 'react-bulma-components'
 import withHandlers, { HandlersProps } from 'helpers/hoc/withHandlers'
 import getConfig from 'next/config'
-import { connect } from "react-redux"
+import { connect, useDispatch } from "react-redux"
 import { Store, AnyAction } from "redux"
 import { ReduxProps, wrapper } from 'redux/store'
 import Link from "next/link"
-import { MainState } from "redux/slices/main"
+import { MainState, removeToken, setMessage } from "redux/slices/main"
 import { NotificationState } from 'redux/slices/notification'
 import { CancelRequestError } from "request/errors/cancelRequestError"
 import { AuthentificationError } from "request/errors/authentificationError"
@@ -28,6 +28,12 @@ import { faPlus, faUserEdit, faUserMinus } from "@fortawesome/free-solid-svg-ico
 import Image from "next/image"
 import classNames from 'classnames'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { EUserRolesLabel } from "types/userRoles"
+import Modal, { ModalType } from "components/general/modal"
+import Input from "components/form/input"
+import User, { ErrorUser } from "request/objects/user"
+import { RequestApi } from 'request/apiHandler'
+import { useRouter } from "next/router"
 
 /**
  * @typedef {object} IndexUserProps
@@ -40,13 +46,104 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
  * Index page
  * @param {IndexUserProps & HandlersProps & ReduxProps} props 
  */
-function IndexUser({ main: { me }, bootlegsPublishedProps, bootlegsPendingProps, bootlegsDraftProps }) {
+function IndexUser({ main: { me }, bootlegsPublishedProps, bootlegsPendingProps, bootlegsDraftProps, userHandler }) {
+    /** @type {[User, function(User):any]} User */
+    const [user, setUser] = useState(me)
+    /** @type {[ModalType, function(ModalType):any]} Modal user infos */
+    const [modalUsr, setModalUsr] = useState({ isDisplay: !!false })
+    /** @type {[ModalType, function(ModalType):any]} Modal user infos */
+    const [modal, setModal] = useState({ isDisplay: !!false })
+    /** @type {[ErrorUser, function(ErrorUser):any]} Errors */
+    const [errorFieldUser, setErrorFieldUser] = useState(new ErrorUser())
+
+    /** @type {MutableRefObject<RequestApi<User>>} */
+    const userHandlerUpdateById = useRef()
+    /** @type {MutableRefObject<RequestApi<User>>} */
+    const userHandlerSendMail = useRef()
+
     const { publicRuntimeConfig } = getConfig()
+    const router = useRouter()
+    const dispatch = useDispatch()
+
+    /** Update user API */
+    const update = useCallback(
+        async () => {
+            try {
+                userHandlerUpdateById.current = userHandler.updateById(user, user._id)
+                setUser(await userHandlerUpdateById.current.fetch())
+                dispatch(setMessage({ message: { isDisplay: true, content: 'Your informations has been correctly updated', type: 'success' } }))
+            } catch (error) {
+                switch (error?.constructor) {
+                    case CancelRequestError: break
+                    case UnauthorizedError:
+                    case AuthentificationError:
+                        router.push('/login')
+                        dispatch(removeToken(undefined))
+                        dispatch(setMessage({ message: { isDisplay: true, content: /** @type {Error} */(error).message, type: 'warning' } }))
+                        break
+                    case InvalidEntityError:
+                        setErrorFieldUser(error.errorField)
+                        dispatch(setMessage({ message: { isDisplay: true, content: 'Some fields are invalid', type: 'danger' } }))
+                        break
+                    case NotFoundError:
+                    case NotImplementedError:
+                    default:
+                        dispatch(setMessage({ message: { isDisplay: true, content: 'An error occured during the user update', type: 'danger' } }))
+                        console.log(error)
+                        break
+                }
+                return error
+            }
+        },
+        []
+    )
+
+    /** Send mail user API */
+    const sendMail = useCallback(
+        /**
+         * @param {'password' | 'delete'} type
+         */
+        async (type) => {
+            try {
+                userHandlerSendMail.current = userHandler.sendMail(type)
+                await userHandlerSendMail.current.fetch()
+                dispatch(setMessage({ message: { isDisplay: true, content: 'An email has been send', type: 'success' } }))
+            } catch (error) {
+                switch (error?.constructor) {
+                    case CancelRequestError: break
+                    case UnauthorizedError:
+                    case AuthentificationError:
+                        router.push('/login')
+                        dispatch(removeToken(undefined))
+                        dispatch(setMessage({ message: { isDisplay: true, content: /** @type {Error} */(error).message, type: 'warning' } }))
+                        break
+                    case InvalidEntityError:
+                    case NotFoundError:
+                    case NotImplementedError:
+                    default:
+                        dispatch(setMessage({ message: { isDisplay: true, content: 'An error occured', type: 'danger' } }))
+                        console.log(error)
+                        break
+                }
+                return error
+            }
+        },
+        []
+    )
+    useEffect(() => () => {
+        userHandlerUpdateById.current?.cancel()
+        userHandlerSendMail.current?.cancel()
+    }, [])
 
     return (
         <>
             <Head>
-                <title>Dashboard - {publicRuntimeConfig.appName}</title>
+                <title>Your dashboard - {publicRuntimeConfig.appName}</title>
+                <meta
+                    name="description"
+                    content="See informations of your Grand Theft Bootleg account: last publications, reset your password, etc."
+                />
+                <meta name="robots" content="noindex" />
             </Head>
 
             <main className={styles['index-user']}>
@@ -93,48 +190,13 @@ function IndexUser({ main: { me }, bootlegsPublishedProps, bootlegsPendingProps,
                                     <strong>Email:</strong>
                                     {me?.mail ?? <i>Unknown</i>}
                                 </span>
-                                {/* <br />
-                                <span>
-                                    <strong>Role:</strong>
-                                    {me?.role ?? <i>Unknown</i>}
-                                </span>
-                                <br />
-                                <span>
-                                    <strong>Authentification:</strong>
-                                    {me?.strategy ?? <i>Unknown</i>}
-                                </span>*/}
-
-                                <br />
-                                <br />
-                                <br />
-
-                                <h2 className="title is-4 is-title-underline">
-                                    Your bootlegs statistics
-                                </h2>
-                                <span>
-                                    <strong>Created:</strong>
-                                    {undefined ?? <i>Unknown</i>}
-                                </span>
-                                <br />
-                                <span>
-                                    <strong>Last:</strong>
-                                    {undefined ?? <i>Unknown</i>}
-                                </span>
-                                <br />
-                                <span>
-                                    <strong>First:</strong>
-                                    {undefined ?? <i>Unknown</i>}
-                                </span>
-                                <br />
-                                <span>
-                                    <strong>Favorite bands:</strong>
-                                    {undefined ?? <i>Unknown</i>}
-                                </span>
-                                <br />
-                                <span>
-                                    <strong>Favorite year:</strong>
-                                    {undefined ?? <i>Unknown</i>}
-                                </span>
+                                {me.role > 1 && <>
+                                    <br />
+                                    <span>
+                                        <strong>Role:</strong>
+                                        {EUserRolesLabel[me?.role] ?? <i>Unknown</i>}
+                                    </span>
+                                </>}
 
                                 <br />
                                 <br />
@@ -143,15 +205,39 @@ function IndexUser({ main: { me }, bootlegsPublishedProps, bootlegsPendingProps,
                                 <h2 className="title is-4 is-title-underline">
                                     Actions
                                 </h2>
-                                <a>
+                                <a
+                                    onClick={() => setModalUsr({ isDisplay: true })}
+                                >
                                     Change your username
                                 </a>&nbsp;<FontAwesomeIcon icon={faUserEdit} className="has-text-pink" />
                                 <br />
-                                <a>
+                                <a
+                                    onClick={() => setModal({
+                                        isDisplay: true,
+                                        title: 'Reset your password',
+                                        children: 'A confirmation email will be send to you to reset your password.',
+                                        onClickYes: async () => {
+                                            const err = await sendMail('password')
+                                            if (!err)
+                                                setModal({ isDisplay: false })
+                                        }
+                                    })}
+                                >
                                     Reset your password
                                 </a>&nbsp;<FontAwesomeIcon icon={faUserEdit} className="has-text-pink" />
                                 <br />
-                                <a>
+                                <a
+                                    onClick={() => setModal({
+                                        isDisplay: true,
+                                        title: 'Delete your account',
+                                        children: 'A confirmation email will be send to you to delete your account.',
+                                        onClickYes: async () => {
+                                            const err = await sendMail('delete')
+                                            if (!err)
+                                                setModal({ isDisplay: false })
+                                        }
+                                    })}
+                                >
                                     Delete your account
                                 </a>&nbsp;<FontAwesomeIcon icon={faUserMinus} className="has-text-pink" />
                             </Columns.Column>
@@ -159,6 +245,35 @@ function IndexUser({ main: { me }, bootlegsPublishedProps, bootlegsPendingProps,
                     </Container>
                 </Section>
             </main>
+
+            <Modal
+                isDisplay={modalUsr.isDisplay}
+                title="Edit your informations"
+                onClickYes={async () => {
+                    const err = await update()
+                    if (!err)
+                        setModalUsr({ isDisplay: false })
+                }}
+                onClickNo={() => setModalUsr({ isDisplay: false })}
+            >
+                <Input
+                    label="Username"
+                    placeholder="Your username"
+                    isRequired={true}
+                    value={user.username}
+                    errorMessage={errorFieldUser.username}
+                    onChange={ev => setUser(new User({ ...user, username: ev.target.value }))}
+                />
+            </Modal>
+
+            <Modal
+                isDisplay={modal.isDisplay}
+                title={modal.title}
+                onClickYes={modal.onClickYes}
+                onClickNo={() => setModal({ isDisplay: false })}
+            >
+                {modal.children}
+            </Modal>
         </>
     )
 }
@@ -274,7 +389,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
                 props: {
                     bootlegsPublishedProps: bootlegsPublished.map(x => x.toJson()),
                     bootlegsPendingProps: bootlegsPending.map(x => x.toJson()),
-                    bootlegsDraftProps: bootlegsDraft.map(x => x.toJson())
+                    bootlegsDraftProps: bootlegsDraft.map(x => x.toJson()),
                 }
             }
         } catch (error) {

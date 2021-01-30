@@ -54,7 +54,11 @@ function Index({ bootlegsPopularProps, bootlegsNewProps, bootlegsRandomProps, ..
     return (
         <>
             <Head>
-                <title>Home - {publicRuntimeConfig.appName}</title>
+                <title>{publicRuntimeConfig.appName} - Discover unknown live bootlegs</title>
+                <meta
+                    name="description"
+                    content="Music and its hidden sides submerged. What if we emerge them? 💿 Grand Theft Bootleg, help us bring out the bootlegs lost in the depths of the abyss! 🌊"
+                />
             </Head>
 
             <main className={styles.index}>

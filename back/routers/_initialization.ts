@@ -9,26 +9,29 @@ import { UsersCollection } from "../models/user.model.ts"
 import { userValidator } from "../validators/user.validator.ts"
 import { reportValidator } from "../validators/report.validator.ts"
 import { fileValidator } from "../validators/file.validator.ts"
-import ImageHelper from "../helpers/image.ts"
+import ImageService from "../services/image.service.ts"
+import MailService from "../services/mail.service.ts"
+import { userPasswordValidator } from "../validators/userPassword.validator.ts"
 
 //Collection
 const bootlegsCollection = new BootlegsCollection()
 const usersCollection = new UsersCollection()
 
 //Helpers
-const imageHelper = new ImageHelper()
+const imageService = new ImageService()
+const mailService = new MailService()
 
 export {
     bootlegsCollection,
     usersCollection,
-    imageHelper
+    imageService
 }
 
 //Controllers
-const bootlegController = new BootlegController(bootlegsCollection, bootlegValidator, reportValidator, fileValidator, imageHelper)
+const bootlegController = new BootlegController(bootlegsCollection, bootlegValidator, reportValidator, fileValidator, imageService)
 const bandController = new BandController(bootlegsCollection)
 const songController = new SongController(bootlegsCollection)
-const userController = new UserController(usersCollection, userValidator)
+const userController = new UserController(usersCollection, userValidator, userPasswordValidator, mailService)
 const defaultController = new DefaultController()
 
 export {

@@ -8,6 +8,7 @@ import { UserSchema } from "./user.model.ts"
 import { env } from "../helpers/config.ts"
 import { EUserRoles } from "../types/enumerations/EUserRoles.ts"
 import { ESearch } from "../types/enumerations/ESsearch.ts"
+import BaseCollection from "./_base.model.ts"
 
 export interface BootlegSchema {
     _id: { $oid: string }
@@ -48,7 +49,7 @@ export interface BootlegSchema {
     ]
 }
 
-export class BootlegsCollection extends Collection<BootlegSchema> {
+export class BootlegsCollection extends BaseCollection<BootlegSchema> {
     /** Limit to searchin db */
     limit: number = 48
 
@@ -59,7 +60,7 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
     /**
      * Clear fields
      */
-    private _setupClear(user?: UserSchema) {
+    protected _setupClear(user?: UserSchema) {
         const clear = [
             { $addFields: { "createdBy.password": null } },
             { $addFields: { "modifiedBy.password": null } },
@@ -77,7 +78,7 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
     /**
      * About relations
      */
-    private _setupRelations() {
+    protected _setupRelations() {
         return [
             {
                 $lookup: {
@@ -130,53 +131,6 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
                 }
             },
         ]
-    }
-
-    /**
-     * Get one element by Id
-     * @param id Id of the bootleg
-     * {@link https://github.com/manyuanrong/deno_mongo/issues/89}
-     */
-    async findOneById(id: string, user?: UserSchema): Promise<BootlegSchema> {
-        try {
-            const el = (await this.aggregate([
-                { $match: { _id: ObjectId(id) } },
-                ...this._setupRelations(),
-                ...this._setupClear(user)
-            ]))?.[0]
-
-            if (!el)
-                throw new NotFoundException("Bootleg not found")
-
-            return el as BootlegSchema
-        } catch (error) {
-            if (error?.message?.includes(" is not legal."))
-                throw new NotFoundException("Bootleg not found")
-            throw error
-        }
-    }
-
-    /**
-     * Update one element by Id
-     * @param id Id of the bootleg
-     * {@link https://github.com/manyuanrong/deno_mongo/issues/89}
-     */
-    async updateOneById(id: string, update: any): Promise<BootlegSchema> {
-        try {
-            const el = await this.updateOne(
-                { _id: ObjectId(id) },
-                update
-            )
-
-            if (!el)
-                throw new NotFoundException("Bootleg not found")
-
-            return await this.findOneById(id)
-        } catch (error) {
-            if (error?.message?.includes(" is not legal."))
-                throw new NotFoundException("Bootleg not found")
-            throw error
-        }
     }
 
     /**

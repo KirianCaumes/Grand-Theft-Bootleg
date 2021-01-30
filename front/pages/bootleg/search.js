@@ -118,7 +118,6 @@ function SearchBootleg({ bootlegHandler, bootlegsProps, metaProps, main: { me },
             history.replaceState(null, null, "?")
 
             const queryParams = new URLSearchParams(window.location.search)
-            console.log(searchFilters)
             for (const key in searchFilters) {
                 if (searchFilters[key] !== null)
                     queryParams.set(key, searchFilters[key])
@@ -180,7 +179,11 @@ function SearchBootleg({ bootlegHandler, bootlegsProps, metaProps, main: { me },
     return (
         <>
             <Head>
-                <title>Search - {publicRuntimeConfig.appName}</title>
+                <title>Search a bootleg - {publicRuntimeConfig.appName}</title>
+                <meta
+                    name="description"
+                    content="Looking for a live bootleg? Search with our powerfull search engine on Grand Theft Bootleg."
+                />
             </Head>
 
             <main className={styles['search-bootleg']}>

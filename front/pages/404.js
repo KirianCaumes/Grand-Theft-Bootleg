@@ -19,7 +19,12 @@ export default function My404() {
     return (
         <>
             <Head>
-                <title>404 - {publicRuntimeConfig.appName}</title>
+                <title>Not found - {publicRuntimeConfig.appName}</title>
+                <meta
+                    name="description"
+                    content="404 not found."
+                />
+                <meta name="robots" content="noindex" />
             </Head>
 
             <main className={styles.notfound}>
