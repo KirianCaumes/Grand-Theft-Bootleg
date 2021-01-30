@@ -313,7 +313,7 @@ function Index({ bootlegsPopularProps, bootlegsNewProps, bootlegsRandomProps, ..
                                 <Fade right>
                                     <Button
                                         label="Register"
-                                        href="/register"
+                                        href="/user/register"
                                         iconRight={faUserCheck}
                                         styles={{ button: 'is-fullwidth' }}
                                     />
@@ -406,7 +406,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
                 case NotImplementedError:
                 case NotFoundError:
                 default:
-                    console.log(error)
+                    console.error(error)
                     return {
                         props: {
                             bootlegsPopular: [],

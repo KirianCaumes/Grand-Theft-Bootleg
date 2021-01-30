@@ -87,7 +87,6 @@ const mainSlice = createSlice({
             if (action.payload.main.token) {
                 state.token = action.payload.main.token
             }
-            // console.log("cccc", action.payload.main)
             // if (action.payload.main.message)
             state.message = action.payload.main.message
         }

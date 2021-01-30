@@ -2,7 +2,7 @@ import React, { useCallback, useState, MutableRefObject, useRef, useEffect } fro
 import { GetServerSidePropsContext } from 'next'
 import Head from "next/head"
 // @ts-ignore
-import styles from "styles/pages/user/index-user.module.scss"
+import styles from "styles/pages/user/index.module.scss"
 // @ts-ignore
 import { Section, Container, Columns } from 'react-bulma-components'
 import withHandlers, { HandlersProps } from 'helpers/hoc/withHandlers'
@@ -11,7 +11,7 @@ import { connect, useDispatch } from "react-redux"
 import { Store, AnyAction } from "redux"
 import { ReduxProps, wrapper } from 'redux/store'
 import Link from "next/link"
-import { MainState, removeToken, setMessage } from "redux/slices/main"
+import { MainState, removeToken, setMessage, setToken } from "redux/slices/main"
 import { NotificationState } from 'redux/slices/notification'
 import { CancelRequestError } from "request/errors/cancelRequestError"
 import { AuthentificationError } from "request/errors/authentificationError"
@@ -34,6 +34,7 @@ import Input from "components/form/input"
 import User, { ErrorUser } from "request/objects/user"
 import { RequestApi } from 'request/apiHandler'
 import { useRouter } from "next/router"
+import Cookie from "helpers/cookie"
 
 /**
  * @typedef {object} IndexUserProps
@@ -77,7 +78,7 @@ function IndexUser({ main: { me }, bootlegsPublishedProps, bootlegsPendingProps,
                     case CancelRequestError: break
                     case UnauthorizedError:
                     case AuthentificationError:
-                        router.push('/login')
+                        router.push('/user/login')
                         dispatch(removeToken(undefined))
                         dispatch(setMessage({ message: { isDisplay: true, content: /** @type {Error} */(error).message, type: 'warning' } }))
                         break
@@ -89,7 +90,7 @@ function IndexUser({ main: { me }, bootlegsPublishedProps, bootlegsPendingProps,
                     case NotImplementedError:
                     default:
                         dispatch(setMessage({ message: { isDisplay: true, content: 'An error occured during the user update', type: 'danger' } }))
-                        console.log(error)
+                        console.error(error)
                         break
                 }
                 return error
@@ -113,7 +114,7 @@ function IndexUser({ main: { me }, bootlegsPublishedProps, bootlegsPendingProps,
                     case CancelRequestError: break
                     case UnauthorizedError:
                     case AuthentificationError:
-                        router.push('/login')
+                        router.push('/user/login')
                         dispatch(removeToken(undefined))
                         dispatch(setMessage({ message: { isDisplay: true, content: /** @type {Error} */(error).message, type: 'warning' } }))
                         break
@@ -122,7 +123,7 @@ function IndexUser({ main: { me }, bootlegsPublishedProps, bootlegsPendingProps,
                     case NotImplementedError:
                     default:
                         dispatch(setMessage({ message: { isDisplay: true, content: 'An error occured', type: 'danger' } }))
-                        console.log(error)
+                        console.error(error)
                         break
                 }
                 return error
@@ -360,6 +361,19 @@ export const getServerSideProps = wrapper.getServerSideProps(
      * @param {GetServerSidePropsContext & {store: Store<{ main: MainState; notification: NotificationState }, AnyAction>;}} ctx
      */
     async ({ req, store }) => {
+        const token = Cookie.get(req)
+
+        if (token)
+            store.dispatch(setToken({ token }))
+
+        if (!store.getState().main.token)
+            return {
+                redirect: {
+                    destination: '/user/login',
+                    permanent: false
+                }
+            }
+
         const me = store.getState().main?.me
 
         try {
@@ -401,7 +415,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
                 case NotImplementedError:
                 case NotFoundError:
                 default:
-                    console.log(error)
+                    console.error(error)
                     return {
                         props: {
                             bootlegsPopular: [],

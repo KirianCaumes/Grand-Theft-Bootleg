@@ -11,7 +11,7 @@ require('dotenv').config()
     const Sitemap = configureSitemap({
         baseUrl: 'https://grand-theft-bootleg.com',
         include: bootlegs.map(bootleg => `/bootleg/${encodeURIComponent(bootleg.title)}-${bootleg._id}`),
-        exclude: ['/404', '/api/[...slug]', '/general-conditions', '/login', '/register', '/user/', '/bootleg/[id]/', '/bootleg/[id]/edit'],
+        exclude: ['/404', '/api/[...slug]', '/general-conditions', '/user/login', '/user/register', '/user/reset-password/', '/user/reset-password/[token]', '/user/delete-account/', '/user/', '/bootleg/[id]/', '/bootleg/[id]/edit'],
         excludeIndex: true,
         pagesConfig: {
             '/bootleg/*': {

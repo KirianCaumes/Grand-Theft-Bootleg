@@ -71,7 +71,7 @@ export default abstract class BaseCollection<T extends any> extends Collection<T
      * @param id Id of the Item
      * {@link https://github.com/manyuanrong/deno_mongo/issues/89}
      */
-    async deleteOneById(id: string): Promise<T> {
+    async deleteOneById(id: string): Promise<undefined> {
         try {
             const el = await this.deleteOne(
                 { _id: ObjectId(id) } as any
@@ -80,7 +80,7 @@ export default abstract class BaseCollection<T extends any> extends Collection<T
             if (!el)
                 throw new NotFoundException("Item not found")
 
-            return await this.findOneById(id)
+            return
         } catch (error) {
             if (error?.message?.includes(" is not legal."))
                 throw new NotFoundException("Item not found")

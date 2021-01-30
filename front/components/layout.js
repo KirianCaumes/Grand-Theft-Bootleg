@@ -75,11 +75,16 @@ function Layout({ children, main: { token, me }, notification: { bootlegs }, boo
                     try {
                         userHandlerGetMe.current = userHandler.getMe()
                         const user = await userHandlerGetMe.current.fetch()
-                        dispatch(setUser({ user: user.toJson() }))
 
-                        if (!user?._id)
+                        if (!!user?._id)
+                            dispatch(setUser({ user: user.toJson() }))
+                        else {
+                            dispatch(setUser({ user: new User() }))
                             dispatch(removeToken(undefined))
+                        }
                     } catch (error) {
+                        dispatch(setUser({ user: new User() }))
+                        dispatch(removeToken(undefined))
                         console.error(error)
                     }
                 })()
@@ -144,7 +149,7 @@ function Layout({ children, main: { token, me }, notification: { bootlegs }, boo
                         </Navbar.Container>
                         <Navbar.Container position="end">
                             {!token ? <>
-                                <Link href="/login">
+                                <Link href="/user/login">
                                     <a
                                         className="navbar-item"
                                         onClick={() => setIsActive(false)}
@@ -154,7 +159,7 @@ function Layout({ children, main: { token, me }, notification: { bootlegs }, boo
                                 </Link>
                                 <div className="navbar-item">
                                     <div className="buttons">
-                                        <Link href="/register">
+                                        <Link href="/user/register">
                                             <a
                                                 className="button is-pink"
                                                 onClick={() => setIsActive(false)}

@@ -1,59 +1,58 @@
-import React, { useCallback, useEffect, useRef, MutableRefObject } from "react"
+import React, { useCallback, useEffect, MutableRefObject, useRef } from "react"
 import Head from "next/head"
 // @ts-ignore
 import { Section, Columns, Container } from 'react-bulma-components'
 // @ts-ignore
-import styles from "styles/pages/register.module.scss"
+import styles from "styles/pages/user/login.module.scss"
 import { Logo } from "components/svg/icon"
 import { Status } from "types/status"
 import User, { ErrorUser } from "request/objects/user"
-import { faEnvelope, faEye, faKey, faSignInAlt, faUser } from "@fortawesome/free-solid-svg-icons"
+import { faEnvelope, faKey, faSignInAlt } from "@fortawesome/free-solid-svg-icons"
 import { faGoogle, faTwitter, faFacebookF } from "@fortawesome/free-brands-svg-icons"
 import { CancelRequestError } from "request/errors/cancelRequestError"
 import { UnauthorizedError } from "request/errors/unauthorizedError"
 import { InvalidEntityError } from "request/errors/invalidEntityError"
 import { NotImplementedError } from "request/errors/notImplementedError"
-import { useRouter } from 'next/router'
 import withHandlers, { HandlersProps } from "helpers/hoc/withHandlers"
 import Input from "components/form/input"
 import Button from "components/form/button"
-import getConfig from 'next/config'
 import { useDispatch } from "react-redux"
 import { removeToken, setMessage, setToken } from "redux/slices/main"
+import { useRouter } from "next/router"
+import getConfig from 'next/config'
 import { AuthentificationError } from "request/errors/authentificationError"
 import { NotFoundError } from "request/errors/notFoundError"
 import GoogleLogin, { GoogleLoginResponse } from 'react-google-login'
 import Divider from "components/general/divider"
 import { EAuthStrategies } from "types/authStrategies"
 import { RequestApi } from 'request/apiHandler'
+import Link from "next/link"
 
 /**
- * @typedef {object} RegisterProps
+ * @typedef {object} LoginProps
  * @property {any} _
  */
 
 /**
- * Register page
- * @param {RegisterProps & HandlersProps} props
+ * Login page
+ * @param {LoginProps & HandlersProps} props
  */
-function Register({ userHandler }) {
+function LoginUser({ userHandler }) {
     /** @type {[string, function(string):any]} Status */
     const [status, setStatus] = React.useState(Status.IDLE)
     /** @type {[User, function(User):any]} User */
     const [user, setUser] = React.useState(new User())
     /** @type {[ErrorUser, function(ErrorUser):any]} Error message */
     const [errorField, setErrorField] = React.useState(new ErrorUser())
-    /** @type {[boolean, function(boolean):any]} Is password visible */
-    const [isPwdVisible, setIsPwdVisible] = React.useState(!!false)
 
     /** @type {MutableRefObject<RequestApi<User>>} */
-    const userHandlerCreate = useRef()
+    const userHandlerLogin = useRef()
 
-    const router = useRouter()
     const dispatch = useDispatch()
+    const router = useRouter()
     const { publicRuntimeConfig } = getConfig()
 
-    const upsert = useCallback(
+    const login = useCallback(
         /**
          * @param {object} data
          * @param {EAuthStrategies=} data.strategy
@@ -64,8 +63,8 @@ function Register({ userHandler }) {
             try {
                 const newUser = new User({ ...user, strategy: strategy ? strategy : user.strategy, strategyData })
                 setUser(newUser)
-                userHandlerCreate.current = userHandler.create(newUser)
-                const userUptd = await userHandlerCreate.current.fetch()
+                userHandlerLogin.current = userHandler.login(newUser)
+                const userUptd = await userHandlerLogin.current.fetch()
                 dispatch(setToken({ token: userUptd?.token }))
                 router.push('/')
             } catch (error) {
@@ -73,18 +72,19 @@ function Register({ userHandler }) {
                     case CancelRequestError: break
                     case UnauthorizedError:
                     case AuthentificationError:
-                        router.push('/login')
+                        router.push('/user/login')
                         dispatch(removeToken(undefined))
                         dispatch(setMessage({ message: { isDisplay: true, content: error.message, type: 'warning' } }))
                         break
                     case InvalidEntityError:
                         setStatus(Status.REJECTED)
                         setErrorField(error.errorField)
+                        break
                     case NotFoundError:
                     case NotImplementedError:
                     default:
                         dispatch(setMessage({ message: { isDisplay: true, content: error.message ?? 'An error occured during the login', type: 'danger' } }))
-                        console.log(error)
+                        console.error(error)
                         break
                 }
             }
@@ -93,21 +93,21 @@ function Register({ userHandler }) {
     )
 
     useEffect(() => () => {
-        userHandlerCreate.current?.cancel()
+        userHandlerLogin.current?.cancel()
     }, [])
 
     return (
         <>
             <Head>
-                <title>Register - {publicRuntimeConfig.appName}</title>
+                <title>Login - {publicRuntimeConfig.appName}</title>
                 <meta
                     name="description"
-                    content="Create a new account on Grand Theft Bootleg and join the community."
+                    content="Login in your Grand Theft Bootleg account."
                 />
                 <meta name="robots" content="noindex" />
             </Head>
 
-            <main className={styles.register}>
+            <main className={styles['login-user']}>
                 <Section>
                     <Container>
                         <Columns className="is-vcentered">
@@ -128,12 +128,12 @@ function Register({ userHandler }) {
                             />
                             <Columns.Column>
                                 <h1 className="title is-4 is-title-underline">
-                                    Sign up to Grand Theft Bootleg
+                                    Log In to Grand Theft Bootleg
                                 </h1>
                                 <form
                                     onSubmit={ev => {
                                         ev.preventDefault()
-                                        upsert()
+                                        login()
                                     }}
                                 >
                                     <Input
@@ -147,34 +147,22 @@ function Register({ userHandler }) {
                                         onChange={ev => setUser(new User({ ...user, mail: ev.target.value }))}
                                     />
                                     <Input
-                                        label="Username"
-                                        placeholder="Your username"
-                                        type="text"
-                                        isRequired={true}
-                                        value={user.username}
-                                        iconLeft={faUser}
-                                        errorMessage={errorField.username}
-                                        onChange={ev => setUser(new User({ ...user, username: ev.target.value }))}
-                                    />
-                                    <Input
                                         label="Password"
                                         placeholder="You password"
-                                        type={isPwdVisible ? 'text' : 'password'}
+                                        type="password"
                                         isRequired={true}
                                         value={user.password}
                                         iconLeft={faKey}
                                         errorMessage={errorField.password}
                                         onChange={ev => setUser(new User({ ...user, password: ev.target.value }))}
-                                        button={{
-                                            onClick: () => setIsPwdVisible(!isPwdVisible),
-                                            iconLeft: faEye
-                                        }}
                                     />
                                     <br />
+
                                     <Button
-                                        label="Register"
+                                        label="Login"
                                         type="submit"
-                                        isLoading={status === Status.PENDING}
+                                        isLoading={user.strategy === EAuthStrategies.CLASSIC && status === Status.PENDING}
+                                        isDisabled={user.strategy !== EAuthStrategies.CLASSIC && status === Status.PENDING}
                                         iconRight={faSignInAlt}
                                         styles={{ button: 'is-fullwidth' }}
                                     />
@@ -196,14 +184,14 @@ function Register({ userHandler }) {
                                                 styles={{ button: 'flex-one' }}
                                             />
                                         )}
-                                        onSuccess={res => upsert({ strategy: EAuthStrategies.GOOGLE, strategyData: /** @type {GoogleLoginResponse} */(res) })}
+                                        onSuccess={res => login({ strategy: EAuthStrategies.GOOGLE, strategyData: /** @type {GoogleLoginResponse} */(res) })}
                                         onFailure={err => console.error(err)}
                                     />
                                     <Button
                                         label="Twitter"
                                         color="twitter"
                                         iconLeft={faTwitter}
-                                        onClick={() => upsert({ strategy: EAuthStrategies.TWITTER, strategyData: null })}
+                                        onClick={() => login({ strategy: EAuthStrategies.TWITTER, strategyData: null })}
                                         isLoading={user.strategy === EAuthStrategies.TWITTER && status === Status.PENDING}
                                         isDisabled={true}
                                         // isDisabled={user.strategy !== EAuthStrategies.TWITTER && status === Status.PENDING}
@@ -213,13 +201,18 @@ function Register({ userHandler }) {
                                         label="Facebook"
                                         color="facebook"
                                         iconLeft={faFacebookF}
-                                        onClick={() => upsert({ strategy: EAuthStrategies.FACEBOOK, strategyData: null })}
+                                        onClick={() => login({ strategy: EAuthStrategies.FACEBOOK, strategyData: null })}
                                         isLoading={user.strategy === EAuthStrategies.FACEBOOK && status === Status.PENDING}
                                         isDisabled={true}
                                         // isDisabled={user.strategy !== EAuthStrategies.FACEBOOK && status === Status.PENDING}
                                         styles={{ button: 'flex-one' }}
                                     />
                                 </div>
+                                <Link
+                                    href="/user/reset-password"
+                                >
+                                    <a>Forgot your password?</a>
+                                </Link>
                             </Columns.Column>
                         </Columns>
                     </Container>
@@ -229,4 +222,4 @@ function Register({ userHandler }) {
     )
 }
 
-export default withHandlers(Register)
+export default withHandlers(LoginUser)

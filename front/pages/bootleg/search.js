@@ -142,7 +142,7 @@ function SearchBootleg({ bootlegHandler, bootlegsProps, metaProps, main: { me },
                     case CancelRequestError: break
                     case UnauthorizedError:
                     case AuthentificationError:
-                        router.push('/login')
+                        router.push('/user/login')
                         dispatch(removeToken(undefined))
                         dispatch(setMessage({ message: { isDisplay: true, content: /** @type {Error} */(error).message, type: 'warning' } }))
                         break
@@ -478,7 +478,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
                 case NotImplementedError:
                 case NotFoundError:
                 default:
-                    console.log(error)
+                    console.error(error)
                     return { props: { bootlegsProps: {} } }
             }
         }

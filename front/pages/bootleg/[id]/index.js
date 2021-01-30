@@ -107,7 +107,7 @@ function IndexIdBootleg({ bootlegProps, bootlegHandler, main: { token, me }, ...
                     case CancelRequestError: break
                     case UnauthorizedError:
                     case AuthentificationError:
-                        router.push('/login')
+                        router.push('/user/login')
                         dispatch(removeToken(undefined))
                         dispatch(setMessage({ message: { isDisplay: true, content: /** @type {Error} */(error).message, type: 'warning' } }))
                         break
@@ -116,7 +116,7 @@ function IndexIdBootleg({ bootlegProps, bootlegHandler, main: { token, me }, ...
                     case NotImplementedError:
                     default:
                         dispatch(setMessage({ message: { isDisplay: true, content: 'An error occured during the bootleg update', type: 'danger' } }))
-                        console.log(error)
+                        console.error(error)
                         break
                 }
                 return error
@@ -132,7 +132,7 @@ function IndexIdBootleg({ bootlegProps, bootlegHandler, main: { token, me }, ...
                 bootlegHandlerClick.current = bootlegHandler.click(bootleg._id)
                 setBootleg(await bootlegHandlerClick.current.fetch())
             } catch (error) {
-                console.error(error?.message)
+                console.error(error)
             }
         },
         [bootleg]
@@ -152,7 +152,7 @@ function IndexIdBootleg({ bootlegProps, bootlegHandler, main: { token, me }, ...
                     case CancelRequestError: break
                     case UnauthorizedError:
                     case AuthentificationError:
-                        router.push('/login')
+                        router.push('/user/login')
                         dispatch(removeToken(undefined))
                         dispatch(setMessage({ message: { isDisplay: true, content: /** @type {Error} */(error).message, type: 'warning' } }))
                         break
@@ -161,7 +161,7 @@ function IndexIdBootleg({ bootlegProps, bootlegHandler, main: { token, me }, ...
                     case NotImplementedError:
                     default:
                         dispatch(setMessage({ message: { isDisplay: true, content: 'An error occured during the report', type: 'danger' } }))
-                        console.log(error)
+                        console.error(error)
                         break
                 }
                 return error
@@ -663,7 +663,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
                     store.dispatch(removeToken(undefined))
                     return {
                         redirect: {
-                            destination: '/login',
+                            destination: '/user/login',
                             permanent: false
                         }
                     }
@@ -672,7 +672,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
                 case InvalidEntityError:
                 case NotImplementedError:
                 default:
-                    console.log(error)
+                    console.error(error)
                     break
             }
         }

@@ -137,8 +137,17 @@ export default class UserController extends BaseController {
      * Send mail
      */
     async sendMail({ params, request, response }: { params: { type: string }; request: Request; response: Response }) {
-        //Get user
-        const user = await this._getUser(request)
+        //Get mail
+        const user = await (async () => {
+            const body = await request.body().value
+            if (body.mail)
+                return await this.collection.findOne({ mail: body.mail })
+            else
+                return await this._getUser(request)
+        })()!
+
+        if (!user?.mail)
+            new NotFoundException('Email not found')
 
         //Rest token
         const token = randomBytes(20).toString('hex')
@@ -146,8 +155,8 @@ export default class UserController extends BaseController {
         //Send mail by type
         switch (params.type) {
             case 'password':
-                if (user.strategy !== EAuthStrategies.CLASSIC)
-                    throw new ForbiddenException('Invalid strategy')
+                if (user?.strategy !== EAuthStrategies.CLASSIC)
+                    throw new ForbiddenException('You cannot do this action')
 
                 this.collection.updateOneById(
                     user._id?.$oid,
@@ -159,24 +168,24 @@ export default class UserController extends BaseController {
                     'reset-account-pwd',
                     {
                         token,
-                        url: `${env.APP_URL}/reset-password/${token}`,
+                        url: `${env.APP_URL}/user/reset-password/${token}`,
                         userName: user.username
                     }
                 )
                 break
             case 'delete':
                 this.collection.updateOneById(
-                    user._id?.$oid,
+                    user!._id?.$oid,
                     { $set: { deleteAccount: { token, expirationDate: new Date() } } }
                 )
                 await this.mailService.send(
-                    user.mail,
+                    user?.mail!,
                     'Delete your account',
                     'delete-account',
                     {
                         token,
-                        url: `${env.APP_URL}/delete-account/${token}`,
-                        userName: user.username
+                        url: `${env.APP_URL}/user/delete-account/${token}`,
+                        userName: user?.username
                     }
                 )
                 break
@@ -200,13 +209,13 @@ export default class UserController extends BaseController {
         const userDb = await this.collection.findOne({ 'resetPassword.token': { $eq: params.token } } as any)
 
         if (!userDb)
-            throw new NotFoundException()
+            throw new NotFoundException("User not found")
 
-        if (userDb?.resetPassword?.expirationDate?.getTime()! < Date.now() / 1000 + 60 * 60 * 24)
+        if (userDb?.resetPassword?.expirationDate?.getTime()! < Date.now() - (24 * 60 * 60 * 1000))
             throw new ForbiddenException('Token expired')
 
         if (userDb.strategy !== EAuthStrategies.CLASSIC)
-            throw new ForbiddenException('Invalid strategy')
+            throw new ForbiddenException('You cannot do this action')
 
         //Validate password
         await this.validatePassword({ password: userBody.password })
@@ -229,12 +238,12 @@ export default class UserController extends BaseController {
      */
     async deleteAccount({ params, request, response }: { params: { token: string }; request: Request; response: Response }) {
         //User db
-        const userDb = await this.collection.findOne({ 'resetPassword.token': { $eq: params.token } } as any)
+        const userDb = await this.collection.findOne({ 'deleteAccount.token': { $eq: params.token } } as any)
 
         if (!userDb)
-            throw new NotFoundException()
+            throw new NotFoundException("User not found")
 
-        if (userDb?.resetPassword?.expirationDate?.getTime()! < Date.now() / 1000 + 60 * 60 * 24)
+        if (userDb?.deleteAccount?.expirationDate?.getTime()! < Date.now() - (24 * 60 * 60 * 1000))
             throw new ForbiddenException('Token expired')
 
         //Delete user

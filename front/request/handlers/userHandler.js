@@ -53,15 +53,16 @@ export default class UserHandler extends ApiHandler {
     /**
      * Patch action user
      * @param {'password' | 'delete'} type 
-     * @returns {RequestApi<User>}
+     * @param {User=} obj 
+     * @returns {RequestApi<null>}
      */
-    sendMail(type) {
-        const request = this.initFetchRequest({ url: ['me', 'mail', type], method: "PATCH" })
+    sendMail(type, obj = new (this.type)()) {
+        const request = this.initFetchRequest({ url: ['mail', type], method: "PATCH", data: obj })
 
         return this.getRequestApi(
             () => request.fetchRequest
-                .then(res => {
-                    return new (this.type)(res.data[this.objectName])
+                .then(() => {
+                    return null
                 })
                 .catch(err => {
                     throw this._handleError(err)
@@ -72,16 +73,18 @@ export default class UserHandler extends ApiHandler {
 
     /**
      * Patch action user
-     * @param {User} obj 
-     * @returns {RequestApi<User>}
+     * @param {string} token 
+     * @param {'reset-pwd' | 'delete-account'} action 
+     * @param {User=} obj 
+     * @returns {RequestApi<null>}
      */
-    patch(obj = new (this.type)()) {
-        const request = this.initFetchRequest({ url: ['me'], method: "PATCH", data: obj })
+    patch(token, action, obj = new (this.type)()) {
+        const request = this.initFetchRequest({ url: ['action', token, action], method: "PATCH", data: obj })
 
         return this.getRequestApi(
             () => request.fetchRequest
-                .then(res => {
-                    return new (this.type)(res.data[this.objectName])
+                .then(() => {
+                    return null
                 })
                 .catch(err => {
                     throw this._handleError(err)

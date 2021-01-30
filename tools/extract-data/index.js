@@ -18,8 +18,6 @@ const axios = require('axios').default
             .on('end', () => resolve(results))
     })
 
-    // console.log(items[0])
-
     for await (const item of items) {
         try {
             await axios.request({
