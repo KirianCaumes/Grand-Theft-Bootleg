@@ -46,9 +46,7 @@
 							},
 							"response": []
 						}
-					],
-					"protocolProfileBehavior": {},
-					"_postman_isSubFolder": true
+					]
 				},
 				{
 					"name": "Song",
@@ -92,9 +90,7 @@
 							},
 							"response": []
 						}
-					],
-					"protocolProfileBehavior": {},
-					"_postman_isSubFolder": true
+					]
 				},
 				{
 					"name": "Band",
@@ -138,9 +134,7 @@
 							},
 							"response": []
 						}
-					],
-					"protocolProfileBehavior": {},
-					"_postman_isSubFolder": true
+					]
 				},
 				{
 					"name": "Report",
@@ -224,9 +218,86 @@
 							},
 							"response": []
 						}
-					],
-					"protocolProfileBehavior": {},
-					"_postman_isSubFolder": true
+					]
+				},
+				{
+					"name": "Image",
+					"item": [
+						{
+							"name": "Add image",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "aze",
+											"type": "file",
+											"src": "/C:/Users/Kirian/Desktop/Gif/____54744b4213acc.jpg"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://localhost:5000/api/bootleg/5ffed18a0009791d00a65dac/image",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"bootleg",
+										"5ffed18a0009791d00a65dac",
+										"image"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Remove image",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5000/api/bootleg/5ffed18a0009791d00a65dac/image",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"bootleg",
+										"5ffed18a0009791d00a65dac",
+										"image"
+									]
+								}
+							},
+							"response": []
+						}
+					]
 				},
 				{
 					"name": "Get By Id",
@@ -512,8 +583,7 @@
 					},
 					"response": []
 				}
-			],
-			"protocolProfileBehavior": {}
+			]
 		},
 		{
 			"name": "User",
@@ -524,7 +594,6 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "0dfa567b-eaa0-4668-9d3b-efad63fc590c",
 								"exec": [
 									"postman.setEnvironmentVariable(\"token\", JSON.parse(responseBody).user.token);"
 								],
@@ -537,7 +606,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"username\": \"coucoaua\",\r\n    \"password\": \"oui\"\r\n}",
+							"raw": "{\r\n    \"username\": \"kirian.caumes@gmail.com\",\r\n    \"password\": \"abcdefgesdf+1A\",\r\n    \"strategy\": 0\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -569,7 +638,6 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "79849079-1228-496c-b3f3-3ecb570b5863",
 								"exec": [
 									"postman.setEnvironmentVariable(\"token\", JSON.parse(responseBody).user.token);"
 								],
@@ -652,10 +720,149 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Mail",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5000/api/user/me/mail/password",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"user",
+								"me",
+								"mail",
+								"password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reset pwd",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"password\": \"123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5000/api/user/action/ce1df2e70f9e18960232b6c768bfdf3416730eed/reset-pwd",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"user",
+								"action",
+								"ce1df2e70f9e18960232b6c768bfdf3416730eed",
+								"reset-pwd"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete account",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5000/api/user/action/:token/delete-account",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"user",
+								"action",
+								":token",
+								"delete-account"
+							],
+							"variable": [
+								{
+									"key": "token",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
 				}
-			],
-			"protocolProfileBehavior": {}
+			]
 		}
-	],
-	"protocolProfileBehavior": {}
+	]
 }

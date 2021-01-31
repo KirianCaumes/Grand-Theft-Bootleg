@@ -6,7 +6,7 @@ import styles from "styles/pages/bootleg/search.module.scss"
 // @ts-ignore
 import { Section, Columns, Container, Tabs } from 'react-bulma-components'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faCompactDisc, faFilter, faGlobe, faGlobeEurope, faHeadphonesAlt, faMapMarker, faMusic, faSearch, faSort, faUsers, faVolumeUp } from "@fortawesome/free-solid-svg-icons"
+import { faCompactDisc, faFilter, faGlobe, faGlobeEurope, faHeadphonesAlt, faMapMarker, faMusic, faSearch, faSort, faUndo, faUsers, faVolumeUp } from "@fortawesome/free-solid-svg-icons"
 import classNames from 'classnames'
 import SearchFilters from "types/searchFilters/serarchFilters"
 import { ECountries } from 'types/searchFilters/countries'
@@ -349,7 +349,7 @@ function SearchBootleg({ bootlegHandler, bootlegsProps, metaProps, main: { me },
                                                 control: styles.select
                                             }}
                                         />
-                                        {me?.role > 0 &&
+                                        {me?.role > 1 &&
                                             <Select
                                                 label="State"
                                                 isDisabled={status === Status.PENDING}
@@ -440,6 +440,20 @@ function SearchBootleg({ bootlegHandler, bootlegsProps, metaProps, main: { me },
                                                 ...searchFilters,
                                                 isRandom: ev.target.checked ? 1 : null
                                             })}
+                                        />
+                                        <br />
+                                        <Button
+                                            label="Clear filters"
+                                            onClick={() => setSearchFilters(
+                                                new SearchFilters({
+                                                    orderBy: ESort.DATE_ASC,
+                                                    page: 1,
+                                                    searchBy: ESearch.GLOBAL
+                                                })
+                                            )}
+                                            isDisabled={status === Status.PENDING}
+                                            iconLeft={faUndo}
+                                            styles={{ button: 'is-small' }}
                                         />
                                     </div>
                                 </Columns.Column>

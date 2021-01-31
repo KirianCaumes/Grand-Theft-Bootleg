@@ -8,6 +8,7 @@ userRouter
     .post('/login', userController.login.bind(userController))
     .post('/', userController.register.bind(userController))
     .get('/me', validateToken, userController.getMe.bind(userController))
+    .put('/me', validateToken, userController.editMe.bind(userController))
     .patch('/mail/:type(password|delete)', userController.sendMail.bind(userController))
     .patch('/action/:token/reset-pwd', userController.resetPwd.bind(userController))
     .patch('/action/:token/delete-account', userController.deleteAccount.bind(userController))

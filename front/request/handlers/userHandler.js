@@ -51,6 +51,26 @@ export default class UserHandler extends ApiHandler {
     }
 
     /**
+     * Patch me
+     * @param {User} obj 
+     * @returns {RequestApi<User>}
+     */
+    patchMe(obj = new (this.type)()) {
+        const request = this.initFetchRequest({ url: ['me'], method: "PATCH" })
+
+        return this.getRequestApi(
+            () => request.fetchRequest
+                .then(res => {
+                    return new (this.type)(res.data[this.objectName])
+                })
+                .catch(err => {
+                    throw this._handleError(err)
+                }),
+            request.cancelToken
+        )
+    }
+
+    /**
      * Patch action user
      * @param {'password' | 'delete'} type 
      * @param {User=} obj 

@@ -11,7 +11,7 @@ import { connect, useDispatch } from "react-redux"
 import { Store, AnyAction } from "redux"
 import { ReduxProps, wrapper } from 'redux/store'
 import Link from "next/link"
-import { MainState, removeToken, setMessage, setToken } from "redux/slices/main"
+import { MainState, removeToken, setMessage, setToken, setUser } from "redux/slices/main"
 import { NotificationState } from 'redux/slices/notification'
 import { CancelRequestError } from "request/errors/cancelRequestError"
 import { AuthentificationError } from "request/errors/authentificationError"
@@ -49,7 +49,7 @@ import Cookie from "helpers/cookie"
  */
 function IndexUser({ main: { me }, bootlegsPublishedProps, bootlegsPendingProps, bootlegsDraftProps, userHandler }) {
     /** @type {[User, function(User):any]} User */
-    const [user, setUser] = useState(me)
+    const [userMe, setUserMe] = useState(me)
     /** @type {[ModalType, function(ModalType):any]} Modal user infos */
     const [modalUsr, setModalUsr] = useState({ isDisplay: !!false })
     /** @type {[ModalType, function(ModalType):any]} Modal user infos */
@@ -70,8 +70,10 @@ function IndexUser({ main: { me }, bootlegsPublishedProps, bootlegsPendingProps,
     const update = useCallback(
         async () => {
             try {
-                userHandlerUpdateById.current = userHandler.updateById(user, user._id)
-                setUser(await userHandlerUpdateById.current.fetch())
+                userHandlerUpdateById.current = userHandler.updateById(userMe, 'me')
+                const usrBdd = await userHandlerUpdateById.current.fetch()
+                setUser(usrBdd)
+                dispatch(setUser({ user: usrBdd.toJson() }))
                 dispatch(setMessage({ message: { isDisplay: true, content: 'Your informations has been correctly updated', type: 'success' } }))
             } catch (error) {
                 switch (error?.constructor) {
@@ -96,7 +98,7 @@ function IndexUser({ main: { me }, bootlegsPublishedProps, bootlegsPendingProps,
                 return error
             }
         },
-        []
+        [userMe]
     )
 
     /** Send mail user API */
@@ -261,9 +263,9 @@ function IndexUser({ main: { me }, bootlegsPublishedProps, bootlegsPendingProps,
                     label="Username"
                     placeholder="Your username"
                     isRequired={true}
-                    value={user.username}
+                    value={userMe.username}
                     errorMessage={errorFieldUser.username}
-                    onChange={ev => setUser(new User({ ...user, username: ev.target.value }))}
+                    onChange={ev => setUserMe(new User({ ...userMe, username: ev.target.value }))}
                 />
             </Modal>
 

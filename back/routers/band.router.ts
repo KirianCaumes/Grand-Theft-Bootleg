@@ -6,5 +6,6 @@ const bandRouter = new Router({ prefix: '/api/band' })
 
 bandRouter
     .get('/', validateToken, bandController.getBands.bind(bandController))
+    .all('/(.*)', bandController.base.bind(bandController))
 
 export default bandRouter

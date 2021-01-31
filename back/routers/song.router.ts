@@ -6,5 +6,6 @@ const songRouter = new Router({ prefix: '/api/song' })
 
 songRouter
     .get('/', validateToken, songController.getSongs.bind(songController))
+    .all('/(.*)', songController.base.bind(songController))
 
 export default songRouter

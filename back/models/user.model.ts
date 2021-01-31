@@ -11,6 +11,9 @@ export interface UserSchema {
     role: number
     strategy: number
 
+    createdOn: Date
+    modifiedOn: Date
+
     resetPassword: {
         token: string
         expirationDate: Date

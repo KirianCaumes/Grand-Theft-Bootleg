@@ -7,6 +7,8 @@ import bandRouter from "./routers/band.router.ts"
 import songRouter from "./routers/song.router.ts"
 import userRouter from "./routers/user.router.ts"
 import { env } from "./helpers/config.ts"
+import { exists } from "https://deno.land/std@0.69.0/fs/exists.ts"
+import NotFoundException from "./types/exceptions/NotFoundException.ts"
 
 const HOST = env?.HOST || "0.0.0.0"
 const PORT = env?.PORT || 5000
@@ -28,9 +30,10 @@ app.use(userRouter.allowedMethods())
 app.use(defaultRouter.allowedMethods())
 
 app.use(async context => {
-    await send(context, context.request.url.pathname, {
-        root: `${Deno.cwd()}/public`
-    })
+    if (await exists(`${Deno.cwd()}/public/${context.request.url.pathname}`))
+        await send(context, context.request.url.pathname, { root: `${Deno.cwd()}/public` })
+    else
+        throw new NotFoundException()
 })
 
 

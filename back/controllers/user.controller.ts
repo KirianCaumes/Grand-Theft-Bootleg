@@ -13,24 +13,28 @@ import NotFoundException from "../types/exceptions/NotFoundException.ts"
 import { randomBytes } from "https://deno.land/std@0.83.0/node/crypto.ts"
 import { env } from "../helpers/config.ts"
 import ForbiddenException from "../types/exceptions/ForbiddenException.ts"
-import { userPasswordValidatorType } from "../validators/userPassword.validator.ts"
+import { UserPasswordValidatorType } from "../validators/userPassword.validator.ts"
+import { UserUpdateValidatorType } from "../validators/userUpdate.validator.ts"
+import { EActions } from "../types/enumerations/EActions.ts"
 /**
  * User Controller
  */
 export default class UserController extends BaseController {
     private collection: UsersCollectionType
     private validateUser: UserValidatorType
-    private validatePassword: userPasswordValidatorType
+    private validatePassword: UserPasswordValidatorType
+    private validateUpdate: UserUpdateValidatorType
     private mailService: MailService
 
     /** @inheritdoc */
     resultKey: string = "user"
 
-    constructor(collection: UsersCollectionType, validateUser: UserValidatorType, validatePassword: userPasswordValidatorType, mailService: MailService) {
+    constructor(collection: UsersCollectionType, validateUser: UserValidatorType, validatePassword: UserPasswordValidatorType, validateUpdate: UserUpdateValidatorType, mailService: MailService) {
         super()
         this.collection = collection
         this.validateUser = validateUser
         this.validatePassword = validatePassword
+        this.validateUpdate = validateUpdate
         this.mailService = mailService
     }
 
@@ -43,19 +47,22 @@ export default class UserController extends BaseController {
 
         delete userBody.strategyData
 
-        const id = (await this.collection.insertOne({
+        const userData = {
             ...userBody,
             password: !!userBody.password ? await bcrypt.hash(userBody.password) : undefined,
-            role: EUserRoles.USER
-        })).$oid
+            role: EUserRoles.USER,
+            createdOn: new Date(),
+            modifiedOn: new Date()
+        }
+
+        const id = (await this.collection.insertOne(userData)).$oid
 
         response.body = this._render({
             message: 'User register succeed',
             result: {
                 token: await this.collection.getToken({
                     _id: { $oid: id },
-                    role: EUserRoles.USER,
-                    ...userBody,
+                    ...userData,
                 })
             }
         })
@@ -129,6 +136,33 @@ export default class UserController extends BaseController {
             message: 'User got',
             result: {
                 ...user
+            }
+        })
+    }
+
+    /**
+     * Edit me
+     */
+    async editMe({ request, response }: { request: Request; response: Response }) {
+        //Get user
+        const user = await this._getUser(request)
+
+        //Validate data
+        const userBody = await this.validateUpdate(await request.body().value)
+
+        //Check if has access
+        this.denyAccessUnlessGranted(EActions.UPDATE, user, user)
+
+        //Update element
+        const userBddUpd = await this.collection.updateOneById(
+            user?._id?.$oid,
+            { $set: { ...userBody, modifiedOn: new Date() } }
+        )
+
+        response.body = this._render({
+            message: 'User edited',
+            result: {
+                ...userBddUpd
             }
         })
     }

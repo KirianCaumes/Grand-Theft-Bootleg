@@ -11,6 +11,7 @@ import BootlegVoter from "../voters/bootleg.voter.ts"
 import BaseVoter from "../voters/_base.voter.ts"
 import ForbiddenException from "../types/exceptions/ForbiddenException.ts"
 import { env } from "../helpers/config.ts"
+import { usersCollection } from "../routers/_initialization.ts"
 
 /**
  * Base Controller
@@ -49,15 +50,20 @@ export default abstract class BaseController {
      * @param request 
      */
     protected async _getUser(request: Request): Promise<UserSchema> {
+        const visitor = { _id: null, username: null, password: null, role: EUserRoles.VISITOR } as any
+
         try {
             const usrStr = (await verify(
                 request.headers.get('Authorization')?.replace(/Bearer /, '')!,
                 env?.JWT_KEY!,
                 'HS512'
             ))?.iss
-            return usrStr ? JSON.parse(usrStr) : { _id: null, username: null, password: null, role: EUserRoles.VISITOR }
+
+            const usr = !!usrStr ? JSON.parse(usrStr!) : visitor
+
+            return !!usr?._id?.$oid ? (await usersCollection.findOneById(usr?._id?.$oid)) : visitor
         } catch (error) {
-            return { _id: null, username: null, password: null, role: EUserRoles.VISITOR } as any
+            return visitor
         }
     }
 

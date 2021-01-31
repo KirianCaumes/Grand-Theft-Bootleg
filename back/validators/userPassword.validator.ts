@@ -9,6 +9,6 @@ const userPasswordValidationSchema = Schema({
 type UserPasswordValidationType = Type<typeof userPasswordValidationSchema>
 
 export const userPasswordValidator = async (userPassword: UserPasswordValidationType): Promise<UserPasswordValidationType> =>
-    await validator<typeof userPasswordValidationSchema, UserPasswordValidationType>(userPasswordValidationSchema, userPassword, 'User Password not modified or created')
+    await validator<typeof userPasswordValidationSchema, UserPasswordValidationType>(userPasswordValidationSchema, userPassword, 'User password not modified')
 
-export type userPasswordValidatorType = typeof userPasswordValidator
+export type UserPasswordValidatorType = typeof userPasswordValidator
