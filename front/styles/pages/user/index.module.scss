@@ -6,17 +6,25 @@
     display: flex;
     justify-content: flex-start;
     padding: 0.5em;
-    > * {
-      &:first-child {
-        margin-right: 1em !important;
-        height: 40px;
-      }
-      &:last-child {
-        display: flex;
-        flex-direction: column;
-        span {
-          font-size: 0.75em;
-          color: gray;
+    > a {
+      margin-right: 1em !important;
+      height: 40px;
+      min-width: 40px;
+    }
+    > div {
+      @include flex-row();
+      justify-content: space-between;
+      width: 100%;
+      > div {
+        &:first-child {
+          @include flex-col();
+          span {
+            font-size: 0.75em;
+            color: gray;
+          }
+        }
+        &:last-child {
+          @include flex-col();
         }
       }
     }

@@ -40,7 +40,7 @@ export default class BootlegController extends BaseController {
      */
     async getAllBootlegs(ctx: Context) {
         const { response } = ctx
-        const { string, year, orderBy, searchBy, country, isCompleteShow, isAudioOnly, isProRecord, page, limit, state, isRandom, authorId } = getQuery(ctx)
+        const { string, year, orderBy, searchBy, country, isCompleteShow, isAudioOnly, isProRecord, page, limit, state, isRandom, authorId, isWithReport } = getQuery(ctx)
 
         //Set search params
         const searchParams = {
@@ -56,7 +56,8 @@ export default class BootlegController extends BaseController {
             limit: !isNaN(parseInt(limit)) ? parseInt(limit) : undefined,
             state: !isNaN(parseInt(state)) ? parseInt(state) : undefined,
             isRandom: isRandom ? !!parseInt(isRandom) : undefined,
-            authorId
+            authorId,
+            isWithReport: isWithReport ? !!parseInt(isWithReport) : undefined
         }
 
         //Get user

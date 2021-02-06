@@ -1,5 +1,6 @@
 import User, { ErrorUser } from 'request/objects/user'
 import ApiHandler from 'request/apiHandler'
+import { IncomingMessage } from 'http'
 import { RequestApi } from 'request/apiHandler'
 
 /**
@@ -7,8 +8,17 @@ import { RequestApi } from 'request/apiHandler'
  * @extends {ApiHandler<User, ErrorUser>}
  */
 export default class UserHandler extends ApiHandler {
-    constructor() {
-        super({ type: User, errorType: ErrorUser, key: 'user' })
+    /**
+     * @param {object} param
+     * @param {IncomingMessage=} param.req
+     */
+    constructor({ req } = {}) {
+        super({
+            type: User,
+            errorType: ErrorUser,
+            key: 'user',
+            req
+        })
     }
 
     /**

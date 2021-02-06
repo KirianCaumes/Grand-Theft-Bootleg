@@ -44,7 +44,7 @@ export default function Button({
     color = 'pink',
     href = null
 }) {
-    const Btn = href && !isDisabled ? 'a' : 'button'
+    const Btn = !!href && !isDisabled ? 'a' : 'button'
 
     const element = <Btn
         type={type}

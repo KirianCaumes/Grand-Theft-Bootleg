@@ -4,7 +4,7 @@ import Head from "next/head"
 // @ts-ignore
 import styles from "styles/pages/user/index.module.scss"
 // @ts-ignore
-import { Section, Container, Columns } from 'react-bulma-components'
+import { Section, Container, Columns, Content } from 'react-bulma-components'
 import withHandlers, { HandlersProps } from 'helpers/hoc/withHandlers'
 import getConfig from 'next/config'
 import { connect, useDispatch } from "react-redux"
@@ -24,7 +24,7 @@ import Bootleg from "request/objects/bootleg"
 import { ESort } from "types/searchFilters/sort"
 import { EStates } from "types/searchFilters/states"
 import Button from "components/form/button"
-import { faPlus, faUserEdit, faUserMinus } from "@fortawesome/free-solid-svg-icons"
+import { faPlus, faSync, faUserEdit, faUserMinus } from "@fortawesome/free-solid-svg-icons"
 import Image from "next/image"
 import classNames from 'classnames'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -35,19 +35,28 @@ import User, { ErrorUser } from "request/objects/user"
 import { RequestApi } from 'request/apiHandler'
 import { useRouter } from "next/router"
 import Cookie from "helpers/cookie"
+import UserHandler from "request/handlers/userHandler"
+import { IconProp } from "@fortawesome/fontawesome-svg-core"
+import { UrlObject } from 'url'
+import { Status } from "types/status"
+import BootlegMeta from "request/objects/meta/bootlegMeta"
+import Loader from "components/general/loader"
+import { faEye } from "@fortawesome/free-regular-svg-icons"
 
 /**
  * @typedef {object} IndexUserProps
  * @property {Bootleg[]} bootlegsPublishedProps Bootlegs from API
  * @property {Bootleg[]} bootlegsPendingProps Bootlegs from API
  * @property {Bootleg[]} bootlegsDraftProps Bootlegs from API
+ * @property {Bootleg[]} bootlegAdminPendingProps Bootlegs from API
+ * @property {Bootleg[]} bootlegAdminReportProps Bootlegs from API
  */
 
 /**
  * Index page
  * @param {IndexUserProps & HandlersProps & ReduxProps} props 
  */
-function IndexUser({ main: { me }, bootlegsPublishedProps, bootlegsPendingProps, bootlegsDraftProps, userHandler }) {
+function IndexUser({ main: { me }, bootlegsPublishedProps, bootlegsPendingProps, bootlegsDraftProps, bootlegAdminPendingProps, bootlegAdminReportProps, userHandler, bootlegHandler }) {
     /** @type {[User, function(User):any]} User */
     const [userMe, setUserMe] = useState(me)
     /** @type {[ModalType, function(ModalType):any]} Modal user infos */
@@ -57,10 +66,26 @@ function IndexUser({ main: { me }, bootlegsPublishedProps, bootlegsPendingProps,
     /** @type {[ErrorUser, function(ErrorUser):any]} Errors */
     const [errorFieldUser, setErrorFieldUser] = useState(new ErrorUser())
 
+    /** @type {[Bootleg[], function(Bootleg[]):any]} BootlegAdminPending */
+    const [bootlegAdminPending, setBootlegAdminPending] = useState(bootlegAdminPendingProps)
+    /** @type {[string, function(string):any]} BootlegAdminPending Status */
+    const [BootlegAdminPendingStatus, setBootlegAdminPendingStatus] = React.useState(Status.RESOLVED)
+
+    /** @type {[Bootleg[], function(Bootleg[]):any]} bootlegAdminReport */
+    const [bootlegAdminReport, setBootlegAdminReport] = useState(bootlegAdminReportProps)
+    /** @type {[string, function(string):any]} bootlegAdminReport Status */
+    const [bootlegAdminReportStatus, setBootlegAdminReportStatus] = React.useState(Status.RESOLVED)
+
     /** @type {MutableRefObject<RequestApi<User>>} */
     const userHandlerUpdateById = useRef()
     /** @type {MutableRefObject<RequestApi<User>>} */
     const userHandlerSendMail = useRef()
+    /** @type {MutableRefObject<RequestApi<[Bootleg[], BootlegMeta]>>} */
+    const bootlegHandlerGetAllPending = useRef()
+    /** @type {MutableRefObject<RequestApi<[Bootleg[], BootlegMeta]>>} */
+    const bootlegHandlerGetAllReport = useRef()
+    /** @type {MutableRefObject<RequestApi<Bootleg>>} */
+    const bootlegHandlerRemoveReports = useRef()
 
     const { publicRuntimeConfig } = getConfig()
     const router = useRouter()
@@ -72,7 +97,7 @@ function IndexUser({ main: { me }, bootlegsPublishedProps, bootlegsPendingProps,
             try {
                 userHandlerUpdateById.current = userHandler.updateById(userMe, 'me')
                 const usrBdd = await userHandlerUpdateById.current.fetch()
-                setUser(usrBdd)
+                setUser({ user: usrBdd })
                 dispatch(setUser({ user: usrBdd.toJson() }))
                 dispatch(setMessage({ message: { isDisplay: true, content: 'Your informations has been correctly updated', type: 'success' } }))
             } catch (error) {
@@ -133,9 +158,114 @@ function IndexUser({ main: { me }, bootlegsPublishedProps, bootlegsPendingProps,
         },
         []
     )
+
+    /** Refresh some bootlegs from API */
+    const refresh = useCallback(
+        /**
+         * @param {'pending' | 'report'} type
+         */
+        async (type) => {
+            try {
+                switch (type) {
+                    case "pending": {
+                        setBootlegAdminPendingStatus(Status.PENDING)
+                        setBootlegAdminPending([])
+                        bootlegHandlerGetAllPending.current = bootlegHandler.getAll({
+                            limit: 5,
+                            orderBy: ESort.DATE_CREATION_DESC,
+                            state: EStates.PENDING
+                        })
+                        const [bootlegs] = await bootlegHandlerGetAllPending.current.fetch()
+                        setBootlegAdminPending(bootlegs)
+                        setBootlegAdminPendingStatus(Status.RESOLVED)
+                        break
+                    }
+                    case "report": {
+                        setBootlegAdminReportStatus(Status.PENDING)
+                        setBootlegAdminReport([])
+                        bootlegHandlerGetAllPending.current = bootlegHandler.getAll({
+                            limit: 5,
+                            orderBy: ESort.DATE_CREATION_DESC,
+                            isWithReport: 1
+                        })
+                        const [bootlegs] = await bootlegHandlerGetAllPending.current.fetch()
+                        setBootlegAdminReport(bootlegs)
+                        setBootlegAdminReportStatus(Status.RESOLVED)
+                        break
+                    }
+                    default:
+                        break
+                }
+            } catch (error) {
+                switch (error?.constructor) {
+                    case CancelRequestError: break
+                    case UnauthorizedError:
+                    case AuthentificationError:
+                        router.push('/user/login')
+                        dispatch(removeToken(undefined))
+                        dispatch(setMessage({ message: { isDisplay: true, content: /** @type {Error} */(error).message, type: 'warning' } }))
+                        break
+                    case InvalidEntityError:
+                    case NotFoundError:
+                    case NotImplementedError:
+                    default:
+                        switch (type) {
+                            case "pending":
+                                setBootlegAdminPendingStatus(Status.REJECTED)
+                            case "report":
+                                setBootlegAdminReportStatus(Status.REJECTED)
+                                break
+                            default:
+                                break
+                        }
+                        dispatch(setMessage({ message: { isDisplay: true, content: 'An error occured', type: 'danger' } }))
+                        console.error(error)
+                        break
+                }
+                return error
+            }
+        },
+        []
+    )
+
+    /** Clear report API */
+    const clear = useCallback(
+        async (id) => {
+            try {
+                bootlegHandlerRemoveReports.current = bootlegHandler.removeReports(id)
+                await bootlegHandlerRemoveReports.current.fetch()
+                setBootlegAdminReport(bootlegAdminReport.filter(x => x._id !== id))
+                dispatch(setMessage({ message: { isDisplay: true, content: 'Report from the bootleg was cleared', type: 'success' } }))
+            } catch (error) {
+                switch (error?.constructor) {
+                    case CancelRequestError: break
+                    case UnauthorizedError:
+                    case AuthentificationError:
+                        router.push('/user/login')
+                        dispatch(removeToken(undefined))
+                        dispatch(setMessage({ message: { isDisplay: true, content: /** @type {Error} */(error).message, type: 'warning' } }))
+                        break
+                    case InvalidEntityError:
+                    case NotFoundError:
+                    case NotImplementedError:
+                    default:
+                        dispatch(setMessage({ message: { isDisplay: true, content: 'An error occured', type: 'danger' } }))
+                        console.error(error)
+                        break
+                }
+                return error
+            }
+        },
+        []
+    )
+
     useEffect(() => () => {
         userHandlerUpdateById.current?.cancel()
         userHandlerSendMail.current?.cancel()
+        bootlegHandlerGetAllPending.current?.cancel()
+        bootlegHandlerGetAllReport.current?.cancel()
+        bootlegHandlerGetAllReport.current?.cancel()
+        bootlegHandlerRemoveReports.current?.cancel()
     }, [])
 
     return (
@@ -158,25 +288,81 @@ function IndexUser({ main: { me }, bootlegsPublishedProps, bootlegsPendingProps,
                                     <span className="is-capitalized">{me?.username}</span>'s dashboard
                                 </h1>
                                 <br />
+                                {me.role > 1 && <>
+                                    <TableBootleg
+                                        title="Bootleg awaiting a validation"
+                                        bootlegs={bootlegAdminPending}
+                                        buttonAction={() => refresh("pending")}
+                                        buttonIcon={faSync}
+                                        status={BootlegAdminPendingStatus}
+                                    />
+                                    <br />
+                                    <TableBootleg
+                                        title="Bootleg with report awaiting"
+                                        bootlegs={bootlegAdminReport}
+                                        buttonAction={() => refresh("report")}
+                                        buttonIcon={faSync}
+                                        onClickSee={bootleg => setModal({
+                                            isDisplay: true,
+                                            title: `Report on "${bootleg.title}"`,
+                                            children: <Content>
+                                                <ol>
+                                                    {bootleg.report?.map(x => <li>{x.message}</li>)}
+                                                </ol>
+                                            </Content>,
+                                            onClickYes: async () => {
+                                                const err = await clear(bootleg._id)
+                                                if (!err)
+                                                    setModal({ isDisplay: false })
+                                            }
+                                        })}
+                                        status={bootlegAdminReportStatus}
+                                    />
+                                    <br />
+                                </>}
                                 <TableBootleg
                                     title="Your last bootlegs published"
                                     bootlegs={bootlegsPublishedProps}
-                                    state={EStates.PUBLISHED}
-                                    authorId={me?._id}
+                                    buttonIcon={faPlus}
+                                    buttonHref="/bootleg/new/edit"
+                                    actionHref={{
+                                        pathname: '/bootleg/search',
+                                        query: {
+                                            orderBy: ESort.DATE_CREATION_DESC,
+                                            state: EStates.PUBLISHED,
+                                            authorId: me?._id
+                                        }
+                                    }}
                                 />
                                 <br />
                                 <TableBootleg
                                     title="Your last bootlegs pending"
                                     bootlegs={bootlegsPendingProps}
-                                    state={EStates.PENDING}
-                                    authorId={me?._id}
+                                    buttonIcon={faPlus}
+                                    buttonHref="/bootleg/new/edit"
+                                    actionHref={{
+                                        pathname: '/bootleg/search',
+                                        query: {
+                                            orderBy: ESort.DATE_CREATION_DESC,
+                                            state: EStates.PENDING,
+                                            authorId: me?._id
+                                        }
+                                    }}
                                 />
                                 <br />
                                 <TableBootleg
                                     title="Your last bootlegs draft"
                                     bootlegs={bootlegsDraftProps}
-                                    state={EStates.DRAFT}
-                                    authorId={me?._id}
+                                    buttonIcon={faPlus}
+                                    buttonHref="/bootleg/new/edit"
+                                    actionHref={{
+                                        pathname: '/bootleg/search',
+                                        query: {
+                                            orderBy: ESort.DATE_CREATION_DESC,
+                                            state: EStates.DRAFT,
+                                            authorId: me?._id
+                                        }
+                                    }}
                                 />
                             </Columns.Column>
                             <Columns.Column className="is-one-third">
@@ -285,10 +471,14 @@ function IndexUser({ main: { me }, bootlegsPublishedProps, bootlegsPendingProps,
  * @param {object} props 
  * @param {string} props.title
  * @param {Bootleg[]} props.bootlegs
- * @param {EStates} props.state
- * @param {any} props.authorId
+ * @param {function(React.MouseEvent<any, MouseEvent>)=} props.buttonAction
+ * @param {IconProp=} props.buttonIcon
+ * @param {string | UrlObject=} props.buttonHref
+ * @param {string | UrlObject=} props.actionHref
+ * @param {Status=} props.status
+ * @param {function=} props.onClickSee
  */
-function TableBootleg({ title, bootlegs, state, authorId }) {
+function TableBootleg({ title, bootlegs, buttonAction, buttonIcon, buttonHref, actionHref, status = Status.RESOLVED, onClickSee }) {
     const { publicRuntimeConfig } = getConfig()
 
     return (
@@ -296,61 +486,72 @@ function TableBootleg({ title, bootlegs, state, authorId }) {
             <h2 className="title is-4 is-title-underline">
                 {title}&nbsp;
                 <Button
-                    iconLeft={faPlus}
-                    href="/bootleg/new/edit"
+                    iconLeft={buttonIcon}
+                    href={buttonHref}
+                    onClick={buttonAction}
                     styles={{ button: 'is-small' }}
                 />
             </h2>
-            {bootlegs?.length <= 0 ?
-                <p>
-                    <i>No result found</i>
-                    <br />
-                    <br />
-                </p>
+            {status === Status.PENDING ?
+                <Loader
+                    size="small"
+                    isRight
+                />
                 :
-                <>
-                    {bootlegs?.map((bootleg, i) => (
-                        <React.Fragment key={i}>
-                            <div className={classNames("boxed", styles.bootlegRow)}>
-                                <Link href={`/bootleg/${bootleg._id}`}>
+                bootlegs?.length <= 0 ?
+                    <p>
+                        <i>No result found</i>
+                        <br />
+                        <br />
+                    </p>
+                    :
+                    <>
+                        {bootlegs?.map((bootleg, i) => (
+                            <React.Fragment key={i}>
+                                <div className={classNames("boxed", styles.bootlegRow)}>
+                                    <Link href={`/bootleg/${bootleg._id}`}>
+                                        <a>
+                                            <Image
+                                                src={bootleg.picture ? `${publicRuntimeConfig.backUrl}/images/${bootleg.picture}` : '/logo.png'}
+                                                alt={bootleg.title ?? "bootleg"}
+                                                title={bootleg.title}
+                                                width={40}
+                                                height={40}
+                                            />
+                                        </a>
+                                    </Link>
+                                    <div>
+                                        <div>
+                                            <Link href={`/bootleg/${bootleg._id}`}>
+                                                <a>{bootleg?.title ?? <i>Unknown</i>}</a>
+                                            </Link>
+                                            <span>
+                                                Added {new Date(bootleg.createdOn)?.toLocaleDateString('en-EN', { year: 'numeric', month: 'short', day: '2-digit' }) ?? <i>Unknown</i>}
+                                            </span>
+                                        </div>
+                                        {!!onClickSee &&
+                                            <div>
+                                                <Button
+                                                    iconLeft={faEye}
+                                                    onClick={() => onClickSee(bootleg)}
+                                                    styles={{ button: 'is-small' }}
+                                                />
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </React.Fragment>
+                        ))}
+                        {!!actionHref &&
+                            <p className="has-text-right">
+                                <Link href={actionHref}>
                                     <a>
-                                        <Image
-                                            src={bootleg.picture ? `${publicRuntimeConfig.backUrl}/images/${bootleg.picture}` : '/logo.png'}
-                                            alt={bootleg.title ?? "bootleg"}
-                                            title={bootleg.title}
-                                            width={40}
-                                            height={40}
-                                        />
+                                        See more &gt;
                                     </a>
                                 </Link>
-                                <div>
-                                    <Link href={`/bootleg/${bootleg._id}`}>
-                                        <a>{bootleg?.title ?? <i>Unknown</i>}</a>
-                                    </Link>
-                                    <span>
-                                        Added {new Date(bootleg.createdOn)?.toLocaleDateString('en-EN', { year: 'numeric', month: 'short', day: '2-digit' }) ?? <i>Unknown</i>}
-                                    </span>
-                                </div>
-                            </div>
-                        </React.Fragment>
-                    ))}
-                    <p className="has-text-right">
-                        <Link
-                            href={{
-                                pathname: '/bootleg/search',
-                                query: {
-                                    orderBy: ESort.DATE_CREATION_DESC,
-                                    state: state,
-                                    authorId: authorId
-                                }
-                            }}
-                        >
-                            <a>
-                                See more &gt;
-                        </a>
-                        </Link>
-                    </p>
-                </>
+                            </p>
+                        }
+                    </>
             }
         </>
     )
@@ -369,18 +570,25 @@ export const getServerSideProps = wrapper.getServerSideProps(
             store.dispatch(setToken({ token }))
 
         if (!store.getState().main.token)
-            return {
-                redirect: {
-                    destination: '/user/login',
-                    permanent: false
-                }
-            }
+            return { redirect: { destination: '/user/login', permanent: false } }
+
+        try {
+            const user = await (new UserHandler({ req })).getMe().fetch()
+            if (!!user?._id)
+                store.dispatch(setUser({ user: user.toJson() }))
+        } catch (error) {
+            console.error(error)
+            return { redirect: { destination: '/user/login', permanent: false } }
+        }
 
         const me = store.getState().main?.me
 
+        if (!me)
+            return { redirect: { destination: '/user/login', permanent: false } }
+
         try {
             const bootlegHandler = new BootlegHandler({ req })
-            const [[bootlegsPublished], [bootlegsPending], [bootlegsDraft]] = await Promise.all([
+            const [[bootlegsPublished], [bootlegsPending], [bootlegsDraft], [bootlegAdminPending], [bootlegAdminReport]] = await Promise.all([
                 bootlegHandler.getAll({
                     limit: 5,
                     orderBy: ESort.DATE_CREATION_DESC,
@@ -398,7 +606,17 @@ export const getServerSideProps = wrapper.getServerSideProps(
                     orderBy: ESort.DATE_CREATION_DESC,
                     state: EStates.DRAFT,
                     authorId: me?._id
-                }).fetch()
+                }).fetch(),
+                bootlegHandler.getAll({
+                    limit: 5,
+                    orderBy: ESort.DATE_CREATION_DESC,
+                    state: EStates.PENDING
+                }).fetch(),
+                bootlegHandler.getAll({
+                    limit: 5,
+                    orderBy: ESort.DATE_CREATION_DESC,
+                    isWithReport: 1
+                }).fetch(),
             ])
 
             return {
@@ -406,6 +624,8 @@ export const getServerSideProps = wrapper.getServerSideProps(
                     bootlegsPublishedProps: bootlegsPublished.map(x => x.toJson()),
                     bootlegsPendingProps: bootlegsPending.map(x => x.toJson()),
                     bootlegsDraftProps: bootlegsDraft.map(x => x.toJson()),
+                    bootlegAdminPendingProps: bootlegAdminPending.map(x => x.toJson()),
+                    bootlegAdminReportProps: bootlegAdminReport.map(x => x.toJson()),
                 }
             }
         } catch (error) {
@@ -422,7 +642,9 @@ export const getServerSideProps = wrapper.getServerSideProps(
                         props: {
                             bootlegsPopular: [],
                             bootlesgNew: [],
-                            bootlegsRandom: []
+                            bootlegsRandom: [],
+                            adminBootlegPendingProps: [],
+                            adminBootlegReportProps: []
                         }
                     }
             }

@@ -19,6 +19,7 @@ export default class SearchFilters {
      * @param {EStates=} data.state State
      * @param {number=} data.isRandom IsRandom
      * @param {string=} data.authorId AuthorId
+     * @param {number=} data.isWithReport IsWithReport
      */
     constructor({
         string = null,
@@ -33,7 +34,8 @@ export default class SearchFilters {
         limit = null,
         state = null,
         isRandom = null,
-        authorId = null
+        authorId = null,
+        isWithReport = null
     } = {}) {
         /** @type {string} string Title, description, songs, bands */
         this.string = string
@@ -61,5 +63,7 @@ export default class SearchFilters {
         this.isRandom = isRandom
         /** @type {string} AuthorId*/
         this.authorId = authorId
+        /** @type {number} IsWithReport*/
+        this.isWithReport = isWithReport
     }
 }

@@ -6,8 +6,8 @@ export const EUserRoles = {
 }
 
 export const EUserRolesLabel = {
-    VISITOR: 'Visitor',
-    USER: 'User',
-    MODERATOR: 'Moderator',
-    ADMIN: 'Admin'
+    0: 'Visitor',
+    1: 'User',
+    2: 'Moderator',
+    3: 'Admin'
 }

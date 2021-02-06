@@ -9,7 +9,6 @@ import { NotImplementedError } from 'request/errors/notImplementedError'
  */
 export default class SongHandler extends ApiHandler {
     /**
-     * 
      * @param {object} param
      * @param {IncomingMessage=} param.req 
      */

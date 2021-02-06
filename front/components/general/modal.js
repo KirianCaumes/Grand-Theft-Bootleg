@@ -15,13 +15,14 @@ import { Status } from 'types/status'
  * @property {function():any=} props.onClickYes On click
  * @property {function():any=} props.onClickNo On click
  * @property {boolean=} props.isFormDisable Force disable form
+ * @property {string=} props.validateText Validate text
  */
 
 /**
  * Modal
  * @param {ModalType} props
  */
-function Modal({ isDisplay, title, children, onClickYes, onClickNo, isFormDisable = false }) {
+function Modal({ isDisplay, title, children, onClickYes, onClickNo, isFormDisable = false, validateText = "Validate" }) {
     /** @type {[string, function(string):any]} Status */
     const [status, setStatus] = useState(Status.RESOLVED)
 
@@ -72,7 +73,7 @@ function Modal({ isDisplay, title, children, onClickYes, onClickNo, isFormDisabl
                             <span className="icon is-small">
                                 <FontAwesomeIcon icon={faCheck} />
                             </span>
-                            <span>Validate</span>
+                            <span>{validateText}</span>
                         </button>
                         <button
                             type="button"

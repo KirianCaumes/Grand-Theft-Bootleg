@@ -188,7 +188,8 @@ export class BootlegsCollection extends BaseCollection<BootlegSchema> {
             state = EBootlegStates.PUBLISHED,
             isRandom = false,
             authorId,
-            isCount = false
+            isCount = false,
+            isWithReport = false
         },
         user
     }: {
@@ -207,6 +208,7 @@ export class BootlegsCollection extends BaseCollection<BootlegSchema> {
             isRandom?: boolean;
             authorId?: string;
             isCount?: boolean;
+            isWithReport?: boolean;
         }
         user?: UserSchema
     }): Promise<BootlegSchema[]> {
@@ -290,6 +292,17 @@ export class BootlegsCollection extends BaseCollection<BootlegSchema> {
                     createdById: { $eq: ObjectId(authorId) }
                 }
             } catch (error) { }
+
+
+        //To match with report
+        if (isWithReport && [EUserRoles.MODERATOR, EUserRoles.ADMIN].includes(user?.role!))
+            $match = {
+                ...$match,
+                report: {
+                    $exists: true,
+                    $not: { $size: 0 }
+                }
+            }
 
         return this.aggregate([
             //Match disired state

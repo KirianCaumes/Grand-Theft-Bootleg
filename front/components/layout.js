@@ -45,28 +45,35 @@ function Layout({ children, main: { token, me }, notification: { bootlegs }, boo
     const dispatch = useDispatch()
     const router = useRouter()
 
-    useEffect(
-        () => {
-            if (token)
-                (async () => {
-                    try {
-                        bootlegHandlerGetAll.current = bootlegHandler.getAll({
-                            orderBy: ESort.DATE_CREATION_ASC,
-                            state: EStates.PENDING,
-                            limit: 5
-                        })
-                        const [bootlegs] = await bootlegHandlerGetAll.current.fetch()
-                        dispatch(setBootlegs({ bootlegs: bootlegs.map(x => x.toJson()) }))
-                    } catch (error) {
-                        console.error(error)
-                    }
-                })()
-            else
-                dispatch(setBootlegs({ bootlegs: [] }))
+    const timer = useRef(null)
 
-        },
-        [token]
-    )
+    useEffect(() => {
+        clearInterval(timer.current)
+
+        const getNotif = async () => {
+            try {
+                bootlegHandlerGetAll.current = bootlegHandler.getAll({
+                    orderBy: ESort.DATE_CREATION_ASC,
+                    state: EStates.PENDING,
+                    limit: 5
+                })
+                const [bootlegs] = await bootlegHandlerGetAll.current.fetch()
+                dispatch(setBootlegs({ bootlegs: bootlegs.map(x => x.toJson()) }))
+            } catch (error) {
+                console.error(error)
+            }
+        }
+
+        if (token) {
+            getNotif()
+            setInterval(getNotif, 300000)
+        } else
+            dispatch(setBootlegs({ bootlegs: [] }))
+
+        return () => {
+            clearInterval(timer.current)
+        }
+    }, [token])
 
     useEffect(
         () => {
@@ -79,11 +86,11 @@ function Layout({ children, main: { token, me }, notification: { bootlegs }, boo
                         if (!!user?._id)
                             dispatch(setUser({ user: user.toJson() }))
                         else {
-                            dispatch(setUser({ user: new User() }))
+                            dispatch(setUser({ user: new User().toJson() }))
                             dispatch(removeToken(undefined))
                         }
                     } catch (error) {
-                        dispatch(setUser({ user: new User() }))
+                        dispatch(setUser({ user: new User().toJson() }))
                         dispatch(removeToken(undefined))
                         console.error(error)
                     }
