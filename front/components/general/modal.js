@@ -6,6 +6,7 @@ import classNames from 'classnames'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCheck, faTimes } from '@fortawesome/free-solid-svg-icons'
 import { Status } from 'types/status'
+import Button from 'components/form/button'
 
 /**
  * @typedef {object} ModalType
@@ -65,29 +66,19 @@ function Modal({ isDisplay, title, children, onClickYes, onClickNo, isFormDisabl
                         </div>
                     </section>
                     <footer className={classNames("modal-card-foot flex-end", styles.footer)}>
-                        <button
+                        <Button
                             type={isFormDisable ? 'button' : 'submit'}
-                            className={classNames("button is-pink", { 'is-loading': status === Status.PENDING })}
+                            isLoading={status === Status.PENDING}
                             onClick={() => isFormDisable ? onSubmit() : null}
-                        >
-                            <span className="icon is-small">
-                                <FontAwesomeIcon icon={faCheck} />
-                            </span>
-                            <span>{validateText}</span>
-                        </button>
-                        <button
-                            type="button"
-                            className="button"
-                            onClick={() => {
-                                onClickNo?.()
-                            }}
-                            disabled={status === Status.PENDING}
-                        >
-                            <span className="icon is-small">
-                                <FontAwesomeIcon icon={faTimes} />
-                            </span>
-                            <span>Cancel</span>
-                        </button>
+                            iconLeft={faCheck}
+                            label={validateText}
+                        />
+                        <Button
+                            isDisabled={status === Status.PENDING}
+                            onClick={() => onClickNo?.()}
+                            iconLeft={faTimes}
+                            label="Cancel"
+                        />
                     </footer>
                 </form>
             </div>

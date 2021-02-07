@@ -111,11 +111,9 @@ function Index({ bootlegsPopularProps, bootlegsNewProps, bootlegsRandomProps, ..
                                 />
                             </div>
                             <div className="control">
-                                <button
-                                    className="button is-pink"
-                                >
-                                    <FontAwesomeIcon icon={faSearch} />
-                                </button>
+                                <Button
+                                    iconLeft={faSearch}
+                                />
                             </div>
                         </div>
                     </form>

@@ -227,12 +227,11 @@ function SearchBootleg({ bootlegHandler, bootlegsProps, metaProps, main: { me },
                                             />
                                         </div>
                                         <p className="control">
-                                            <button
-                                                className={classNames("button is-pink", { 'is-loading': status === Status.PENDING })}
+                                            <Button
+                                                iconLeft={faSearch}
                                                 type="submit"
-                                            >
-                                                <FontAwesomeIcon icon={faSearch} />
-                                            </button>
+                                                isLoading={status === Status.PENDING}
+                                            />
                                         </p>
                                     </div>
                                 </Columns.Column>

@@ -4,12 +4,12 @@
 @import "bulma/sass/utilities/initial-variables.sass";
 @import "bulma/sass/utilities/functions.sass";
 @import "bulma/sass/utilities/derived-variables.sass";
-@import "bulma/sass/utilities/mixins.sass";
 
 /***************************
 ******** Theme 🎨 **********
 ***************************/
 @import "./_variables.scss";
+@import "./_mixins.scss";
 @import "./_helpers.scss";
 @import "./_base.scss";
 
@@ -26,11 +26,11 @@ $pagination-current-border-color: $pink;
 // );
 
 //Used to add colors as bulma helpers
-@import "./colors.scss";
+@import "./_colors.scss";
 
 //Dependencies: We Import bulma after variables to add new colors
 // @import "bulma/bulma.sass";
-@import "bulma/sass/utilities/_all.sass";
+// @import "bulma/sass/utilities/_all.sass";
 @import "bulma/sass/base/_all.sass";
 // @import "bulma/sass/elements/_all.sass";
 // @import "bulma/sass/elements/box.sass";

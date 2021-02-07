@@ -48,13 +48,26 @@ export default function Button({
 
     const element = <Btn
         type={type}
-        className={classNames(`button`, { [`is-${color}`]: !!color }, { 'is-loading': isLoading }, styles.button, buttonStyles.button)}
+        className={classNames(
+            'button',
+            [buttonStyles['button']],
+            { [buttonStyles[`is-${color}`]]: !!color },
+            { [buttonStyles['is-loading']]: isLoading },
+            [...(styles.button?.split(' ').map(x => [buttonStyles[x]]) ?? [])],
+            styles.button,
+            buttonStyles.button
+        )}
         onClick={onClick}
         disabled={isDisabled}
         name={encodeURIComponent(label)}
     >
         {iconLeft &&
-            <span className="icon is-small">
+            <span
+                className={classNames(
+                    [buttonStyles['icon']],
+                    [buttonStyles['is-small']]
+                )}
+            >
                 <FontAwesomeIcon icon={iconLeft} />
             </span>
         }
@@ -62,7 +75,12 @@ export default function Button({
             <span>{label}</span>
         }
         {iconRight &&
-            <span className="icon is-small">
+            <span
+                className={classNames(
+                    [buttonStyles['icon']],
+                    [buttonStyles['is-small']]
+                )}
+            >
                 <FontAwesomeIcon icon={iconRight} />
             </span>
         }
