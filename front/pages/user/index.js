@@ -396,6 +396,8 @@ function IndexUser({ main: { me }, bootlegsPublishedProps, bootlegsPendingProps,
                                 </h2>
                                 <a
                                     onClick={() => setModalUsr({ isDisplay: true })}
+                                    data-toggle="modal"
+                                    href="#"
                                 >
                                     Change your username
                                 </a>&nbsp;<FontAwesomeIcon icon={faUserEdit} className="has-text-pink" />
@@ -411,6 +413,8 @@ function IndexUser({ main: { me }, bootlegsPublishedProps, bootlegsPendingProps,
                                                 setModal({ isDisplay: false })
                                         }
                                     })}
+                                    data-toggle="modal"
+                                    href="#"
                                 >
                                     Reset your password
                                 </a>&nbsp;<FontAwesomeIcon icon={faUserEdit} className="has-text-pink" />
@@ -426,6 +430,8 @@ function IndexUser({ main: { me }, bootlegsPublishedProps, bootlegsPendingProps,
                                                 setModal({ isDisplay: false })
                                         }
                                     })}
+                                    data-toggle="modal"
+                                    href="#"
                                 >
                                     Delete your account
                                 </a>&nbsp;<FontAwesomeIcon icon={faUserMinus} className="has-text-pink" />
@@ -490,6 +496,7 @@ function TableBootleg({ title, bootlegs, buttonAction, buttonIcon, buttonHref, a
                     href={buttonHref}
                     onClick={buttonAction}
                     styles={{ button: 'is-small' }}
+                    aria-label="action"
                 />
             </h2>
             {status === Status.PENDING ?
@@ -510,20 +517,27 @@ function TableBootleg({ title, bootlegs, buttonAction, buttonIcon, buttonHref, a
                             <React.Fragment key={i}>
                                 <div className={classNames("boxed", styles.bootlegRow)}>
                                     <Link href={`/bootleg/${bootleg._id}`}>
-                                        <a>
-                                            <Image
-                                                src={bootleg.picture ? `${publicRuntimeConfig.backUrl}/images/${bootleg.picture}` : '/logo.png'}
-                                                alt={bootleg.title ?? "bootleg"}
-                                                title={bootleg.title}
-                                                width={40}
-                                                height={40}
-                                            />
+                                        <a
+                                            aria-label={bootleg.title || 'bootleg'}
+                                        >
+                                            <figure>
+                                                <Image
+                                                    src={bootleg.picture ? `${publicRuntimeConfig.backUrl}/images/${bootleg.picture}` : '/logo.png'}
+                                                    alt={bootleg.title ?? "bootleg"}
+                                                    title={bootleg.title}
+                                                    layout="fill"
+                                                />
+                                            </figure>
                                         </a>
                                     </Link>
                                     <div>
                                         <div>
                                             <Link href={`/bootleg/${bootleg._id}`}>
-                                                <a>{bootleg?.title ?? <i>Unknown</i>}</a>
+                                                <a
+                                                    aria-label={bootleg.title || 'bootleg'}
+                                                >
+                                                    {bootleg?.title ?? <i>Unknown</i>}
+                                                </a>
                                             </Link>
                                             <span>
                                                 Added {new Date(bootleg.createdOn)?.toLocaleDateString('en-EN', { year: 'numeric', month: 'short', day: '2-digit' }) ?? <i>Unknown</i>}
@@ -545,7 +559,9 @@ function TableBootleg({ title, bootlegs, buttonAction, buttonIcon, buttonHref, a
                         {!!actionHref &&
                             <p className="has-text-right">
                                 <Link href={actionHref}>
-                                    <a>
+                                    <a
+                                        aria-label="see more"
+                                    >
                                         See more &gt;
                                     </a>
                                 </Link>

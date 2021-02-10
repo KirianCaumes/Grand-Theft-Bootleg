@@ -19,6 +19,7 @@ import Modal, { ModalType } from "components/general/modal"
 /**
  * Simple input
  * @param {object} props
+ * @param {string=} props.id
  * @param {boolean=} props.isRequired
  * @param {string=} props.label
  * @param {ReactChild} props.value
@@ -30,6 +31,7 @@ import Modal, { ModalType } from "components/general/modal"
  * @param {Styles=} props.styles
  */
 export default function FileInput({
+    id = null,
     isRequired = null,
     label = null,
     value = null,
@@ -62,6 +64,7 @@ export default function FileInput({
                     className="file-label"
                 >
                     <input
+                        id={id || encodeURIComponent(label)}
                         className="file-input"
                         type="file"
                         name="resume"
@@ -95,6 +98,7 @@ export default function FileInput({
                             }
                         }}
                         styles={{ button: classNames("file-cta", fileInputStyles['file-cta']) }}
+                        aria-label="remove file"
                     />
                 </label>
             </div>

@@ -131,6 +131,7 @@ function Layout({ children, main: { token, me }, notification: { bootlegs }, boo
                         />
                         <Navbar.Burger
                             onClick={() => setIsActive(!isActive)}
+                            aria-label="burger"
                         />
                     </Navbar.Brand>
                     <Navbar.Menu>

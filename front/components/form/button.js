@@ -1,4 +1,4 @@
-import React from "react"
+import React, { AriaAttributes } from "react"
 import classNames from 'classnames'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
@@ -30,7 +30,7 @@ import { UrlObject } from 'url'
 
 /**
  * Simple button
- * @param {ButtonType} props
+ * @param {ButtonType & AriaAttributes} props
  */
 export default function Button({
     label = "",
@@ -42,7 +42,8 @@ export default function Button({
     iconRight = undefined,
     styles = {},
     color = 'pink',
-    href = null
+    href = null,
+    ...props
 }) {
     const Btn = !!href && !isDisabled ? 'a' : 'button'
 
@@ -59,7 +60,8 @@ export default function Button({
         )}
         onClick={onClick}
         disabled={isDisabled}
-        name={encodeURIComponent(label)}
+        name={!!label ? encodeURIComponent(label) : undefined}
+        {...props}
     >
         {iconLeft &&
             <span

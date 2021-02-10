@@ -461,6 +461,7 @@ function IndexIdBootleg({ bootlegProps, bootlegHandler, main: { token, me }, ...
                                                         href={link}
                                                         target="_blank"
                                                         onClick={click}
+                                                        rel="noopener"
                                                     >
                                                         <span className="icon">
                                                             <FontAwesomeIcon icon={faHeadphonesAlt} />
@@ -581,7 +582,7 @@ function IndexIdBootleg({ bootlegProps, bootlegHandler, main: { token, me }, ...
                                         <br />
 
                                         <span className="is-capitalize">
-                                            <strong>Time listened:</strong>
+                                            <strong>Time {bootleg.isAudioOnly ? 'listened' : 'watched'}:</strong>
                                             <span title={bootleg.clickedCount?.toString()}>{bootleg.clickedCountAbr}</span>
                                         </span>
                                         <br />

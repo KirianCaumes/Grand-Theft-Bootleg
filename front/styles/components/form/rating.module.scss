@@ -1,22 +1,31 @@
 .rating {
   display: inline;
   &[disabled] {
-    span.icon {
+    button.icon {
       cursor: not-allowed;
       color: #8d959e !important;
     }
   }
   &[readonly] {
-    span.icon {
+    button.icon {
       cursor: initial;
     }
   }
-  span.icon {
-    font-weight: 900;
-    font-size: 1.25em;
-    line-height: 1em;
+  button.icon {
+    outline: transparent none medium;
+    position: relative;
+    background-color: transparent;
+    padding: 0;
+    box-sizing: content-box;
+    margin: 0px;
+    border: medium none;
     cursor: pointer;
-    user-select: none;
+
+    font-weight: 900;
+    font-size: 15px;
+    // line-height: 1em;
+    // cursor: pointer;
+    // user-select: none;
     &.is-small {
       font-size: 0.75em !important;
     }
