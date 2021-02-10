@@ -170,7 +170,7 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", 
                                         <p className="subtitle is-6 has-text-white has-text-centered">
                                             Let's share them with the community!
                                         </p>
-                                        <Link href="/">
+                                        <Link href="/createBootlegForm">
                                             <a
                                                 className="button is-pink is-outlined is-fullwidth"
                                             >
