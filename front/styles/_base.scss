@@ -9,6 +9,7 @@ html {
   overflow-x: hidden;
   padding: 0 !important;
   margin: 0;
+  font-size: 14px !important;
   > * {
     font-family: "Segoe UI", "Segoe UI Web (West European)", "Segoe UI", -apple-system, BlinkMacSystemFont, "Roboto",
       "Helvetica Neue", sans-serif !important;
@@ -26,9 +27,9 @@ html {
     }
     a {
       color: inherit;
-    }
-    a:not(.button):hover {
-      text-decoration: underline;
+      &:not(.button):hover {
+        text-decoration: underline;
+      }
     }
     textarea {
       resize: vertical;
@@ -40,6 +41,17 @@ html {
     b {
       color: $pink;
       font-weight: bold;
+    }
+    *[disabled] {
+      background-color: whitesmoke;
+    }
+    .boxed {
+      background-color: white;
+      padding: 1rem;
+      border-radius: 0.25rem;
+      box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.15);
+      max-width: 100%;
+      position: relative;
     }
   }
 }

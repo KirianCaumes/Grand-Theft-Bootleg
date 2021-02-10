@@ -4,7 +4,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
 // @ts-ignore
 import inputStyles from 'styles/components/form/input.module.scss'
-
+import Label from "components/form/addons/label"
+import Button, { ButtonType } from 'components/form/button'
+import Help from "components/form/addons/help"
 /**
  * Input styles
  * @typedef {object} Styles
@@ -15,24 +17,33 @@ import inputStyles from 'styles/components/form/input.module.scss'
 /**
  * Simple input
  * @param {object} props
- * @param {string} props.label
- * @param {string} props.placeholder
+ * @param {string=} props.id
+ * @param {string=} props.label
+ * @param {string=} props.placeholder
  * @param {string=} props.type
  * @param {boolean=} props.isDisabled
- * @param {number=} props.min
- * @param {number=} props.max
+ * @param {number | string=} props.min
+ * @param {number | string=} props.max
  * @param {number=} props.step
  * @param {boolean=} props.isRequired
  * @param {string=} props.value
  * @param {IconProp=} props.iconLeft
  * @param {string=} props.errorMessage
- * @param {function(React.ChangeEvent<HTMLInputElement>)=} props.onChange
+ * @param {function(React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): any=} props.onChange
+ * @param {function(React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>): any=} props.onFocus
+ * @param {function(React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>): any=} props.onBlur
+ * @param {function(React.FormEvent<HTMLInputElement | HTMLTextAreaElement>): any=} props.onInput
  * @param {Styles=} props.styles
- * @param {boolean=} props.isWithBtn
- * @param {function()=} props.onClickBtn
- * @param {IconProp=} props.iconBtn
+ * @param {string=} props.color
+ * @param {number=} props.minLength
+ * @param {number=} props.maxLength
+ * @param {string[]=} props.options
+ * @param {string=} props.autoComplete
+ * @param {ButtonType=} props.button
+ * @param {boolean=} props.multiline
  */
 export default function Input({
+    id = "",
     label = "",
     placeholder = "",
     type = "text",
@@ -45,58 +56,81 @@ export default function Input({
     iconLeft = undefined,
     errorMessage = undefined,
     onChange = () => null,
+    onFocus = () => null,
+    onBlur = () => null,
+    onInput = () => null,
     styles = {},
+    color = 'light-greyblue',
+    minLength = null,
+    maxLength = null,
+    options = [],
+    autoComplete = "off",
 
-    isWithBtn = false,
-    onClickBtn = () => null,
-    iconBtn = undefined
+    button = {},
+
+    multiline = false
 }) {
-    const id = Math.random().toString(36).slice(-6)
-
+    const Ipt = multiline ? 'textarea' : 'input'
     return (
         <>
-            <label
-                htmlFor={id}
-                className={classNames("label", { 'is-isRequired': isRequired })}
-            >
-                {label}
-            </label>
+            {!!label &&
+                <Label
+                    htmlFor={encodeURIComponent(label)}
+                    isRequired={isRequired}
+                >
+                    {label}
+                </Label>
+            }
             <div
-                className={classNames("field", { 'has-addons': isWithBtn })}
+                className={classNames("field", { 'has-addons': Object.keys(button)?.length > 0 })}
             >
                 <div className={classNames("control is-expanded", { 'has-icons-left': iconLeft }, styles.control, inputStyles.control)}>
-                    <input
-                        id={id}
-                        className={classNames("input is-greyblue", { 'is-danger': !!errorMessage }, styles.input, inputStyles.input)}
+                    {!!options?.length &&
+                        <datalist
+                            id={id || encodeURIComponent(label)}
+                        >
+                            {options.map((opt, i) =>
+                                <option key={i}>
+                                    {opt}
+                                </option>
+                            )}
+                        </datalist>
+                    }
+                    <Ipt
+                        id={id || encodeURIComponent(label)}
+                        className={classNames({ [`is-${color}`]: !!color }, { 'input': !multiline }, { 'textarea': multiline }, { 'is-danger': !!errorMessage }, styles.input, inputStyles.input)}
                         type={type}
                         placeholder={placeholder}
                         onChange={onChange}
+                        onFocus={onFocus}
+                        onBlur={onBlur}
                         required={isRequired}
                         value={value || ''}
                         min={min}
                         max={max}
                         step={step}
                         disabled={isDisabled}
+                        minLength={minLength}
+                        maxLength={maxLength}
+                        list={!!options?.length ? id || encodeURIComponent(label) : undefined}
+                        autoComplete={autoComplete}
+                        onInput={onInput}
                     />
                     {iconLeft &&
                         <span className="icon is-small is-left">
                             <FontAwesomeIcon icon={iconLeft} />
                         </span>
                     }
-                    {errorMessage &&
-                        <p className="help is-danger">{errorMessage}</p>
-                    }
+                    <Help>
+                        {errorMessage}
+                    </Help>
                 </div>
                 {
-                    isWithBtn &&
+                    Object.keys(button)?.length > 0 &&
                     <div className="control">
-                        <button
-                            className="button is-greyblue"
-                            onClick={onClickBtn}
-                            type="button"
-                        >
-                            <FontAwesomeIcon icon={iconBtn} />
-                        </button>
+                        <Button
+                            {...button}
+                        />
                     </div>
                 }
             </div>

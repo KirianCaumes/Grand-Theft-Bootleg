@@ -4,6 +4,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
 // @ts-ignore
 import buttonStyles from 'styles/components/form/button.module.scss'
+import Link from "next/link"
+import { UrlObject } from 'url'
 
 /**
  * Button styles
@@ -12,32 +14,84 @@ import buttonStyles from 'styles/components/form/button.module.scss'
  */
 
 /**
+ * Button styles
+ * @typedef {object} ButtonType
+ * @property {string=} label
+ * @property {"button" | "submit" | "reset"=} type
+ * @property {function(React.MouseEvent<any, MouseEvent>)=} onClick
+ * @property {boolean=} isLoading
+ * @property {boolean=} isDisabled
+ * @property {IconProp=} iconLeft
+ * @property {IconProp=} iconRight
+ * @property {Styles=} styles
+ * @property {string=} color
+ * @property {string | UrlObject=} href
+ */
+
+/**
  * Simple button
- * @param {object} props
- * @param {string} props.label
- * @param {"button" | "submit" | "reset"=} props.type
- * @param {boolean=} props.isLoading
- * @param {IconProp=} props.iconLeft
- * @param {Styles=} props.styles
+ * @param {ButtonType} props
  */
 export default function Button({
     label = "",
-    type = "submit",
+    type = "button",
+    onClick = () => null,
     isLoading = false,
+    isDisabled = false,
     iconLeft = undefined,
+    iconRight = undefined,
     styles = {},
+    color = 'pink',
+    href = null
 }) {
-    return (
-        <button
-            type={type}
-            className={classNames("button is-pink", { 'is-loading': isLoading }, styles.button, buttonStyles.button)}
-        >
+    const Btn = !!href && !isDisabled ? 'a' : 'button'
+
+    const element = <Btn
+        type={type}
+        className={classNames(
+            'button',
+            [buttonStyles['button']],
+            { [buttonStyles[`is-${color}`]]: !!color },
+            { [buttonStyles['is-loading']]: isLoading },
+            [...(styles.button?.split(' ').map(x => [buttonStyles[x]]) ?? [])],
+            styles.button,
+            buttonStyles.button
+        )}
+        onClick={onClick}
+        disabled={isDisabled}
+        name={encodeURIComponent(label)}
+    >
+        {iconLeft &&
+            <span
+                className={classNames(
+                    [buttonStyles['icon']],
+                    [buttonStyles['is-small']]
+                )}
+            >
+                <FontAwesomeIcon icon={iconLeft} />
+            </span>
+        }
+        {label &&
             <span>{label}</span>
-            {iconLeft &&
-                <span className="icon is-small">
-                    <FontAwesomeIcon icon={iconLeft} />
-                </span>
-            }
-        </button>
-    )
+        }
+        {iconRight &&
+            <span
+                className={classNames(
+                    [buttonStyles['icon']],
+                    [buttonStyles['is-small']]
+                )}
+            >
+                <FontAwesomeIcon icon={iconRight} />
+            </span>
+        }
+    </Btn>
+
+    if (href)
+        return (
+            <Link href={href}>
+                {element}
+            </Link>
+        )
+    else
+        return element
 }

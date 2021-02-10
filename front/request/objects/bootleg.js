@@ -1,13 +1,17 @@
+import { EStates } from "types/searchFilters/states"
+import Report, { ErrorReport } from "./report"
+import Base from "./_base"
+
 /**
  * Bootleg Object
  */
-export class Bootleg {
+export default class Bootleg extends Base {
     /**
      * @param {object} data
-     * @param {object=} data._id
+     * @param {object | number=} data._id
      * @param {string=} data.title
      * @param {string=} data.description
-     * @param {string=} data.date
+     * @param {string | Date=} data.date
      * @param {string=} data.picture
      * @param {string[]=} data.links
      * @param {string[]=} data.bands
@@ -22,43 +26,43 @@ export class Bootleg {
      * @param {number=} data.state
      * @param {object=} data.createdById
      * @param {object=} data.createdBy
-     * @param {string=} data.createdOn
+     * @param {string | Date=} data.createdOn
      * @param {object=} data.modifiedById
      * @param {object=} data.modifiedBy
-     * @param {string=} data.modifiedOn
-     * @param {string=} data.clicked
+     * @param {string | Date=} data.modifiedOn
+     * @param {object[]=} data.clicked
      * @param {number=} data.clickedCount
-     * @param {string=} data.report
+     * @param {object[]=} data.report
      */
     constructor({
-        _id = {},
+        _id = null,
         title = null,
         description = null,
         date = null,
         picture = null,
-        links = null,
-        bands = null,
-        songs = null,
-        countries = null,
-        cities = null,
-        isCompleteShow = null,
-        isAudioOnly = null,
-        isProRecord = null,
-        soundQuality = null,
+        links = [],
+        bands = [],
+        songs = [],
+        countries = [],
+        cities = [],
+        isCompleteShow = false,
+        isAudioOnly = false,
+        isProRecord = false,
+        soundQuality = 0,
         videoQuality = null,
-        state = null,
+        state = EStates.DRAFT,
         createdById = null,
         createdBy = {},
         createdOn = null,
         modifiedById = null,
         modifiedBy = {},
         modifiedOn = null,
-        clicked = null,
+        clicked = [],
         clickedCount = 0,
-        report = null
+        report = []
     } = {}) {
-
-        this._id = _id?.$oid
+        super()
+        this._id = _id?.$oid ?? _id
         this.title = title
         this.description = description
         this.date = date ? new Date(date) : null
@@ -74,19 +78,64 @@ export class Bootleg {
         this.soundQuality = soundQuality
         this.videoQuality = videoQuality
         this.state = state
-        this.createdById = createdById?.$oid
+        this.createdById = createdById?.$oid || createdById
         this.createdBy = createdBy
         this.createdOn = createdOn ? new Date(createdOn) : createdOn
-        this.modifiedById = modifiedById?.$oid
+        this.modifiedById = modifiedById?.$oid || modifiedById
         this.modifiedBy = modifiedBy
         this.modifiedOn = modifiedOn ? new Date(modifiedOn) : modifiedOn
         // this.clicked = clicked
         this.clickedCount = clickedCount
-        // this.report = report
+        this.report = report?.map(x => new Report(x))
 
-        this.stateName = ["Draft", "Prending", "Published", "Deleted"][this.state]
+        this.stateName = Object.keys(EStates).map(state => `${state.charAt(0).toUpperCase()}${state.toLowerCase().slice(1)}`)[this.state || 0]
+
+        this.timeAgo = (() => {
+            if (!createdOn)
+                return ''
+
+            const msPerMinute = 60 * 1000
+            const msPerHour = msPerMinute * 60
+            const msPerDay = msPerHour * 24
+            const msPerMonth = msPerDay * 30
+            const msPerYear = msPerDay * 365
+
+            const elapsed = new Date().getTime() - new Date(createdOn)?.getTime()
+
+            if (elapsed < msPerMinute) {
+                const res = Math.round(elapsed / 1000)
+                return `${res} sec${res > 1 ? 's' : ''} ago`
+            } else if (elapsed < msPerHour) {
+                const res = Math.round(elapsed / msPerMinute)
+                return `${res} min${res > 1 ? 's' : ''} ago`
+            } else if (elapsed < msPerDay) {
+                const res = Math.round(elapsed / msPerHour)
+                return `${res} hour${res > 1 ? 's' : ''} ago`
+            } else if (elapsed < msPerMonth) {
+                const res = Math.round(elapsed / msPerDay)
+                return `${res} day${res > 1 ? 's' : ''} ago`
+            } else if (elapsed < msPerYear) {
+                const res = Math.round(elapsed / msPerMonth)
+                return `${res} month${res > 1 ? 's' : ''} ago`
+            } else {
+                const res = Math.round(elapsed / msPerYear)
+                return `${res} year${res > 1 ? 's' : ''} ago`
+            }
+        })()
+
+        this.clickedCountAbr = (() => {
+            if (clickedCount < 1000)
+                return `${clickedCount}`
+            else if (clickedCount < 1000000)
+                return `${Math.round(clickedCount / 1000)}k`
+            else if (clickedCount < 1000000000)
+                return `${Math.round(clickedCount / 1000000)}M`
+            else
+                return `${Math.round(clickedCount / 1000000000)}G`
+        })()
     }
 }
+
 
 /**
  * Bootleg Object used to bind error message

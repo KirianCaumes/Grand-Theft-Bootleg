@@ -2,6 +2,7 @@ import { Context } from "https://deno.land/x/oak@v6.3.2/context.ts"
 import { verify } from "https://deno.land/x/djwt@v1.9/mod.ts"
 import UnauthorizedException from "../types/exceptions/UnauthorizedException.ts"
 import { env } from "./config.ts"
+import JwtException from "../types/exceptions/JwtException.ts"
 
 export default async function validateToken(ctx: Context, next: Function) {
     if (!ctx.request.headers.get('Authorization'))
@@ -14,7 +15,7 @@ export default async function validateToken(ctx: Context, next: Function) {
             'HS512'
         )
     } catch (error) {
-        throw new UnauthorizedException(error?.message || 'Invalid token')
+        throw new JwtException(error?.message || 'Invalid token')
     }
 
     await next()

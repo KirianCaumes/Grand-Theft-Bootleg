@@ -1,0 +1,6 @@
+@import "../../../helpers";
+@import "../../../variables";
+
+.index-reset-password-user {
+    @include flex-col();
+}

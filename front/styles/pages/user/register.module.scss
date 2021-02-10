@@ -1,0 +1,5 @@
+@import "../../helpers";
+
+.register-user {
+  @include flex-col();
+}

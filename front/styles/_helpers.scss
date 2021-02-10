@@ -14,18 +14,20 @@
   height: 100%;
 }
 
+.flex {
+  display: flex;
+}
+
 *.flex-row {
   @include flex-row();
-  > *.flex-one {
-    flex: 1;
-  }
 }
 
 *.flex-col {
   @include flex-col();
-  > *.flex-one {
-    flex: 1;
-  }
+}
+
+*.flex-one {
+  flex: 1;
 }
 
 *.flex-start {
@@ -38,6 +40,10 @@
 
 *.flex-space-between {
   justify-content: space-between !important;
+}
+
+*.flex-center {
+  justify-content: center !important;
 }
 
 *.flex-wrap {
@@ -76,10 +82,6 @@
   text-transform: capitalize;
 }
 
-.is-divider-vertical {
-  align-self: normal;
-}
-
 .is-required:after {
   content: " *";
   color: $red;
@@ -104,4 +106,11 @@
     height: 0.25em;
     display: block;
   }
+  + .subtitle {
+    margin-top: -0.5rem !important;
+  }
+}
+
+.is-pointer-events-none {
+  pointer-events: none;
 }

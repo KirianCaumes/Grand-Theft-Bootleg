@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM debian:10.7-slim
 
 # Avoid warnings by switching to noninteractive
 ENV DEBIAN_FRONTEND=noninteractive
@@ -23,12 +23,12 @@ RUN apt-get install gnupg -y \
     && apt-get install wget -y \
     && apt-get install unzip -y
 
-# install nodejs 2.x
-RUN wget -qO- https://deb.nodesource.com/setup_12.x | bash -
+# install nodejs 14.x
+RUN wget -qO- https://deb.nodesource.com/setup_14.x | bash -
 RUN apt-get install -y nodejs
 
 # install deno
-RUN curl -fsSL https://deno.land/x/install/install.sh | sh -s v1.5.0
+RUN curl -fsSL https://deno.land/x/install/install.sh | sh -s v1.6.1
 ENV DENO_INSTALL="/root/.deno"
 ENV PATH="${DENO_INSTALL}/bin:${PATH}"
 

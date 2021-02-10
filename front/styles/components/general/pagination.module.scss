@@ -1,0 +1,19 @@
+@import "../../helpers";
+@import "../../variables";
+
+.pagination {
+  button {
+    &:focus:not(:active) {
+      box-shadow: 0 0 0 0.125em rgba($pink, 0.25) !important;
+    }
+  }
+  a,
+  button {
+    &[class*="pagination-previous"],
+    &[class*="pagination-next"] {
+      &[disabled] {
+        color: #fff;
+      }
+    }
+  }
+}

@@ -1,0 +1,6 @@
+@import "../../../helpers";
+@import "../../../variables";
+
+.token-reset-paswword-user {
+    @include flex-col();
+}

@@ -1,30 +1,48 @@
-import { Collection } from "https://deno.land/x/mongo@v0.13.0/ts/collection.ts"
 import { client } from "./_dbConnector.ts"
 import { create } from "https://deno.land/x/djwt@v1.9/mod.ts"
 import { env } from "../helpers/config.ts"
+import BaseCollection from "./_base.model.ts"
 
 export interface UserSchema {
     _id: { $oid: string }
     username: string
     mail: string
-    password: string
+    password: string | undefined
     role: number
+    strategy: number
+
+    createdOn: Date
+    modifiedOn: Date
+
+    resetPassword: {
+        token: string
+        expirationDate: Date
+    } | undefined
+
+    deleteAccount: {
+        token: string
+        expirationDate: Date
+    } | undefined
 }
 
-export class UsersCollection extends Collection<UserSchema> {
+export class UsersCollection extends BaseCollection<UserSchema> {
     constructor() {
         super(client, env?.MONGO_DB!, "users")
     }
 
-    async getToken(user: UserSchema): Promise<string> {
+    async getToken(user: any): Promise<string> {
+        delete user.password
+        delete user.resetPassword
+        delete user.deleteAccount
+
         return await create(
             {
                 alg: "HS512",
                 typ: "JWT"
             },
             {
-                iss: JSON.stringify({ ...user, password: undefined }),
-                exp: Date.now() / 1000 + 60 * 60
+                iss: JSON.stringify(user),
+                exp: Date.now() / 1000 + 60 * 60 * 24
             },
             env?.JWT_KEY!
         )

@@ -1,2 +1,17 @@
+@import "../../helpers";
+@import "../../variables";
+@import "../../colors";
+@import "../../mixins";
+@import "bulma/sass/elements/button.sass";
+
 .button {
+}
+
+@keyframes spinAround {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(359deg);
+    }
 }

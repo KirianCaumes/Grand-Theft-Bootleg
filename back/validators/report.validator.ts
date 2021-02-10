@@ -4,7 +4,7 @@ import { validator } from "./_base.validator.ts"
 const reportValidationSchema = Schema({
     // userId
     // date
-    message: string.trim().normalize().between(2, 255)
+    message: string.trim().normalize().between(5, 255)
 })
 
 type ReportValidationType = Type<typeof reportValidationSchema>

@@ -2,46 +2,63 @@ import React from "react"
 import Head from "next/head"
 // @ts-ignore
 import styles from "styles/pages/index.module.scss"
-import { GlobalProps } from "pages/_app"
-import BootlegManager from "request/managers/bootlegManager"
+import BootlegHandler from "request/handlers/bootlegHandler"
 // @ts-ignore
 import { Section, Columns, Container } from 'react-bulma-components'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faHandshake, faQuestion, faSearch, faUserCheck } from '@fortawesome/free-solid-svg-icons'
 import classNames from 'classnames'
-import BootlegCard from "components/bootlegCard"
+import BootlegCard from "components/general/bootlegCard"
 import { Logo } from "components/svg/icon"
 import { useRouter } from 'next/router'
-import { Bootleg } from 'request/objects/bootleg'
+import Bootleg from 'request/objects/bootleg'
 import Link from "next/link"
 import config from 'react-reveal/globals'
 import Fade from 'react-reveal/Fade'
-import { ESort } from "static/searchFilters/sort"
+import { ESort } from "types/searchFilters/sort"
+import { wrapper } from "redux/store"
+import { connect } from "react-redux"
+import getConfig from 'next/config'
+import { GetServerSidePropsContext } from 'next'
+import { AnyAction, Store } from 'redux'
+import { MainState } from "redux/slices/main"
+import { NotificationState } from 'redux/slices/notification'
+import { CancelRequestError } from "request/errors/cancelRequestError"
+import { AuthentificationError } from "request/errors/authentificationError"
+import { UnauthorizedError } from "request/errors/unauthorizedError"
+import { InvalidEntityError } from "request/errors/invalidEntityError"
+import { NotFoundError } from "request/errors/notFoundError"
+import { NotImplementedError } from "request/errors/notImplementedError"
+import Button from "components/form/button"
 
 config({ ssrFadeout: true })
 
 /**
  * @typedef {object} IndexProps
- * @property {string} test Test
- * @property {Bootleg[]} bootlegsPopular Bootlegs from API
- * @property {Bootleg[]} bootlesgNew Bootlegs from API
- * @property {Bootleg[]} bootlegsRandom Bootlegs from API
+ * @property {Bootleg[]} bootlegsPopularProps Bootlegs from API
+ * @property {Bootleg[]} bootlegsNewProps Bootlegs from API
+ * @property {Bootleg[]} bootlegsRandomProps Bootlegs from API
  */
 
 /**
  * Index page
- * @param {GlobalProps & IndexProps} props 
+ * @param {IndexProps} props 
  */
-function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", ...props }) {
-    const router = useRouter()
-
+function Index({ bootlegsPopularProps, bootlegsNewProps, bootlegsRandomProps, ...props }) {
     /** @type {[string, function(string):any]} Search text */
     const [searchText, setSearchText] = React.useState(null)
+
+    const router = useRouter()
+    const { publicRuntimeConfig } = getConfig()
 
     return (
         <>
             <Head>
-                <title>Home - {props.appname}</title>
+                <title>{publicRuntimeConfig.appName} - Discover unknown live bootlegs</title>
+                <meta
+                    name="description"
+                    content="Music and its hidden sides submerged. What if we emerge them? 💿 Grand Theft Bootleg, help us bring out the bootlegs lost in the depths of the abyss! 🌊"
+                />
             </Head>
 
             <main className={styles.index}>
@@ -74,7 +91,7 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", 
                         onSubmit={ev => {
                             ev.preventDefault()
                             router.push({
-                                pathname: '/search',
+                                pathname: '/bootleg/search',
                                 query: {
                                     string: searchText
                                 }
@@ -94,11 +111,9 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", 
                                 />
                             </div>
                             <div className="control">
-                                <button
-                                    className="button is-pink"
-                                >
-                                    <FontAwesomeIcon icon={faSearch} />
-                                </button>
+                                <Button
+                                    iconLeft={faSearch}
+                                />
                             </div>
                         </div>
                     </form>
@@ -110,7 +125,7 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", 
                         </h2>
                         <br />
                         <Columns>
-                            {bootlegsPopular?.map((bootleg, i) => (
+                            {bootlegsPopularProps?.map((bootleg, i) => (
                                 <Columns.Column
                                     size="one-fifth"
                                     key={`popular-${i}`}
@@ -125,7 +140,12 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", 
                             className="has-text-right"
                         >
                             <Link
-                                href="/search?orderBy=CLICKED_DESC"
+                                href={{
+                                    pathname: '/bootleg/search',
+                                    query: {
+                                        orderBy: ESort.CLICKED_DESC
+                                    }
+                                }}
                             >
                                 <a>
                                     See more &gt;
@@ -170,13 +190,11 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", 
                                         <p className="subtitle is-6 has-text-white has-text-centered">
                                             Let's share them with the community!
                                         </p>
-                                        <Link href="/createBootlegForm">
-                                            <a
-                                                className="button is-pink is-outlined is-fullwidth"
-                                            >
-                                                Share
-                                            </a>
-                                        </Link>
+                                        <Button
+                                            label="Share"
+                                            href="/bootleg/new/edit"
+                                            styles={{ button: 'is-outlined is-fullwidth' }}
+                                        />
                                     </div>
                                 </Fade>
                             </Columns.Column>
@@ -199,13 +217,11 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", 
                                         <p className="subtitle is-6 has-text-white has-text-centered">
                                             Search, find and listen!
                                         </p>
-                                        <Link href="/">
-                                            <a
-                                                className="button is-pink is-outlined is-fullwidth"
-                                            >
-                                                Search
-                                            </a>
-                                        </Link>
+                                        <Button
+                                            label="Search"
+                                            href="/bootleg/search"
+                                            styles={{ button: 'is-outlined is-fullwidth' }}
+                                        />
                                     </div>
                                 </Fade>
                             </Columns.Column>
@@ -228,13 +244,11 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", 
                                         <p className="subtitle is-6 has-text-white has-text-centered">
                                             You can message us directly!
                                         </p>
-                                        <Link href="/">
-                                            <a
-                                                className="button is-pink is-outlined is-fullwidth"
-                                            >
-                                                Contact us
-                                            </a>
-                                        </Link>
+                                        <Button
+                                            label="Contact us"
+                                            href="/general-conditions"
+                                            styles={{ button: 'is-outlined is-fullwidth' }}
+                                        />
                                     </div>
                                 </Fade>
                             </Columns.Column>
@@ -250,7 +264,7 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", 
                         </h2>
                         <br />
                         <Columns>
-                            {bootlesgNew?.map((bootleg, i) => (
+                            {bootlegsNewProps?.map((bootleg, i) => (
                                 <Columns.Column
                                     size="one-fifth"
                                     key={`new-${i}`}
@@ -265,7 +279,12 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", 
                             className="has-text-right"
                         >
                             <Link
-                                href="/search?orderBy=DATE_CREATION_DESC"
+                                href={{
+                                    pathname: '/bootleg/search',
+                                    query: {
+                                        orderBy: ESort.DATE_CREATION_DESC
+                                    }
+                                }}
                             >
                                 <a>
                                     See more &gt;
@@ -290,13 +309,12 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", 
                             </Columns.Column>
                             <Columns.Column size="one-third">
                                 <Fade right>
-                                    <Link
-                                        href="/register"
-                                    >
-                                        <a className="button is-pink is-fullwidth">
-                                            Register&nbsp;<FontAwesomeIcon icon={faUserCheck} />
-                                        </a>
-                                    </Link>
+                                    <Button
+                                        label="Register"
+                                        href="/user/register"
+                                        iconRight={faUserCheck}
+                                        styles={{ button: 'is-fullwidth' }}
+                                    />
                                 </Fade>
                             </Columns.Column>
                         </Columns>
@@ -311,7 +329,7 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", 
                         </h2>
                         <br />
                         <Columns>
-                            {bootlegsRandom?.map((bootleg, i) => (
+                            {bootlegsRandomProps?.map((bootleg, i) => (
                                 <Columns.Column
                                     size="one-fifth"
                                     key={`random-${i}`}
@@ -326,7 +344,12 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", 
                             className="has-text-right"
                         >
                             <Link
-                                href="/search?isRandom=1"
+                                href={{
+                                    pathname: '/bootleg/search',
+                                    query: {
+                                        isRandom: 1
+                                    }
+                                }}
                             >
                                 <a>
                                     See more &gt;
@@ -341,29 +364,57 @@ function Index({ bootlegsPopular, bootlesgNew, bootlegsRandom, test = "qsdqsd", 
     )
 }
 
+/** Get server side props */
+export const getServerSideProps = wrapper.getServerSideProps(
+    /**
+     * Get server side props
+     * @param {GetServerSidePropsContext & {store: Store<{ main: MainState; notification: NotificationState }, AnyAction>;}} ctx
+     */
+    async ({ req, store }) => {
+        try {
+            const bootlegHandler = new BootlegHandler({ req })
+            const [[bootlegsPopular], [bootlegsNew], [bootlegsRandom]] = await Promise.all([
+                bootlegHandler.getAll({
+                    limit: 5,
+                    orderBy: ESort.CLICKED_DESC
+                }).fetch(),
+                bootlegHandler.getAll({
+                    limit: 5,
+                    orderBy: ESort.DATE_CREATION_DESC
+                }).fetch(),
+                bootlegHandler.getAll({
+                    limit: 5,
+                    isRandom: 1
+                }).fetch()
+            ])
 
-Index.getInitialProps = async (ctx) => {
-    try {
-        const bootlegManager = new BootlegManager()
-        const [bootlegsPopular, bootlesgNew, bootlegsRandom] = await Promise.all([
-            bootlegManager.getAll({
-                limit: 5,
-                orderBy: ESort.CLICKED_DESC
-            }),
-            bootlegManager.getAll({
-                limit: 5,
-                orderBy: ESort.DATE_CREATION_DESC
-            }),
-            bootlegManager.getAll({
-                limit: 5,
-                isRandom: 1
-            })
-        ])
-        return { bootlegsPopular, bootlesgNew, bootlegsRandom }
-    } catch (error) {
-        console.log(error)
-        return { bootlegsPopular: [], bootlesgNew: [], bootlegsRandom: [] }
+            return {
+                props: {
+                    bootlegsPopularProps: bootlegsPopular.map(x => x.toJson()),
+                    bootlegsNewProps: bootlegsNew.map(x => x.toJson()),
+                    bootlegsRandomProps: bootlegsRandom.map(x => x.toJson())
+                }
+            }
+        } catch (error) {
+            switch (error?.constructor) {
+                case CancelRequestError:
+                case UnauthorizedError:
+                case AuthentificationError:
+                case InvalidEntityError:
+                case NotImplementedError:
+                case NotFoundError:
+                default:
+                    console.error(error)
+                    return {
+                        props: {
+                            bootlegsPopular: [],
+                            bootlegsNew: [],
+                            bootlegsRandom: []
+                        }
+                    }
+            }
+        }
     }
-}
+)
 
-export default Index
+export default connect((state) => state)(Index)

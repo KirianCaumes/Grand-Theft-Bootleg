@@ -1,11 +1,95 @@
+@import "../helpers";
+@import "../variables";
+
 body {
   header {
     nav {
+      a:hover {
+        text-decoration: none !important;
+      }
+      div.navbar-brand {
+        span {
+          margin-left: 0.5em;
+        }
+        .navbar-burger {
+          height: auto !important;
+        }
+      }
       div.navbar-menu {
         @include until($desktop) {
           position: absolute;
           left: 0;
           right: 0;
+        }
+        .navbar-link,
+        .navbar-item {
+          &:hover {
+            color: $pink;
+          }
+        }
+        .navbar-item {
+          .navbar-dropdown {
+            width: 200px;
+          }
+          .navbar-link:not(.is-arrowless)::after {
+            @include until($desktop) {
+              display: none;
+            }
+            right: 1.5em;
+            width: 0.525em;
+            height: 0.525em;
+            border: 2px solid;
+            border-right: 0;
+            border-top: 0;
+          }
+        }
+      }
+      .bootleg-notif {
+        @include flex-col();
+        cursor: pointer;
+        width: 2em;
+        height: $headerHeight;
+        .dropdown-trigger {
+          position: relative;
+          text-align: center;
+          svg.vibrate {
+            animation: 2s bell-vibrate ease-in-out infinite;
+          }
+          .badge {
+            font-size: 0.55em;
+            border-radius: 50%;
+            width: 1.25em;
+            height: 1.25em;
+            text-align: center;
+            top: 2px;
+            line-height: 1.25em;
+            position: absolute;
+            right: 1px;
+            color: black;
+            font-weight: bold;
+            background: white;
+          }
+        }
+        .dropdown-menu {
+          box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.15);
+          right: 0;
+          left: 0;
+          width: 300px;
+          overflow: hidden;
+          transform: translate(-75%, 0);
+          @include until($desktop) {
+            transform: translate(-50%, 0);
+          }
+          .dropdown-item {
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            padding-right: 1rem;
+            span:last-child {
+              color: gray;
+              font-size: 0.9em;
+            }
+          }
         }
       }
     }
@@ -15,5 +99,32 @@ body {
   }
   footer.footer {
     padding: 1rem 1.5rem 1rem;
+    a:hover {
+      color: inherit;
+    }
+  }
+}
+
+@keyframes bell-vibrate {
+  0% {
+    transform: rotate(0);
+  }
+  4% {
+    transform: rotate(25deg);
+  }
+  8% {
+    transform: rotate(-25deg);
+  }
+  12% {
+    transform: rotate(25deg);
+  }
+  16% {
+    transform: rotate(-25deg);
+  }
+  20% {
+    transform: rotate(0);
+  }
+  100% {
+    transform: rotate(0);
   }
 }

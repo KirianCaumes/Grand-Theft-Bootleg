@@ -9,6 +9,10 @@
             "path": "back"
         },
         {
+            "name": "🛠️ Tools",
+            "path": "tools"
+        },
+        {
             "name": "📁 root",
             "path": "."
         }

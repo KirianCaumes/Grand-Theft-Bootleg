@@ -1,0 +1,43 @@
+@import "bulma/sass/utilities/initial-variables.sass";
+@import "bulma/sass/utilities/functions.sass";
+@import "bulma/sass/utilities/derived-variables.sass";
+@import "bulma/sass/utilities/controls.sass";
+@import "./_variables.scss";
+
+$colors: map-merge(
+    $colors,
+    (
+        "pink": (
+            $pink,
+            findColorInvert($dark),
+        ),
+        "dark-pink": (
+            $dark-pink,
+            findColorInvert($dark-pink),
+        ),
+        "light-greyblue": (
+            $light-greyblue,
+            findColorInvert($light-greyblue),
+        ),
+        "greyblue": (
+            $greyblue,
+            findColorInvert($greyblue),
+        ),
+        "dark-greyblue": (
+            $dark-greyblue,
+            findColorInvert($dark-greyblue),
+        ),
+        "google": (
+            $google,
+            findColorInvert($google),
+        ),
+        "twitter": (
+            $twitter,
+            findColorInvert($twitter),
+        ),
+        "facebook": (
+            $facebook,
+            findColorInvert($facebook),
+        ),
+    )
+);

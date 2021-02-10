@@ -1,0 +1,68 @@
+@import "../../../colors";
+@import "../../../mixins";
+@import "../../../helpers";
+
+$small-font-size: 0.875em !default;
+$body-font-size: 1em !default;
+
+@import "node_modules/bulma-block-list/src/block-list";
+
+.index-id-bootleg {
+  // h1 {
+  //   white-space: nowrap;
+  //   text-overflow: ellipsis;
+  //   overflow: hidden;
+  // }
+
+  div[class*="is-two-thirds-desktop"] {
+    figure {
+      @include flex-col;
+      height: 250px;
+      background: $greyblue;
+      overflow: hidden;
+      position: relative;
+      img {
+        max-height: 100%;
+        object-fit: contain;
+      }
+    }
+    ul {
+      &[class*="block-list"] {
+        li {
+          strong {
+            min-width: 30px;
+            display: inline-block;
+          }
+          padding: 0.4em !important;
+        }
+      }
+    }
+  }
+  div[class*="is-one-third"] {
+    position: relative;
+    .sticky {
+      position: sticky;
+      top: 1em;
+      .buttons {
+        .button {
+          border-radius: 4px;
+        }
+      }
+      strong {
+        min-width: 130px;
+        display: inline-block;
+      }
+      ul {
+        &.flat-list {
+          display: inline;
+          li {
+            display: inline-block;
+            &:not(:first-child)::before {
+              content: ", ";
+            }
+          }
+        }
+      }
+    }
+  }
+}

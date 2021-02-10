@@ -1,0 +1,6 @@
+@import "../../../helpers";
+@import "../../../variables";
+
+.token-delete-account-user {
+    @include flex-col();
+}

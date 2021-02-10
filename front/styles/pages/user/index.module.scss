@@ -1,0 +1,39 @@
+@import "../../helpers";
+@import "../../variables";
+
+.index-user {
+  .bootlegRow {
+    display: flex;
+    justify-content: flex-start;
+    padding: 0.5em;
+    > a {
+      margin-right: 1em !important;
+      height: 40px;
+      min-width: 40px;
+    }
+    > div {
+      @include flex-row();
+      justify-content: space-between;
+      width: 100%;
+      > div {
+        &:first-child {
+          @include flex-col();
+          span {
+            font-size: 0.75em;
+            color: gray;
+          }
+        }
+        &:last-child {
+          @include flex-col();
+        }
+      }
+    }
+    &:not(:last-child) {
+      margin-bottom: 0.5em;
+    }
+  }
+  strong {
+    min-width: 130px;
+    display: inline-block;
+  }
+}

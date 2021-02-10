@@ -2,6 +2,8 @@ import React from "react"
 import classNames from 'classnames'
 // @ts-ignore
 import toggleStyles from 'styles/components/form/toggle.module.scss'
+import Label from "./addons/label"
+import Help from "./addons/help"
 
 /**
  * Toggle styles
@@ -17,31 +19,45 @@ import toggleStyles from 'styles/components/form/toggle.module.scss'
  * @param {boolean=} props.isDisabled
  * @param {function(React.ChangeEvent<HTMLInputElement>)=} props.onChange
  * @param {Styles=} props.styles
+ * @param {string=} props.color
+ * @param {string=} props.errorMessage
+ * @param {boolean=} props.isRequired
  */
 export default function Toggle({
     label = "",
     checked = null,
     isDisabled = false,
     onChange = () => null,
-    styles = {}
+    styles = {},
+    color = 'light-greyblue',
+    errorMessage = undefined,
+    isRequired = false,
 }) {
-    const id = Math.random().toString(36).slice(-6)
-
     return (
         <>
-            <label className="label" htmlFor={id}>{label}</label>
-            <div className={classNames("field", styles.field, toggleStyles.field)}>
+            {!!label &&
+                <Label
+                    htmlFor={encodeURIComponent(label)}
+                    isRequired={isRequired}
+                >
+                    {label}
+                </Label>
+            }
+            <div className={classNames(styles.field, toggleStyles.field)}>
                 <input
-                    id={id}
+                    id={encodeURIComponent(label)}
                     type="checkbox"
-                    className="switch is-rounded is-pink"
+                    className={classNames(toggleStyles.switch, toggleStyles['is-rounded'], { [toggleStyles[`is-${color}`]]: !!color })}
                     checked={checked}
                     onChange={onChange}
                     disabled={isDisabled}
                 />
-                <label htmlFor={id}>
+                <label htmlFor={encodeURIComponent(label)}>
                     {!!checked ? 'Yes' : 'No'}
                 </label>
+                <Help>
+                    {errorMessage}
+                </Help>
             </div>
         </>
     )

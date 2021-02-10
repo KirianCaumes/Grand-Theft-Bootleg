@@ -65,7 +65,7 @@ export default class BootlegVoter extends BaseVoter {
         if (
             [EBootlegStates.DRAFT, EBootlegStates.PENDING].includes(subject.state) &&
             [EUserRoles.VISITOR, EUserRoles.USER].includes(user.role) &&
-            subject.createdById?.$oid === user._id.$oid
+            subject.createdById?.$oid === user._id?.$oid
         )
             return true
 
@@ -93,7 +93,7 @@ export default class BootlegVoter extends BaseVoter {
     }
 
     private canClick(subject: BootlegSchema, user: UserSchema) {
-        if (!!subject.clicked.find(x =>
+        if (!!subject.clicked?.find(x =>
             x.userId?.$oid === user._id.$oid &&
             x.date > new Date(new Date().getTime() - (24 * 60 * 60 * 1000))
         ))

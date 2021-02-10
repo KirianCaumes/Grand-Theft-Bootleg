@@ -7,6 +7,8 @@ import { EBootlegStates } from "../types/enumerations/EBootlegStates.ts"
 import { UserSchema } from "./user.model.ts"
 import { env } from "../helpers/config.ts"
 import { EUserRoles } from "../types/enumerations/EUserRoles.ts"
+import { ESearch } from "../types/enumerations/ESsearch.ts"
+import BaseCollection from "./_base.model.ts"
 
 export interface BootlegSchema {
     _id: { $oid: string }
@@ -47,9 +49,9 @@ export interface BootlegSchema {
     ]
 }
 
-export class BootlegsCollection extends Collection<BootlegSchema> {
+export class BootlegsCollection extends BaseCollection<BootlegSchema> {
     /** Limit to searchin db */
-    limit: number = 50
+    limit: number = 48
 
     constructor() {
         super(client, env?.MONGO_DB!, "bootlegs")
@@ -58,7 +60,7 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
     /**
      * Clear fields
      */
-    private _setupClear(user?: UserSchema) {
+    protected _setupClear(user?: UserSchema) {
         const clear = [
             { $addFields: { "createdBy.password": null } },
             { $addFields: { "modifiedBy.password": null } },
@@ -76,7 +78,7 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
     /**
      * About relations
      */
-    private _setupRelations() {
+    protected _setupRelations() {
         return [
             {
                 $lookup: {
@@ -132,57 +134,26 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
     }
 
     /**
-     * Get one element by Id
-     * @param id Id of the bootleg
-     * {@link https://github.com/manyuanrong/deno_mongo/issues/89}
+     * Find one by picture name
+     * @param name 
      */
-    async findOneById(id: string, user?: UserSchema): Promise<BootlegSchema> {
-        try {
-            const el = (await this.aggregate([
-                { $match: { _id: ObjectId(id) } },
-                ...this._setupRelations(),
-                ...this._setupClear(user)
-            ]))?.[0]
+    async findOneByPicture(name: string): Promise<BootlegSchema> {
+        const el = (await this.aggregate([
+            { $match: { picture: name } },
+            { $limit: 1 },
+        ]))?.[0]
 
-            if (!el)
-                throw new NotFoundException("Bootleg not found")
+        if (!el)
+            throw new NotFoundException("No bootleg using this image was found")
 
-            return el as BootlegSchema
-        } catch (error) {
-            if (error?.message?.includes(" is not legal."))
-                throw new NotFoundException("Bootleg not found")
-            throw error
-        }
+        return el as BootlegSchema
     }
 
     /**
-     * Update one element by Id
-     * @param id Id of the bootleg
+     * Create one
      * {@link https://github.com/manyuanrong/deno_mongo/issues/89}
      */
-    async updateOneById(id: string, update: any): Promise<BootlegSchema> {
-        try {
-            const el = await this.updateOne(
-                { _id: ObjectId(id) },
-                update
-            )
-
-            if (!el)
-                throw new NotFoundException("Bootleg not found")
-
-            return await this.findOneById(id)
-        } catch (error) {
-            if (error?.message?.includes(" is not legal."))
-                throw new NotFoundException("Bootleg not found")
-            throw error
-        }
-    }
-
-    /**
-     * Update one element by Id
-     * {@link https://github.com/manyuanrong/deno_mongo/issues/89}
-     */
-    async createOn(insert: any): Promise<BootlegSchema> {
+    async createOne(insert: any): Promise<BootlegSchema> {
         return await this.findOneById(
             (await this.insertOne(insert))?.$oid
         )
@@ -193,31 +164,32 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
      * @param string String to search
      * @param year Year to search
      * @param orderBy Order by
-     * @param band Bande name
-     * @param song Song Name
+     * @param searchBy Search by
      * @param country Country
      * @param isCompleteShow Is show complete, 1 or 0
      * @param isAudioOnly Is audio only, 1 or 0
      * @param isProRecord Is prop record, 1 or 0
-     * @param startAt Start at index
+     * @param page Page nbr
      * @param limit Limit to search
+     * @param isCount Is counting result
      */
     async findAdvanced({
         searchParams: {
             string,
             year,
             orderBy,
-            band,
-            song,
+            searchBy,
             country,
             isCompleteShow,
             isAudioOnly,
             isProRecord,
-            startAt = 0,
+            page = 1,
             limit,
             state = EBootlegStates.PUBLISHED,
             isRandom = false,
-            authorId
+            authorId,
+            isCount = false,
+            isWithReport = false
         },
         user
     }: {
@@ -225,17 +197,18 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
             string?: string;
             year?: number;
             orderBy?: string;
-            band?: string;
-            song?: string;
+            searchBy?: string;
             country?: string;
             isCompleteShow?: boolean;
             isAudioOnly?: boolean;
             isProRecord?: boolean;
-            startAt?: number;
+            page?: number;
             limit?: number;
             state?: EBootlegStates;
             isRandom?: boolean;
             authorId?: string;
+            isCount?: boolean;
+            isWithReport?: boolean;
         }
         user?: UserSchema
     }): Promise<BootlegSchema[]> {
@@ -244,33 +217,34 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
         //Filter to query
         let $match = {}
 
-        //To match string
-        if (string)
-            $match = {
-                ...$match,
-                $or: [
-                    { title: { $regex: string, $options: "i" } },
-                    { description: { $regex: string, $options: "i" } },
-                    { songs: { $in: [{ $regex: string, $options: "i" }] } },
-                    { bands: { $in: [{ $regex: string, $options: "i" }] } },
-                ]
-            }
-
-        //To match bands
-        if (band)
-            $match = {
-                ...$match,
-                bands: {
-                    $in: [{ $regex: band, $options: "i" }]
+        switch (searchBy) {
+            case ESearch.BAND:
+                $match = {
+                    ...$match,
+                    bands: {
+                        $in: [{ $regex: string, $options: "i" }]
+                    }
                 }
-            }
-
-        //To match songs
-        if (song)
-            $match = {
-                ...$match,
-                songs: { $in: [{ $regex: song, $options: "i" }] }
-            }
+                break
+            case ESearch.SONG:
+                $match = {
+                    ...$match,
+                    songs: { $in: [{ $regex: string, $options: "i" }] }
+                }
+                break
+            case ESearch.GLOBAL:
+            default:
+                $match = {
+                    ...$match,
+                    $or: [
+                        { title: { $regex: string, $options: "i" } },
+                        { description: { $regex: string, $options: "i" } },
+                        { songs: { $in: [{ $regex: string, $options: "i" }] } },
+                        { bands: { $in: [{ $regex: string, $options: "i" }] } },
+                    ]
+                }
+                break
+        }
 
         //To match country
         if (country)
@@ -318,6 +292,17 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
                     createdById: { $eq: ObjectId(authorId) }
                 }
             } catch (error) { }
+
+
+        //To match with report
+        if (isWithReport && [EUserRoles.MODERATOR, EUserRoles.ADMIN].includes(user?.role!))
+            $match = {
+                ...$match,
+                report: {
+                    $exists: true,
+                    $not: { $size: 0 }
+                }
+            }
 
         return this.aggregate([
             //Match disired state
@@ -390,8 +375,17 @@ export class BootlegsCollection extends Collection<BootlegSchema> {
             },
             //Get random item
             (() => isRandom ? { $sample: { size: max } } : {})(),
-            { $limit: startAt + max },
-            { $skip: startAt },
+            ...(() =>
+                isCount ?
+                    [
+                        { $group: { _id: null, count: { $sum: 1 } } }
+                    ]
+                    :
+                    [
+                        { $limit: page * max },
+                        { $skip: (page - 1) * max },
+                    ]
+            )(),
             ...this._setupRelations(),
             ...this._setupClear(user)
         ].filter(x => Object.keys(x).length))

@@ -8,6 +8,10 @@ import { Context } from "https://deno.land/x/oak@v6.3.2/context.ts"
 import { EBootlegStates } from "../types/enumerations/EBootlegStates.ts"
 import { EActions } from "../types/enumerations/EActions.ts"
 import { ReportValidatorType } from "../validators/report.validator.ts"
+import { ESearch } from "../types/enumerations/ESsearch.ts"
+import { FileValidatorType } from "../validators/file.validator.ts"
+import ValidationException from "../types/exceptions/ValidationException.ts"
+import ImageService from "../services/image.service.ts"
 
 /**
  * Bootleg Controller
@@ -16,15 +20,19 @@ export default class BootlegController extends BaseController {
     private collection: BootlegsCollectionType
     private validateBootleg: BootlegValidatorType
     private validatorReport: ReportValidatorType
+    private validatorFile: FileValidatorType
+    private imageService: ImageService
 
     /** @inheritdoc */
     resultKey: string = "bootleg"
 
-    constructor(collection: BootlegsCollectionType, validateBootleg: BootlegValidatorType, validatorReport: ReportValidatorType) {
+    constructor(collection: BootlegsCollectionType, validateBootleg: BootlegValidatorType, validatorReport: ReportValidatorType, validatorFile: FileValidatorType, imageService: ImageService) {
         super()
         this.collection = collection
         this.validateBootleg = validateBootleg
         this.validatorReport = validatorReport
+        this.validatorFile = validatorFile
+        this.imageService = imageService
     }
 
     /**
@@ -32,33 +40,67 @@ export default class BootlegController extends BaseController {
      */
     async getAllBootlegs(ctx: Context) {
         const { response } = ctx
-        const { string, year, orderBy, band, song, country, isCompleteShow, isAudioOnly, isProRecord, startAt, limit, state, isRandom, authorId } = getQuery(ctx)
+        const { string, year, orderBy, searchBy, country, isCompleteShow, isAudioOnly, isProRecord, page, limit, state, isRandom, authorId, isWithReport } = getQuery(ctx)
+
+        //Set search params
+        const searchParams = {
+            string: string || '',
+            year: parseInt(year),
+            orderBy,
+            searchBy: searchBy || ESearch.GLOBAL,
+            country,
+            isCompleteShow: isCompleteShow ? !!parseInt(isCompleteShow) : undefined,
+            isAudioOnly: isAudioOnly ? !!parseInt(isAudioOnly) : undefined,
+            isProRecord: isProRecord ? !!parseInt(isProRecord) : undefined,
+            page: !isNaN(parseInt(page)) ? parseInt(page) : 1,
+            limit: !isNaN(parseInt(limit)) ? parseInt(limit) : undefined,
+            state: !isNaN(parseInt(state)) ? parseInt(state) : undefined,
+            isRandom: isRandom ? !!parseInt(isRandom) : undefined,
+            authorId,
+            isWithReport: isWithReport ? !!parseInt(isWithReport) : undefined
+        }
 
         //Get user
         const user = await this._getUser(ctx.request)
 
-        response.body = this._render({
-            message: 'List of bootlegs',
-            result: await this.collection.findAdvanced({
-                searchParams: {
-                    string,
-                    year: parseInt(year),
-                    orderBy,
-                    band,
-                    song,
-                    country,
-                    isCompleteShow: isCompleteShow ? !!parseInt(isCompleteShow) : undefined,
-                    isAudioOnly: isAudioOnly ? !!parseInt(isAudioOnly) : undefined,
-                    isProRecord: isProRecord ? !!parseInt(isProRecord) : undefined,
-                    startAt: !isNaN(parseInt(startAt)) ? parseInt(startAt) : undefined,
-                    limit: !isNaN(parseInt(limit)) ? parseInt(limit) : undefined,
-                    state: !isNaN(parseInt(state)) ? parseInt(state) : undefined,
-                    isRandom: isRandom ? !!parseInt(isRandom) : undefined,
-                    authorId
-                },
-                user
-            })
-        })
+        const [result, totalGlobal, totalBand, totalSong] = await Promise.all([
+            await this.collection.findAdvanced({ searchParams, user }),
+            ((await this.collection.findAdvanced({ searchParams: { ...searchParams, searchBy: ESearch.GLOBAL, limit: undefined, page: undefined, isCount: true }, user }))?.[0] as any)?.count as number ?? 0,
+            ((await this.collection.findAdvanced({ searchParams: { ...searchParams, searchBy: ESearch.BAND, limit: undefined, page: undefined, isCount: true }, user }))?.[0] as any)?.count as number ?? 0,
+            ((await this.collection.findAdvanced({ searchParams: { ...searchParams, searchBy: ESearch.SONG, limit: undefined, page: undefined, isCount: true }, user }))?.[0] as any)?.count as number ?? 0,
+        ])
+
+        response.body = {
+            ...this._render({
+                message: 'List of bootlegs',
+                result,
+                meta: {
+                    total: {
+                        global: totalGlobal,
+                        band: totalBand,
+                        song: totalSong
+                    },
+                    page: {
+                        current: searchParams.page,
+                        last: Math.ceil(
+                            (() => {
+                                switch (searchBy) {
+                                    case ESearch.BAND:
+                                        return totalBand
+                                    case ESearch.SONG:
+                                        return totalSong
+                                    case ESearch.GLOBAL:
+                                    default:
+                                        return totalGlobal
+                                }
+                            })() /
+                            (searchParams.limit && searchParams.limit < this.collection.limit ? searchParams.limit : this.collection.limit)
+                        )
+                    }
+                }
+            }),
+
+        }
     }
 
     /**
@@ -94,13 +136,23 @@ export default class BootlegController extends BaseController {
         this.denyAccessUnlessGranted(EActions.CREATE, bootlegBody, user)
 
         //Insert new element and return id
-        const bootlegBddUpd = await this.collection.createOn({
+        let bootlegBddUpd = await this.collection.createOne({
             ...bootlegBody,
             createdById: user._id,
             createdOn: new Date(),
             modifiedById: user._id,
             modifiedOn: new Date(),
         })
+
+        //Get picture if YT
+        const picture = await this.imageService.extractYtThumbnail(bootlegBddUpd)
+
+        //Update element
+        if (picture)
+            bootlegBddUpd = await this.collection.updateOneById(
+                bootlegBddUpd._id?.$oid,
+                { $set: { picture } }
+            )
 
         response.body = this._render({
             message: 'Bootleg added',
@@ -127,10 +179,20 @@ export default class BootlegController extends BaseController {
         this.denyAccessUnlessGranted(EActions.UPDATE, bootlegBdd, user)
 
         //Update element
-        const bootlegBddUpd = await this.collection.updateOneById(
+        let bootlegBddUpd = await this.collection.updateOneById(
             params.id,
             { $set: { ...bootlegBody, modifiedById: user._id, modifiedOn: new Date() } }
         )
+
+        //Get picture if YT
+        const picture = await this.imageService.extractYtThumbnail(bootlegBddUpd)
+
+        //Update element
+        if (picture)
+            bootlegBddUpd = await this.collection.updateOneById(
+                bootlegBddUpd._id?.$oid,
+                { $set: { picture } }
+            )
 
         response.body = this._render({
             message: 'Bootleg edited',
@@ -181,7 +243,7 @@ export default class BootlegController extends BaseController {
         this.denyAccessUnlessGranted(EActions.CREATE_REPORT, bootlegBdd, user)
 
         //Validate data
-        const reportBody = this.validatorReport(await request.body().value)
+        const reportBody = await this.validatorReport(await request.body().value)
 
         //Update element
         const bootlegBddUpd = await this.collection.updateOneById(
@@ -260,6 +322,85 @@ export default class BootlegController extends BaseController {
 
         response.body = this._render({
             message: 'Bootleg clicked',
+            result: {
+                ...bootlegBddUpd
+            }
+        })
+    }
+
+    /**
+     * Upload an image
+     */
+    async uploadImage({ params, request, response }: { params: { id: string }; request: Request; response: Response }) {
+        //Get user
+        const user = await this._getUser(request)
+
+        //Get element by id
+        const bootlegBdd = await this.collection.findOneById(params.id, user)
+
+        //Check if has access
+        this.denyAccessUnlessGranted(EActions.UPDATE, bootlegBdd, user)
+
+        //Deny if already a picture
+        if (bootlegBdd?.picture)
+            throw new ValidationException(
+                'An image already exist',
+                { picture: 'An image already exist' }
+            )
+
+        //Get formdata
+        const formData = await request
+            .body({ type: "form-data" })
+            .value
+            .read({ maxSize: 3000000 }) //Max 3mb
+
+        //Setup file infos
+        const file = formData.files?.[0]!
+
+        //Validate data
+        await this.validatorFile({ picture: file })
+
+        //Save image on disk
+        const name = await this.imageService.saveFile(file)
+
+        //Update element
+        const bootlegBddUpd = await this.collection.updateOneById(
+            params.id,
+            { $set: { picture: name } }
+        )
+
+        response.body = this._render({
+            message: 'Image uploaded',
+            result: {
+                ...bootlegBddUpd
+            }
+        })
+    }
+
+    /**
+     * Remove an image
+     */
+    async removeImage({ params, request, response }: { params: { id: string }; request: Request; response: Response }) {
+        //Get user
+        const user = await this._getUser(request)
+
+        //Get element by id
+        const bootlegBdd = await this.collection.findOneById(params.id, user)
+
+        //Check if has access
+        this.denyAccessUnlessGranted(EActions.UPDATE, bootlegBdd, user)
+
+        //Remove image
+        await this.imageService.removeFile(bootlegBdd.picture)
+
+        //Update element
+        const bootlegBddUpd = await this.collection.updateOneById(
+            params.id,
+            { $set: { picture: null } }
+        )
+
+        response.body = this._render({
+            message: 'Image deleted',
             result: {
                 ...bootlegBddUpd
             }

@@ -1,0 +1,51 @@
+@import "../../helpers";
+@import "../../variables";
+
+.search-bootleg {
+  section {
+    form {
+      .searchrow {
+        margin-bottom: 0;
+        h1 {
+          color: $greyblue;
+        }
+      }
+      div[class="tabs"] {
+        a:hover {
+          text-decoration: unset;
+        }
+      }
+      .contentrow {
+        div[class*="is-one-fifth-desktop"] {
+          position: relative;
+          .sticky {
+            position: sticky;
+            top: 1em;
+          }
+        }
+        .select {
+          > div:first-child {
+            height: 2em;
+            > select {
+              height: 2em;
+              line-height: 1.5em;
+              padding-bottom: calc(0.5em - 5px);
+              padding-top: calc(0.5em - 5px);
+            }
+          }
+          > div:last-child {
+            height: 2em;
+          }
+        }
+        .input {
+          > input {
+            height: 2em;
+          }
+          > span {
+            height: 2em !important;
+          }
+        }
+      }
+    }
+  }
+}
