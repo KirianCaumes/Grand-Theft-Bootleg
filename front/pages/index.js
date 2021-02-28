@@ -108,11 +108,14 @@ function Index({ bootlegsPopularProps, bootlegsNewProps, bootlegsRandomProps, ..
                                     onChange={ev => setSearchText(ev.target.value)}
                                     minLength={3}
                                     required
+                                    aria-label="What are you looking for?"
                                 />
                             </div>
                             <div className="control">
                                 <Button
+                                    type="submit"
                                     iconLeft={faSearch}
+                                    aria-label="search"
                                 />
                             </div>
                         </div>
@@ -314,12 +317,12 @@ function Index({ bootlegsPopularProps, bootlegsNewProps, bootlegsRandomProps, ..
                                         href="/user/register"
                                         iconRight={faUserCheck}
                                         styles={{ button: 'is-fullwidth' }}
+                                        aria-label="register"
                                     />
                                 </Fade>
                             </Columns.Column>
                         </Columns>
                     </Container>
-                    <br />
                 </Section>
                 <Section>
                     <br />

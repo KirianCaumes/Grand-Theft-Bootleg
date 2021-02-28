@@ -457,6 +457,7 @@ function EditIdBootleg({ bootlegProps, bootlegHandler, songHandler, bandHandler 
                                     {bootleg.bands?.map((band, i) =>
                                         <Input
                                             id={`band-${i}`}
+                                            aria-label={`band-${i}`}
                                             key={`band-${i}`}
                                             placeholder="Band"
                                             isRequired={true}
@@ -484,7 +485,8 @@ function EditIdBootleg({ bootlegProps, bootlegHandler, songHandler, bandHandler 
                                                 isDisabled: bootleg.bands?.length <= 1 || status === Status.PENDING,
                                                 onClick: () => setBootleg(new Bootleg({ ...bootleg, bands: [...bootleg.bands].filter((x, y) => y !== i) })),
                                                 iconLeft: faTrash,
-                                                styles: { button: 'is-greyblue' }
+                                                styles: { button: 'is-greyblue' },
+                                                "aria-label": "remove band"
                                             }}
                                             isDisabled={status === Status.PENDING}
                                             minLength={1}
@@ -511,6 +513,7 @@ function EditIdBootleg({ bootlegProps, bootlegHandler, songHandler, bandHandler 
                                         <Input
                                             id="link"
                                             key={`link-${i}`}
+                                            aria-label={`link-${i}`}
                                             placeholder="Link"
                                             isRequired={true}
                                             value={link}
@@ -524,7 +527,8 @@ function EditIdBootleg({ bootlegProps, bootlegHandler, songHandler, bandHandler 
                                                 isDisabled: bootleg.links?.length <= 1 || status === Status.PENDING,
                                                 onClick: () => setBootleg(new Bootleg({ ...bootleg, links: [...bootleg.links].filter((x, y) => y !== i) })),
                                                 iconLeft: faTrash,
-                                                styles: { button: 'is-greyblue' }
+                                                styles: { button: 'is-greyblue' },
+                                                "aria-label": "remove link"
                                             }}
                                             isDisabled={status === Status.PENDING}
                                             minLength={5}
@@ -549,6 +553,7 @@ function EditIdBootleg({ bootlegProps, bootlegHandler, songHandler, bandHandler 
                                     {bootleg.songs?.map((song, i) =>
                                         <Input
                                             id={`song-${i}`}
+                                            aria-label={`song-${i}`}
                                             key={`song-${i}`}
                                             placeholder="Song"
                                             isRequired={true}
@@ -576,7 +581,8 @@ function EditIdBootleg({ bootlegProps, bootlegHandler, songHandler, bandHandler 
                                                 isDisabled: bootleg.songs?.length <= 1 || status === Status.PENDING,
                                                 onClick: () => setBootleg(new Bootleg({ ...bootleg, songs: [...bootleg.songs].filter((x, y) => y !== i) })),
                                                 iconLeft: faTrash,
-                                                styles: { button: 'is-greyblue' }
+                                                styles: { button: 'is-greyblue' },
+                                                "aria-label": "remove song"
                                             }}
                                             isDisabled={status === Status.PENDING}
                                             minLength={1}
@@ -626,7 +632,8 @@ function EditIdBootleg({ bootlegProps, bootlegHandler, songHandler, bandHandler 
                                                         isDisabled: bootleg.countries?.length <= 1 || status === Status.PENDING,
                                                         onClick: () => setBootleg(new Bootleg({ ...bootleg, countries: [...bootleg.countries].filter((x, y) => y !== i) })),
                                                         iconLeft: faTrash,
-                                                        styles: { button: 'is-greyblue' }
+                                                        styles: { button: 'is-greyblue' },
+                                                        "aria-label": "remove country"
                                                     }}
                                                     isDisabled={status === Status.PENDING}
                                                 />
@@ -648,6 +655,7 @@ function EditIdBootleg({ bootlegProps, bootlegHandler, songHandler, bandHandler 
                                             {bootleg.cities?.map((city, i) =>
                                                 <Input
                                                     key={`city-${i}`}
+                                                    aria-label={`city-${i}`}
                                                     placeholder="City"
                                                     isRequired={true}
                                                     value={city}
@@ -660,7 +668,8 @@ function EditIdBootleg({ bootlegProps, bootlegHandler, songHandler, bandHandler 
                                                         isDisabled: bootleg.cities?.length <= 1 || status === Status.PENDING,
                                                         onClick: () => setBootleg(new Bootleg({ ...bootleg, cities: [...bootleg.cities].filter((x, y) => y !== i) })),
                                                         iconLeft: faTrash,
-                                                        styles: { button: 'is-greyblue' }
+                                                        styles: { button: 'is-greyblue' },
+                                                        "aria-label": "remove city"
                                                     }}
                                                     isDisabled={status === Status.PENDING}
                                                     minLength={1}

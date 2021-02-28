@@ -6,6 +6,19 @@
     display: flex;
     justify-content: flex-start;
     padding: 0.5em;
+
+    figure {
+      @include flex-col;
+      height: 40px;
+      background: $greyblue;
+      overflow: hidden;
+      position: relative;
+      img {
+        transition: all 0.3s linear 0s;
+        max-height: 100%;
+        object-fit: contain;
+      }
+    }
     > a {
       margin-right: 1em !important;
       height: 40px;
@@ -20,7 +33,7 @@
           @include flex-col();
           span {
             font-size: 0.75em;
-            color: gray;
+            color: $greyblue;
           }
         }
         &:last-child {

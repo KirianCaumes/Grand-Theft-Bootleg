@@ -28,7 +28,9 @@ export default function BootlegCard({ bootleg }) {
                         pathname: `/bootleg/${bootleg.title}-${bootleg._id}`
                     }}
                 >
-                    <a>
+                    <a
+                        aria-label={bootleg.title || 'Bootleg'}
+                    >
                         <figure className="image">
                             <Image
                                 src={bootleg.picture ? `${publicRuntimeConfig.backUrl}/images/${bootleg.picture}` : '/logo.png'}

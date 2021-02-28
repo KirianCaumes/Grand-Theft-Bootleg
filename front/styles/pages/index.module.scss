@@ -9,7 +9,7 @@
         @include flex-col;
         height: 50vh;
         min-height: 100%;
-        background: linear-gradient(0deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.9)), url(/bg.jpg);
+        background: linear-gradient(0deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.9)), url(/img/bg.jpg);
         background-size: cover;
     }
     .search {

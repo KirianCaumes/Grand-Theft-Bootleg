@@ -59,13 +59,17 @@ export default function Rating({
                 </Label>
             }
             {new Array(max).fill({}).map((_, i) => (
-                <span
+                <button
+                    type="button"
                     className={classNames("has-text-pink", styles.icon, ratingStyles.icon, { [ratingStyles[`is-${size}`]]: !!size })}
                     key={i}
                     onClick={ev => !isDisabled ? onChange(ev, i + 1) : null}
+                    disabled={isDisabled || isReadonly}
+                    role="presentation"
+                    tabIndex={i + 1 === value ? 0 : -1}
                 >
                     {i + 1 <= value ? icon : unselectedIcon}
-                </span>
+                </button>
             ))}
             <Help>
                 {errorMessage}

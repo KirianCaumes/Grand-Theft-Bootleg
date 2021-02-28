@@ -1,6 +1,10 @@
 @import "../../variables";
+// @import "../../helpers";
+@import "../../colors";
+@import "../../mixins";
 
 .loader {
+    animation: spin 500ms infinite linear;
     width: 150px;
     height: 150px;
     border: 4px solid $pink;
@@ -14,5 +18,14 @@
     }
     &.is-right {
         margin: 25px 0 0;
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(359deg);
     }
 }

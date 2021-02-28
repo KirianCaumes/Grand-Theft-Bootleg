@@ -38,6 +38,7 @@ export default function Toggle({
             {!!label &&
                 <Label
                     htmlFor={encodeURIComponent(label)}
+                    id={`${encodeURIComponent(label)}-label`}
                     isRequired={isRequired}
                 >
                     {label}
@@ -51,8 +52,12 @@ export default function Toggle({
                     checked={checked}
                     onChange={onChange}
                     disabled={isDisabled}
+                    aria-labelledby={`${encodeURIComponent(label)}-label ${encodeURIComponent(label)}-touch`}
                 />
-                <label htmlFor={encodeURIComponent(label)}>
+                <label
+                    htmlFor={encodeURIComponent(label)}
+                    id={`${encodeURIComponent(label)}-touch`}
+                >
                     {!!checked ? 'Yes' : 'No'}
                 </label>
                 <Help>

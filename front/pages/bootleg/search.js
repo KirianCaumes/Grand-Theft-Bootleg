@@ -4,7 +4,7 @@ import { GetServerSidePropsContext } from 'next'
 // @ts-ignore
 import styles from "styles/pages/bootleg/search.module.scss"
 // @ts-ignore
-import { Section, Columns, Container, Tabs } from 'react-bulma-components'
+import { Section, Columns, Container } from 'react-bulma-components'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faCompactDisc, faFilter, faGlobe, faGlobeEurope, faHeadphonesAlt, faMapMarker, faMusic, faSearch, faSort, faUndo, faUsers, faVolumeUp } from "@fortawesome/free-solid-svg-icons"
 import classNames from 'classnames'
@@ -41,8 +41,8 @@ import { NotFoundError } from "request/errors/notFoundError"
 import { ESearch } from "types/searchFilters/search"
 import Button from "components/form/button"
 import usePrevious from "helpers/hooks/usePrevious"
-import Link from "next/link"
 import { RequestApi } from 'request/apiHandler'
+import Tabs from "components/general/tabs"
 
 /**
  * @typedef {object} SearchProps
@@ -199,17 +199,7 @@ function SearchBootleg({ bootlegHandler, bootlegsProps, metaProps, main: { me },
                             <Columns className={classNames("is-desktop", styles.searchrow)}>
                                 <Columns.Column className="is-four-fifths-desktop">
                                     <h1 className="title is-4 is-title-underline" >
-                                        Bootlegs found for {searchFilters.string || 'your search'} ({(() => {
-                                            switch (searchFilters.searchBy) {
-                                                case ESearch.BAND:
-                                                    return meta?.total?.band || 0
-                                                case ESearch.SONG:
-                                                    return meta?.total?.song || 0
-                                                case ESearch.GLOBAL:
-                                                default:
-                                                    return meta?.total?.global || 0
-                                            }
-                                        })()})
+                                        Search live bootlegs
                                     </h1>
                                     <div className="field has-addons">
                                         <div className="control is-expanded">
@@ -224,6 +214,7 @@ function SearchBootleg({ bootlegHandler, bootlegsProps, metaProps, main: { me },
                                                     string: ev.target.value?.length ? ev.target.value : null
                                                 })}
                                                 minLength={3}
+                                                aria-label="What are you looking for?"
                                             />
                                         </div>
                                         <p className="control">
@@ -231,13 +222,14 @@ function SearchBootleg({ bootlegHandler, bootlegsProps, metaProps, main: { me },
                                                 iconLeft={faSearch}
                                                 type="submit"
                                                 isLoading={status === Status.PENDING}
+                                                aria-label="search"
                                             />
                                         </p>
                                     </div>
                                 </Columns.Column>
                                 <Columns.Column className="is-one-fifth-desktop" />
                             </Columns>
-                            <br />
+                            <br className="is-hidden-touch" />
                             <div className="is-hidden-desktop">
                                 <Button
                                     onClick={() => setIsFilterDisplay(!isFilterDisplay)}
@@ -247,36 +239,36 @@ function SearchBootleg({ bootlegHandler, bootlegsProps, metaProps, main: { me },
                                 <br />
                                 <br />
                             </div>
-                            <div className="tabs">
-                                <ul>
-                                    {tabs?.map((tab, i) => (
-                                        <li
-                                            key={i}
-                                            className={classNames({ "is-active": searchFilters.searchBy === tab.search || !searchFilters.searchBy })}
-                                        >
-                                            <Link
-                                                href={{
-                                                    pathname: router.pathname,
-                                                    query: {
-                                                        ...router.query,
-                                                        searchBy: tab.search,
-                                                        page: 1
-                                                    }
-                                                }}
-                                            >
-                                                <a>
-                                                    <span className="icon is-small">
-                                                        <FontAwesomeIcon icon={tab.icon} />
-                                                    </span>
-                                                    <span>{tab.title}</span>
-                                                </a>
-                                            </Link>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
+                            <Tabs
+                                tabs={tabs?.map((tab, i) => ({
+                                    icon: tab.icon,
+                                    label: tab.title,
+                                    isActive: searchFilters.searchBy === tab.search || (!searchFilters.searchBy && i === 0),
+                                    href: {
+                                        pathname: router.pathname,
+                                        query: {
+                                            ...router.query,
+                                            searchBy: tab.search,
+                                            page: 1
+                                        }
+                                    }
+                                }))}
+                            />
                             <Columns className={classNames("is-desktop", styles.contentrow)}>
                                 <Columns.Column className="is-four-fifths-desktop">
+                                    <h2 className="title is-4 is-title-underline">
+                                        Result for your search ({(() => {
+                                            switch (searchFilters.searchBy) {
+                                                case ESearch.BAND:
+                                                    return meta?.total?.band || 0
+                                                case ESearch.SONG:
+                                                    return meta?.total?.song || 0
+                                                case ESearch.GLOBAL:
+                                                default:
+                                                    return meta?.total?.global || 0
+                                            }
+                                        })()})
+                                    </h2>
                                     {[Status.IDLE, Status.RESOLVED, Status.REJECTED].includes(status) ?
                                         <>
                                             {bootlegs?.length ?

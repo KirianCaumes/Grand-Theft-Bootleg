@@ -1,4 +1,4 @@
-import React from "react"
+import React, { AriaAttributes } from "react"
 import classNames from 'classnames'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
@@ -35,7 +35,7 @@ import Help from "./addons/help"
  * @param {IconProp=} props.iconLeft
  * @param {string=} props.value
  * @param {Options[]=} props.options
- * @param {ButtonType=} props.button
+ * @param {ButtonType & AriaAttributes=} props.button
  * @param {string=} props.errorMessage
  * @param {boolean=} props.isRequired
  */

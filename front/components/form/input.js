@@ -1,4 +1,4 @@
-import React from "react"
+import React, { AriaAttributes } from "react"
 import classNames from 'classnames'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
@@ -7,6 +7,7 @@ import inputStyles from 'styles/components/form/input.module.scss'
 import Label from "components/form/addons/label"
 import Button, { ButtonType } from 'components/form/button'
 import Help from "components/form/addons/help"
+
 /**
  * Input styles
  * @typedef {object} Styles
@@ -16,31 +17,35 @@ import Help from "components/form/addons/help"
 
 /**
  * Simple input
- * @param {object} props
- * @param {string=} props.id
- * @param {string=} props.label
- * @param {string=} props.placeholder
- * @param {string=} props.type
- * @param {boolean=} props.isDisabled
- * @param {number | string=} props.min
- * @param {number | string=} props.max
- * @param {number=} props.step
- * @param {boolean=} props.isRequired
- * @param {string=} props.value
- * @param {IconProp=} props.iconLeft
- * @param {string=} props.errorMessage
- * @param {function(React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): any=} props.onChange
- * @param {function(React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>): any=} props.onFocus
- * @param {function(React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>): any=} props.onBlur
- * @param {function(React.FormEvent<HTMLInputElement | HTMLTextAreaElement>): any=} props.onInput
- * @param {Styles=} props.styles
- * @param {string=} props.color
- * @param {number=} props.minLength
- * @param {number=} props.maxLength
- * @param {string[]=} props.options
- * @param {string=} props.autoComplete
- * @param {ButtonType=} props.button
- * @param {boolean=} props.multiline
+ * @typedef {object} InputProps
+ * @property {string=} id
+ * @property {string=} label
+ * @property {string=} placeholder
+ * @property {string=} type
+ * @property {boolean=} isDisabled
+ * @property {number | string=} min
+ * @property {number | string=} max
+ * @property {number=} step
+ * @property {boolean=} isRequired
+ * @property {string=} value
+ * @property {IconProp=} iconLeft
+ * @property {string=} errorMessage
+ * @property {function(React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): any=} onChange
+ * @property {function(React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>): any=} onFocus
+ * @property {function(React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>): any=} onBlur
+ * @property {function(React.FormEvent<HTMLInputElement | HTMLTextAreaElement>): any=} onInput
+ * @property {Styles=} styles
+ * @property {string=} color
+ * @property {number=} minLength
+ * @property {number=} maxLength
+ * @property {string[]=} options
+ * @property {string=} autoComplete
+ * @property {ButtonType & AriaAttributes=} button
+ * @property {boolean=} multiline
+ */
+/**
+ * 
+ * @param {InputProps & AriaAttributes} props 
  */
 export default function Input({
     id = "",
@@ -68,7 +73,9 @@ export default function Input({
 
     button = {},
 
-    multiline = false
+    multiline = false,
+
+    ...props
 }) {
     const Ipt = multiline ? 'textarea' : 'input'
     return (
@@ -115,6 +122,7 @@ export default function Input({
                         list={!!options?.length ? id || encodeURIComponent(label) : undefined}
                         autoComplete={autoComplete}
                         onInput={onInput}
+                        {...props}
                     />
                     {iconLeft &&
                         <span className="icon is-small is-left">
