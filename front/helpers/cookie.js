@@ -11,39 +11,43 @@ const Cookie = {
     /**
      * Set cookie
      * @param {string} value 
+     * @param {string} key 
      */
-    set(value) {
+    set(value, key = publicRuntimeConfig.storageKey) {
         // @ts-ignore
-        if (process.browser)
-            cookie.set(publicRuntimeConfig.storageKey, value, {
+        if (process.browser && !!value)
+            cookie.set(key, value, {
                 expires: 1,
                 path: '/',
-                secure: process.env.NODE_ENV !== 'development'
+                secure: process.env.NODE_ENV !== 'development',
+                sameSite: 'lax'
             })
     },
     /**
      * Remove cookie
+     * @param {string} key 
      */
-    remove() {
+    remove(key = publicRuntimeConfig.storageKey) {
         // @ts-ignore
         if (process.browser)
-            cookie.remove(publicRuntimeConfig.storageKey, {
+            cookie.remove(key, {
                 expires: 1
             })
     },
     /**
      * Get cookie
      * @param {IncomingMessage=} req 
+     * @param {string} key 
      */
-    get(req) {
+    get(req, key = publicRuntimeConfig.storageKey) {
         // @ts-ignore
         return process.browser
             ?
-            cookie.get(publicRuntimeConfig.storageKey) ?? null
+            cookie.get(key) ?? null
             :
             req?.headers?.cookie
                 ?.split(';')
-                ?.find(c => c?.trim()?.startsWith(`${publicRuntimeConfig.storageKey}=`))
+                ?.find(c => c?.trim()?.startsWith(`${key}=`))
                 ?.split('=')?.[1] ?? null
     }
 }

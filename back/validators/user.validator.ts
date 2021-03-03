@@ -1,4 +1,4 @@
-import Schema, { string, Type, unknown } from 'https://denoporter.sirjosh.workers.dev/v1/deno.land/x/computed_types/src/index.ts'
+import Schema, { string, Type, unknown } from 'https://denoporter.sirjosh.workers.dev/v1/deno.land/x/computed_types@v1.5.1/src/index.ts'
 import uniqueMailValidation from "../helpers/validations/uniqueMail.validation.ts"
 import uniquePseudoValidation from "../helpers/validations/uniquePseudo.validation.ts"
 import passwordValidation from "../helpers/validations/password.validation.ts"

@@ -1,4 +1,4 @@
-import Schema, { array, DateType, number, string, Type, unknown } from 'https://denoporter.sirjosh.workers.dev/v1/deno.land/x/computed_types/src/index.ts'
+import Schema, { array, DateType, number, string, Type, unknown } from 'https://denoporter.sirjosh.workers.dev/v1/deno.land/x/computed_types@v1.5.1/src/index.ts'
 import urlValidation from "../helpers/validations/url.validation.ts"
 import { UserSchema } from "../models/user.model.ts"
 import { EActions } from "../types/enumerations/EActions.ts"

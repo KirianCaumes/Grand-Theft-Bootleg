@@ -30,6 +30,12 @@ body {
         .navbar-item {
           .navbar-dropdown {
             width: 200px;
+            .navbar-item {
+              @include until($desktop) {
+                padding: 0.5rem 0.75rem;
+                font-size: 14px;
+              }
+            }
           }
           .navbar-link:not(.is-arrowless)::after {
             @include until($desktop) {

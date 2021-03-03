@@ -8,6 +8,9 @@ import Layout from 'components/layout'
 import withHandlers, { HandlersProps } from 'helpers/hoc/withHandlers'
 import { wrapper } from 'redux/store'
 import Message from 'components/general/message'
+import GdprBanner from 'components/gdprBanner'
+import TagManager from 'react-gtm-module'
+import getConfig from 'next/config'
 
 /**
  * Base layout
@@ -15,17 +18,22 @@ import Message from 'components/general/message'
  * {@link https://nextjs.org/docs/advanced-features/custom-app}
  */
 function MyApp({ Component, pageProps }) {
+    const { publicRuntimeConfig } = getConfig()
     const dispatch = useDispatch()
 
-    useEffect(
-        () => {
-            dispatch(setToken({ token: Cookie.get() }))
-        },
-        []
-    )
+    useEffect(() => {
+        dispatch(setToken({ token: Cookie.get() }))
+    }, [])
+
+    // Google Tag Manager
+    useEffect(() => {
+        if (process.env.NODE_ENV !== 'development' && !!publicRuntimeConfig.gtmId)
+            TagManager.initialize({ gtmId: publicRuntimeConfig.gtmId })
+    }, [publicRuntimeConfig])
 
     return (
         <>
+            <GdprBanner />
             <Layout>
                 <Component {...pageProps} />
             </Layout>
@@ -33,19 +41,5 @@ function MyApp({ Component, pageProps }) {
         </>
     )
 }
-
-// MyApp.getInitialProps = async ({ Component, ctx }) => {
-//     ctx.store.dispatch(
-//         setToken({
-//             token: Cookie.get(ctx.req)
-//         })
-//     )
-
-//     return {
-//         pageProps: {
-//             ...(Component.getInitialProps ? await Component.getInitialProps(ctx) : {})
-//         }
-//     }
-// }
 
 export default wrapper.withRedux(withHandlers(MyApp))
