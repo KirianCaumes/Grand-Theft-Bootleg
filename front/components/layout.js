@@ -77,7 +77,7 @@ function Layout({ children, main: { token, me }, notification: { bootlegs }, boo
 
     useEffect(
         () => {
-            if (token)
+            if (!!token)
                 (async () => {
                     try {
                         userHandlerGetMe.current = userHandler.getMe()
@@ -149,8 +149,8 @@ function Layout({ children, main: { token, me }, notification: { bootlegs }, boo
                                     className="navbar-item"
                                     onClick={() => setIsActive(false)}
                                 >
-                                    <FontAwesomeIcon icon={faSearch} className="has-text-pink" />&nbsp;
-                                    Search
+                                    <FontAwesomeIcon icon={faSearch} className="has-text-pink" />
+                                    <span>&nbsp;Search</span>
                                 </a>
                             </Link>
                             <Link href="/bootleg/new/edit">
@@ -158,8 +158,8 @@ function Layout({ children, main: { token, me }, notification: { bootlegs }, boo
                                     className="navbar-item"
                                     onClick={() => setIsActive(false)}
                                 >
-                                    <FontAwesomeIcon icon={faPlus} className="has-text-pink" />&nbsp;
-                                    Create
+                                    <FontAwesomeIcon icon={faPlus} className="has-text-pink" />
+                                    <span>&nbsp;Create</span>
                                 </a>
                             </Link>
                         </Navbar.Container>
@@ -213,9 +213,9 @@ function Layout({ children, main: { token, me }, notification: { bootlegs }, boo
                                                     className="navbar-item"
                                                     onClick={() => setIsActive(false)}
                                                 >
-                                                    <FontAwesomeIcon icon={faTachometerAlt} className="has-text-pink" />&nbsp;
-                                                Dashboard
-                                            </a>
+                                                    <FontAwesomeIcon icon={faTachometerAlt} className="has-text-pink" />
+                                                    <span>&nbsp;Dashboard</span>
+                                                </a>
                                             </Link>
                                             <a
                                                 className="navbar-item"
@@ -225,8 +225,8 @@ function Layout({ children, main: { token, me }, notification: { bootlegs }, boo
                                                     setIsActive(false)
                                                 }}
                                             >
-                                                <FontAwesomeIcon icon={faSignOutAlt} className="has-text-pink" />&nbsp;
-                                                Logout
+                                                <FontAwesomeIcon icon={faSignOutAlt} className="has-text-pink" />
+                                                <span>&nbsp;Logout</span>
                                             </a>
                                         </Navbar.Dropdown>
                                     </Navbar.Item>

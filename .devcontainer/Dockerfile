@@ -33,7 +33,7 @@ ENV DENO_INSTALL="/root/.deno"
 ENV PATH="${DENO_INSTALL}/bin:${PATH}"
 
 #Add deno dep
-RUN deno install --allow-read --allow-run --allow-write -f --unstable https://deno.land/x/denon@2.4.5/denon.ts
+RUN deno install --allow-read --allow-run --allow-write -f --unstable https://deno.land/x/denon@2.4.5/denon.ts 
 
 # ENV PATH /root/.dotnet/tools/:/app_gtb/front/node_modules/.bin:/app_gtb/Back/node_modules/.bin:$PATH
 

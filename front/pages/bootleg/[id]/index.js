@@ -185,6 +185,46 @@ function IndexIdBootleg({ bootlegProps, bootlegHandler, main: { token, me }, ...
                     name="description"
                     content={`Live bootleg from ${bootleg?.bands?.join(', ')} played on ${new Date(bootleg.date)?.getFullYear()} in ${bootleg?.countries?.join(', ')}`}
                 />
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{
+                        __html: JSON.stringify({
+                            "@context": "https://schema.org",
+                            "@type": "MusicEvent",
+                            name: bootleg.title,
+                            description: bootleg.description,
+                            startDate: bootleg.date.toISOString()?.split('T')?.[0],
+                            endDate: bootleg.date.toISOString()?.split('T')?.[0],
+                            image: `${publicRuntimeConfig.backUrl}/images/${bootleg.picture}`,
+                            url: `${publicRuntimeConfig.appUrl}/bootleg/${bootleg.title}-${bootleg._id}`,
+                            location: {
+                                "@type": "MusicVenue",
+                                name: `${bootleg.countries?.[0]}, ${bootleg.cities?.[0]}`,
+                                address: `${bootleg.cities?.[0]}`
+                            },
+                            performer: bootleg.bands?.map(band => ({
+                                "@type": "MusicGroup",
+                                name: band
+                            })),
+                            eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+                            eventStatus: "https://schema.org/EventScheduled",
+                            offers: {
+                                "@type": "Offer",
+                                availability: "https://schema.org/OutOfStock",
+                                price: "0",
+                                priceCurrency: "EUR",
+                                url: `${publicRuntimeConfig.appUrl}/bootleg/${bootleg.title}-${bootleg._id}`,
+                                validFrom: bootleg.date.toISOString()?.split('T')?.[0]
+                            },
+                            organizer: {
+                                "@type": "Organization",
+                                name: publicRuntimeConfig.appName,
+                                email: publicRuntimeConfig.appMail,
+                                url: publicRuntimeConfig.appUrl
+                            }
+                        })
+                    }}
+                />
             </Head>
 
             <main className={styles['index-id-bootleg']}>

@@ -26,6 +26,7 @@ import GoogleLogin, { GoogleLoginResponse } from 'react-google-login'
 import Divider from "components/general/divider"
 import { EAuthStrategies } from "types/authStrategies"
 import { RequestApi } from 'request/apiHandler'
+import Link from "next/link"
 
 /**
  * @typedef {object} RegisterProps
@@ -179,6 +180,9 @@ function RegisterUser({ userHandler }) {
                                         iconRight={faSignInAlt}
                                         styles={{ button: 'is-fullwidth' }}
                                     />
+                                    <p className="help">
+                                        By clicking on "Register", you agree to our <Link href="/general-conditions" ><a>terms and conditions</a></Link>.
+                                    </p>
                                 </form>
                                 <Divider
                                     content="OR"
