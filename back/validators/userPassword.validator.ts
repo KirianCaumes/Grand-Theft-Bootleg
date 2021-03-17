@@ -1,4 +1,4 @@
-import Schema, { string, Type } from 'https://denoporter.sirjosh.workers.dev/v1/deno.land/x/computed_types/src/index.ts'
+import Schema, { string, Type } from 'https://denoporter.sirjosh.workers.dev/v1/deno.land/x/computed_types@v1.5.1/src/index.ts'
 import passwordValidation from "../helpers/validations/password.validation.ts"
 import { validator } from "./_base.validator.ts"
 

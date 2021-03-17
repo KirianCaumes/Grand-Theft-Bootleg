@@ -136,6 +136,14 @@ function Layout({ children, main: { token, me }, notification: { bootlegs }, boo
                     </Navbar.Brand>
                     <Navbar.Menu>
                         <Navbar.Container>
+                            <Link href="/bootleg">
+                                <a
+                                    className="navbar-item"
+                                    onClick={() => setIsActive(false)}
+                                >
+                                    What is a bootleg?
+                                </a>
+                            </Link>
                             <Link href="/bootleg/search">
                                 <a
                                     className="navbar-item"
