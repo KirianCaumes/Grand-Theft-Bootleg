@@ -32,7 +32,7 @@ const axios = require('axios').default
                     bands: ['In Flames'],
                     songs: ['Intro'],
                     countries: [item.Country.length > 0 ? item.Country : "United States"],
-                    cities: [item.City.length > 0  ? item.City : 'Unknown'],
+                    cities: [item.City.length > 0 ? item.City : 'Unknown'],
                     isCompleteShow: item.Full === 'Yes',
                     isAudioOnly: item.Video === 'No',
                     isProRecord: item.ProShot === 'Yes',
@@ -41,7 +41,7 @@ const axios = require('axios').default
                     state: 2,
                 },
                 headers: {
-                    Authorization: `Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ7XCJfaWRcIjp7XCIkb2lkXCI6XCI2MDNmNDFiZjAwZGY5ODcwMDAzYWI3ZDVcIn0sXCJzdHJhdGVneVwiOjAsXCJtYWlsXCI6XCJ0ZXN0QHRlc3QuZnJcIixcInVzZXJuYW1lXCI6XCJ0ZXN0NVwiLFwicm9sZVwiOjMsXCJjcmVhdGVkT25cIjpcIjIwMjEtMDMtMDNUMDc6NTg6NTUuNDA3WlwiLFwibW9kaWZpZWRPblwiOlwiMjAyMS0wMy0wM1QwNzo1ODo1NS40MDdaXCJ9IiwiZXhwIjoxNjE0ODQ0Nzk2LjU4Nn0.k4bbjkT2ajw8R7ggECZpfELAOa_j0lU9-gJjt7PSSdy0U3rqupM3q2FrN6NDXl0Kp9FbYObjeYEK9C2bVivamQ`
+                    Authorization: `Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ7XCJfaWRcIjp7XCIkb2lkXCI6XCI2MDc2YTgyNDAwMWQ5ZDBhMDBiMzM1N2RcIn0sXCJzdHJhdGVneVwiOjAsXCJtYWlsXCI6XCJraXJpYW4uY2F1bWVzMkBnbWFpbC5jb21cIixcInVzZXJuYW1lXCI6XCJraXJpYW5cIixcInJvbGVcIjozLFwiY3JlYXRlZE9uXCI6XCIyMDIxLTA0LTE0VDA4OjMwOjI4LjMxM1pcIixcIm1vZGlmaWVkT25cIjpcIjIwMjEtMDQtMTRUMDg6MzA6MjguMzEzWlwifSIsImV4cCI6MTYxODQ3NTQ3MS4wNTV9.od39KnOo1QvgnGEmwfv5tqKfXc64XLwnnuTaZmZJxEP5LGKqll12z2eNDR9f1cutMQ0W__raY16qVb-J0bsE1A`
                 }
             })
         } catch (error) {

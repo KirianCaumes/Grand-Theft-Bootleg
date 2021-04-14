@@ -10,7 +10,7 @@ import { ReduxProps } from 'redux/store'
 import onClickOutside from "react-onclickoutside"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBell, faClock } from '@fortawesome/free-regular-svg-icons'
-import { faPlus, faSearch, faBell as faBellSolid, faUser, faSignOutAlt, faTachometerAlt } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faSearch, faBell as faBellSolid, faUser, faSignOutAlt, faTachometerAlt, faCompactDisc } from '@fortawesome/free-solid-svg-icons'
 import classNames from 'classnames'
 import { useRouter } from 'next/router'
 import { ESort } from 'types/searchFilters/sort'
@@ -141,7 +141,8 @@ function Layout({ children, main: { token, me }, notification: { bootlegs }, boo
                                     className="navbar-item"
                                     onClick={() => setIsActive(false)}
                                 >
-                                    What is a bootleg?
+                                    <FontAwesomeIcon icon={faCompactDisc} className="has-text-pink" />
+                                    <span>&nbsp;What is a bootleg?</span>
                                 </a>
                             </Link>
                             <Link href="/bootleg/search">
