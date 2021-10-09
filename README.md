@@ -6,7 +6,7 @@ Music and its hidden sides submerged. What if we emerge them?
 
 For this, the idea is to create a collaborative platform in the form of a web application. Its objective would be that of a directory making it possible to reference different resources containing bootlegs. 
 
-School Project built with #NextJs, #Deno and #MongoDB
+**School Project** built with #NextJs, #Deno, #MongoDB and #Docker
 
 See video presentation:
 
