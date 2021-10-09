@@ -1,10 +1,16 @@
 # Grand Theft Bootleg
 
-> "Un bootleg, parfois traduit disque pirate, est un disque qui peut contenir l'enregistrement d'un concert fait depuis le public par un spectateur […] et cela sans aucune autorisation." -Wikipédia
+> "A bootleg, sometimes translated pirate disc, is a disc which can contain the recording of a concert made since the public by a spectator […] and that without any authorization." -Wikipedia
 
-La musique et ses faces cachées immergées. Et si nous les émergions ?
+Music and its hidden sides submerged. What if we emerge them?
 
-Pour cela, l'idée est de créer une plateforme collaborative sous forme d'une application web. Son objectif serait celui d’un annuaire permettant de référencer différentes ressources contenant des bootlegs.
+For this, the idea is to create a collaborative platform in the form of a web application. Its objective would be that of a directory making it possible to reference different resources containing bootlegs. 
+
+School Project built with #NextJs, #Deno and #MongoDB
+
+See video presentation:
+
+[![Video](https://img.youtube.com/vi/hoqKFBN7nb0/0.jpg)](https://www.youtube.com/watch?v=hoqKFBN7nb0)
 
 ## Run dev
 
